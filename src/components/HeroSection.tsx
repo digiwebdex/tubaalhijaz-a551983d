@@ -18,7 +18,9 @@ type Slide = {
   titleB: { en: string; bn: string };
   desc: { en: string; bn: string };
   ctaLabel: { en: string; bn: string };
-  ctaTarget: string; // section id or route
+  ctaTarget: string;
+  features: { en: string; bn: string }[];
+  stats: { label: { en: string; bn: string }; value: string }[];
 };
 
 const slides: Slide[] = [
@@ -30,11 +32,21 @@ const slides: Slide[] = [
     titleA: { en: "Stay steps from", bn: "হারামের পাশে" },
     titleB: { en: "the Haram", bn: "থাকুন আরামে" },
     desc: {
-      en: "Handpicked hotels in Makkah & Madinah — Haram view rooms, family suites and economy options.",
-      bn: "মক্কা ও মদিনায় বাছাই করা হোটেল — হারাম ভিউ রুম, ফ্যামিলি স্যুট ও ইকোনমি প্যাকেজ।",
+      en: "Handpicked 3★ to 5★ hotels in Makkah & Madinah — Haram-view rooms, family suites and budget-friendly options with daily breakfast and free Wi-Fi.",
+      bn: "মক্কা ও মদিনায় বাছাই করা ৩★ থেকে ৫★ হোটেল — হারাম-ভিউ রুম, ফ্যামিলি স্যুট ও বাজেট প্যাকেজ, প্রতিদিন ব্রেকফাস্ট ও ফ্রি Wi-Fi সহ।",
     },
     ctaLabel: { en: "Book a Hotel", bn: "হোটেল বুক করুন" },
     ctaTarget: "services",
+    features: [
+      { en: "Haram-view & courtyard rooms", bn: "হারাম-ভিউ ও কোর্টইয়ার্ড রুম" },
+      { en: "Free cancellation up to 48h", bn: "৪৮ ঘণ্টা পর্যন্ত ফ্রি ক্যান্সেলেশন" },
+      { en: "Daily breakfast included", bn: "প্রতিদিন ব্রেকফাস্ট অন্তর্ভুক্ত" },
+      { en: "Group & family discounts", bn: "গ্রুপ ও ফ্যামিলি ডিসকাউন্ট" },
+    ],
+    stats: [
+      { label: { en: "From", bn: "শুরু" }, value: "SAR 180/night" },
+      { label: { en: "Cities", bn: "শহর" }, value: "Makkah · Madinah · Jeddah" },
+    ],
   },
   {
     key: "transport",
@@ -44,11 +56,21 @@ const slides: Slide[] = [
     titleA: { en: "Comfort on every", bn: "প্রতিটি যাত্রায়" },
     titleB: { en: "sacred mile", bn: "নিরাপদ আরাম" },
     desc: {
-      en: "Airport transfers, intercity coaches and private vehicles — Jeddah, Makkah, Madinah & Ziyarat.",
-      bn: "এয়ারপোর্ট ট্রান্সফার, ইন্টারসিটি কোচ ও প্রাইভেট ভেহিকল — জেদ্দা, মক্কা, মদিনা ও জিয়ারত।",
+      en: "Airport pickups, intercity coaches and private vehicles between Jeddah, Makkah, Madinah and all Ziyarat sites — driven by licensed, experienced chauffeurs.",
+      bn: "জেদ্দা, মক্কা, মদিনা ও সকল জিয়ারত স্থানের জন্য এয়ারপোর্ট পিকআপ, ইন্টারসিটি কোচ ও প্রাইভেট ভেহিকল — অভিজ্ঞ লাইসেন্সধারী চালক সহ।",
     },
     ctaLabel: { en: "Book Transport", bn: "ট্রান্সপোর্ট বুক করুন" },
     ctaTarget: "services",
+    features: [
+      { en: "Airport meet & greet", bn: "এয়ারপোর্ট মিট অ্যান্ড গ্রিট" },
+      { en: "GMC, Hiace & 30-50 seater coaches", bn: "GMC, হায়েস ও ৩০-৫০ সিটার কোচ" },
+      { en: "Ziyarat tours in Makkah & Madinah", bn: "মক্কা ও মদিনায় জিয়ারত ট্যুর" },
+      { en: "24/7 on-call driver support", bn: "২৪/৭ অন-কল ড্রাইভার সাপোর্ট" },
+    ],
+    stats: [
+      { label: { en: "From", bn: "শুরু" }, value: "SAR 90/trip" },
+      { label: { en: "Fleet", bn: "ফ্লিট" }, value: "Sedan · SUV · Coach" },
+    ],
   },
   {
     key: "catering",
@@ -58,11 +80,21 @@ const slides: Slide[] = [
     titleA: { en: "Authentic meals,", bn: "ঘরের স্বাদে" },
     titleB: { en: "served with love", bn: "হালাল ক্যাটারিং" },
     desc: {
-      en: "Bangladeshi, Indian and Arabic cuisine — daily meal plans delivered fresh to your hotel.",
-      bn: "বাংলাদেশি, ইন্ডিয়ান ও আরবি খাবার — প্রতিদিন তাজা মিল প্ল্যান হোটেলে পৌঁছে যাবে।",
+      en: "100% Halal Bangladeshi, Indian and Arabic cuisine — fresh daily meal plans delivered straight to your hotel room with flexible breakfast, lunch and dinner choices.",
+      bn: "১০০% হালাল বাংলাদেশি, ইন্ডিয়ান ও আরবি খাবার — প্রতিদিন তাজা মিল প্ল্যান সরাসরি আপনার হোটেল রুমে, ফ্লেক্সিবল ব্রেকফাস্ট, লাঞ্চ ও ডিনার অপশন সহ।",
     },
     ctaLabel: { en: "Order Meal Plan", bn: "মিল প্ল্যান অর্ডার" },
     ctaTarget: "services",
+    features: [
+      { en: "Bangladeshi · Indian · Arabic menu", bn: "বাংলাদেশি · ইন্ডিয়ান · আরবি মেনু" },
+      { en: "Fresh-cooked, hotel delivery", bn: "তাজা রান্না, হোটেলে ডেলিভারি" },
+      { en: "Veg & diabetic-friendly options", bn: "ভেজ ও ডায়াবেটিস-ফ্রেন্ডলি অপশন" },
+      { en: "Daily / weekly / full-trip plans", bn: "ডেইলি / উইকলি / ফুল-ট্রিপ প্ল্যান" },
+    ],
+    stats: [
+      { label: { en: "From", bn: "শুরু" }, value: "SAR 25/meal" },
+      { label: { en: "Standard", bn: "স্ট্যান্ডার্ড" }, value: "100% Halal Tayyib" },
+    ],
   },
   {
     key: "visa",
@@ -72,11 +104,21 @@ const slides: Slide[] = [
     titleA: { en: "Fast, hassle-free", bn: "দ্রুত ও ঝামেলাহীন" },
     titleB: { en: "Umrah visas", bn: "উমরাহ ভিসা" },
     desc: {
-      en: "End-to-end Umrah visa processing with insurance, biometrics support and document review.",
-      bn: "শুরু থেকে শেষ পর্যন্ত উমরাহ ভিসা প্রসেসিং — ইন্স্যুরেন্স, বায়োমেট্রিক ও ডকুমেন্ট সাপোর্ট।",
+      en: "End-to-end Umrah visa processing with insurance, biometrics guidance and document review — most approvals in 3 to 7 working days, valid for 30 days stay.",
+      bn: "শুরু থেকে শেষ পর্যন্ত উমরাহ ভিসা প্রসেসিং — ইন্স্যুরেন্স, বায়োমেট্রিক গাইডেন্স ও ডকুমেন্ট রিভিউ; বেশিরভাগ অনুমোদন ৩-৭ কর্মদিবসে, ৩০ দিন স্টে।",
     },
     ctaLabel: { en: "Apply for Visa", bn: "ভিসার জন্য আবেদন" },
     ctaTarget: "services",
+    features: [
+      { en: "Document checklist & review", bn: "ডকুমেন্ট চেকলিস্ট ও রিভিউ" },
+      { en: "Mandatory insurance included", bn: "বাধ্যতামূলক ইন্স্যুরেন্স অন্তর্ভুক্ত" },
+      { en: "Biometric appointment support", bn: "বায়োমেট্রিক অ্যাপয়েন্টমেন্ট সাপোর্ট" },
+      { en: "Real-time WhatsApp updates", bn: "রিয়েল-টাইম WhatsApp আপডেট" },
+    ],
+    stats: [
+      { label: { en: "Processing", bn: "প্রসেসিং" }, value: "3–7 working days" },
+      { label: { en: "Stay", bn: "স্টে" }, value: "Up to 30 days" },
+    ],
   },
 ];
 
