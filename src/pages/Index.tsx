@@ -1,5 +1,6 @@
-import { lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
+import AboutSection from "@/components/AboutSection";
+import ContactSection from "@/components/ContactSection";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
 import UmrahProgramsSection from "@/components/UmrahProgramsSection";
@@ -12,19 +13,6 @@ import BackToTop from "@/components/BackToTop";
 import { useSectionVisibility } from "@/hooks/useSectionVisibility";
 import SEOHead, { organizationJsonLd } from "@/components/SEOHead";
 import { SiteContentProvider } from "@/hooks/useSiteContentProvider";
-
-const lazyRetry = (importFn: () => Promise<any>) =>
-  lazy(() =>
-    importFn().catch(() => {
-      window.location.reload();
-      return importFn();
-    })
-  );
-
-const AboutSection = lazyRetry(() => import("@/components/AboutSection"));
-const ContactSection = lazyRetry(() => import("@/components/ContactSection"));
-
-const SectionFallback = () => <div className="py-20" />;
 
 const Index = () => {
   const { visibility, loading } = useSectionVisibility();
@@ -46,16 +34,8 @@ const Index = () => {
         {show("why-us") && <WhyChooseUsSection />}
         {show("transport") && <TransportSection />}
         {show("catering") && <CateringSection />}
-        {show("about") && (
-          <Suspense fallback={<SectionFallback />}>
-            <AboutSection />
-          </Suspense>
-        )}
-        {show("contact") && (
-          <Suspense fallback={<SectionFallback />}>
-            <ContactSection />
-          </Suspense>
-        )}
+        {show("about") && <AboutSection />}
+        {show("contact") && <ContactSection />}
         <Footer />
         <WhatsAppFloat />
         <BackToTop />
