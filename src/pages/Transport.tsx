@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Bus, Car, MapPin, Users, Shield, Clock, CheckCircle2, Phone, ArrowLeft } from "lucide-react";
+import { Bus, Car, MapPin, Users, Shield, Clock, CheckCircle2, Phone, ArrowLeft, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -157,19 +157,129 @@ export default function TransportPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-secondary/40">
-        <div className="container mx-auto px-4 text-center">
-          <h3 className="font-heading text-2xl md:text-3xl font-bold mb-3">
-            {isBn ? "কাস্টম রুট দরকার?" : "Need a custom route?"}
-          </h3>
-          <p className="text-muted-foreground max-w-xl mx-auto mb-6">
-            {isBn ? "আমাদের সাথে যোগাযোগ করুন — আমরা কোটেশন তৈরি করে দেব।" : "Contact us and we'll prepare a tailored quotation for your group."}
+      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-charcoal via-charcoal/95 to-charcoal/90">
+        {/* Animated gradient mesh */}
+        <motion.div
+          className="absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full bg-primary/30 blur-3xl"
+          animate={{ x: [0, 60, 0], y: [0, 40, 0], scale: [1, 1.15, 1] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute -bottom-32 -right-32 w-[520px] h-[520px] rounded-full bg-accent/30 blur-3xl"
+          animate={{ x: [0, -60, 0], y: [0, -40, 0], scale: [1, 1.2, 1] }}
+          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        {/* Floating sparkles */}
+        {Array.from({ length: 12 }).map((_, i) => (
+          <motion.span
+            key={i}
+            className="absolute w-1.5 h-1.5 rounded-full bg-primary-glow/70"
+            style={{ left: `${(i * 83) % 100}%`, top: `${(i * 47) % 100}%` }}
+            animate={{ y: [0, -20, 0], opacity: [0.2, 1, 0.2], scale: [0.8, 1.4, 0.8] }}
+            transition={{ duration: 3 + (i % 4), repeat: Infinity, delay: i * 0.3, ease: "easeInOut" }}
+          />
+        ))}
+
+        {/* Animated road with moving car */}
+        <div className="absolute inset-x-0 bottom-0 h-20 pointer-events-none">
+          <div className="absolute bottom-6 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+          <div className="absolute bottom-6 left-0 right-0 h-px overflow-hidden">
+            <motion.div
+              className="h-full w-32 bg-gradient-to-r from-transparent via-primary-glow to-transparent"
+              animate={{ x: ["-10%", "110%"] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            />
+          </div>
+          <motion.div
+            className="absolute bottom-7 text-primary-glow"
+            animate={{ x: ["-8%", "108%"] }}
+            transition={{ duration: 9, repeat: Infinity, ease: "linear" }}
+          >
+            <Car className="h-7 w-7 drop-shadow-[0_0_12px_hsl(var(--primary)/0.8)]" />
+          </motion.div>
+        </div>
+
+        <div className="container mx-auto px-4 text-center relative z-10">
+          {/* Pulsing star icon */}
+          <motion.div
+            className="inline-flex items-center justify-center mb-5"
+            animate={{ rotate: [0, 360] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          >
+            <div className="relative">
+              <motion.div
+                className="absolute inset-0 rounded-full bg-primary/40 blur-xl"
+                animate={{ scale: [1, 1.6, 1], opacity: [0.5, 0.9, 0.5] }}
+                transition={{ duration: 2.5, repeat: Infinity }}
+              />
+              <Sparkles className="h-8 w-8 text-primary-glow relative" />
+            </div>
+          </motion.div>
+
+          <motion.h3
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="font-heading text-3xl md:text-5xl font-bold mb-3 text-white"
+          >
+            {isBn ? "চলুন আপনার পবিত্র যাত্রা পরিকল্পনা করি" : "Let's plan your "}
+            <span className="text-gradient-sunset italic">{isBn ? "" : "blessed journey"}</span>
+          </motion.h3>
+          <p className="text-white/80 max-w-xl mx-auto mb-8">
+            {isBn ? "আমাদের মক্কা-ভিত্তিক টিমের সাথে সরাসরি কথা বলুন — যেকোনো সময়।" : "Speak directly with our Makkah-based team — anytime."}
           </p>
-          <a href="tel:+966534919814" className="inline-flex items-center gap-2 bg-gradient-sunset text-white font-semibold px-7 py-3.5 rounded-full shadow-gold">
-            <Phone className="h-4 w-4" /> +966 53 491 9814
-          </a>
+
+          {/* Phone CTA with ripple */}
+          <div className="relative inline-flex">
+            <motion.span
+              className="absolute inset-0 rounded-full border-2 border-primary-glow"
+              animate={{ scale: [1, 1.6], opacity: [0.7, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+            />
+            <motion.span
+              className="absolute inset-0 rounded-full border-2 border-primary-glow"
+              animate={{ scale: [1, 1.6], opacity: [0.7, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeOut", delay: 1 }}
+            />
+            <a
+              href="tel:+966534919814"
+              className="relative inline-flex items-center gap-3 bg-white text-charcoal font-bold px-8 py-4 rounded-full shadow-luxury hover:scale-105 transition-transform"
+            >
+              <motion.span
+                animate={{ rotate: [0, -15, 15, -15, 0] }}
+                transition={{ duration: 1.2, repeat: Infinity, repeatDelay: 1.5 }}
+                className="inline-flex"
+              >
+                <Phone className="h-5 w-5 text-primary" />
+              </motion.span>
+              +966 53 491 9814
+            </a>
+          </div>
+
+          {/* Trust badges */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            {[
+              { en: "24/7 Support", bn: "২৪/৭ সাপোর্ট" },
+              { en: "Instant Confirmation", bn: "তাৎক্ষণিক নিশ্চিতকরণ" },
+              { en: "Best Price Guarantee", bn: "বেস্ট প্রাইস গ্যারান্টি" },
+            ].map((b, i) => (
+              <motion.div
+                key={b.en}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 + i * 0.1 }}
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md px-3 py-1.5 text-xs text-white/90"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5 text-primary-glow" />
+                {isBn ? b.bn : b.en}
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
+
 
       <Footer />
       <WhatsAppFloat />
