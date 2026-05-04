@@ -63,6 +63,8 @@ const AdminBulkImportPage = lazy(() => import("./pages/admin/AdminBulkImportPage
 const AdminAuditLogsPage = lazy(() => import("./pages/admin/AdminAuditLogsPage"));
 const AdminSecurityPage = lazy(() => import("./pages/admin/AdminSecurityPage"));
 const AdminGuidePage = lazy(() => import("./pages/admin/AdminGuidePage"));
+const AdminTransportPage = lazy(() => import("./pages/admin/AdminTransportPage"));
+const AdminCateringPage = lazy(() => import("./pages/admin/AdminCateringPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -145,6 +147,8 @@ const App = () => (
               <Route path="security" element={<AdminSecurityPage />} />
               <Route path="guide" element={<AdminGuidePage />} />
               <Route path="settings" element={<AdminSettingsPage />} />
+              <Route path="transport" element={<AdminTransportPage />} />
+              <Route path="catering" element={<AdminCateringPage />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
