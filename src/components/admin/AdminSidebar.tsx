@@ -2,9 +2,9 @@ import {
   LayoutDashboard, FileText, Users, Package, CreditCard,
   Calculator, BarChart3, Pencil, Settings, LogOut, UserCheck, Truck,
   Hotel, Bell, AlertTriangle, BookOpen, DollarSign, RotateCcw, PieChart,
-  Plane, FileCheck, Map, Search, Upload, Shield, ShieldCheck,
+  Plane, FileCheck, Map, Search, Upload, Shield, ShieldCheck, Bus, UtensilsCrossed,
 } from "lucide-react";
-import logo from "@/assets/triptastic-logo.png";
+import logo from "@/assets/tuba-logo.png";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -28,6 +28,8 @@ const mainMenuItems = [
   { title: "Ticket Refunds",  url: "/admin/ticket-refunds", icon: RotateCcw,       roles: ["admin", "accountant", "viewer"] },
   { title: "Tours",           url: "/admin/packages?type=tour",      icon: Map,     roles: ["admin", "viewer"] },
   { title: "Hotels",          url: "/admin/hotels",         icon: Hotel,           roles: ["admin", "viewer"] },
+  { title: "Transport",       url: "/admin/transport",      icon: Bus,             roles: ["admin", "accountant", "booking", "viewer"] },
+  { title: "Catering",        url: "/admin/catering",       icon: UtensilsCrossed, roles: ["admin", "accountant", "booking", "viewer"] },
 ];
 
 const financeMenuItems = [
@@ -103,7 +105,7 @@ export function AdminSidebar({ role }: { role: AppRole }) {
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
           <div className="bg-white rounded-md p-1 shadow-sm border border-border">
-            <img src={logo} alt="Trip Tastic Logo" className="h-9 w-9 object-contain" />
+            <img src={logo} alt="TUBA ALHIJAZ Logo" className="h-9 w-9 object-contain" />
           </div>
           <span className="font-heading text-base font-bold text-primary">Admin</span>
         </div>
