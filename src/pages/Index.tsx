@@ -14,19 +14,6 @@ import { useSectionVisibility } from "@/hooks/useSectionVisibility";
 import SEOHead, { organizationJsonLd } from "@/components/SEOHead";
 import { SiteContentProvider } from "@/hooks/useSiteContentProvider";
 
-const lazyRetry = (importFn: () => Promise<any>) =>
-  lazy(() =>
-    importFn().catch(() => {
-      window.location.reload();
-      return importFn();
-    })
-  );
-
-const AboutSection = lazyRetry(() => import("@/components/AboutSection"));
-const ContactSection = lazyRetry(() => import("@/components/ContactSection"));
-
-const SectionFallback = () => <div className="py-20" />;
-
 const Index = () => {
   const { visibility, loading } = useSectionVisibility();
   const show = (key: string) => loading || visibility[key] !== false;
