@@ -254,7 +254,7 @@ const HeroSection = () => {
           </AnimatePresence>
 
           {/* Service tab pills */}
-          <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl">
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 max-w-5xl">
             {slides.map((s, i) => {
               const Icon = s.Icon;
               const active = i === index;
@@ -268,7 +268,7 @@ const HeroSection = () => {
                       : "border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/40"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 mb-2">
                     <div
                       className={`flex h-10 w-10 items-center justify-center rounded-xl ${
                         active ? "bg-gradient-sunset text-white" : "bg-white/10 text-primary-glow"
@@ -285,12 +285,19 @@ const HeroSection = () => {
                       </div>
                     </div>
                   </div>
+                  <p className="text-white/70 text-xs leading-snug line-clamp-2">
+                    {isBn ? s.features[0].bn : s.features[0].en} · {isBn ? s.features[1].bn : s.features[1].en}
+                  </p>
+                  <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-primary-glow">
+                    {s.stats[0].value}
+                    <ArrowRight className="h-3 w-3" />
+                  </div>
                   {active && (
                     <motion.div
                       layoutId="hero-active-bar"
                       className="absolute bottom-0 left-0 h-1 bg-gradient-sunset"
                       initial={{ width: "0%" }}
-                      animate={{ width: paused ? "100%" : "100%" }}
+                      animate={{ width: "100%" }}
                       transition={{ duration: paused ? 0 : 6, ease: "linear" }}
                       key={slide.key + "-bar"}
                     />
@@ -299,8 +306,6 @@ const HeroSection = () => {
               );
             })}
           </div>
-        </div>
-      </div>
 
       {/* Arrows */}
       <button
