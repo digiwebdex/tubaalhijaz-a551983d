@@ -203,9 +203,36 @@ const HeroSection = () => {
                 </span>
               </h1>
 
-              <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed mb-10">
+              <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed mb-6">
                 {isBn ? slide.desc.bn : slide.desc.en}
               </p>
+
+              {/* Feature checklist */}
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 max-w-2xl mb-6">
+                {slide.features.map((f) => (
+                  <li key={f.en} className="flex items-start gap-2 text-white/90 text-sm sm:text-[15px]">
+                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/25 text-primary-glow">
+                      <Check className="h-3 w-3" />
+                    </span>
+                    <span>{isBn ? f.bn : f.en}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Quick stats */}
+              <div className="flex flex-wrap gap-2 mb-8">
+                {slide.stats.map((st) => (
+                  <div
+                    key={st.value}
+                    className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-3 py-1.5 text-xs sm:text-sm"
+                  >
+                    <span className="text-white/60 uppercase tracking-wider text-[10px] sm:text-[11px]">
+                      {isBn ? st.label.bn : st.label.en}
+                    </span>
+                    <span className="text-white font-semibold tabular-nums">{st.value}</span>
+                  </div>
+                ))}
+              </div>
 
               <div className="flex flex-wrap items-center gap-4">
                 <button
