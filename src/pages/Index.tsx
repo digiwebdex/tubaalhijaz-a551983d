@@ -1,5 +1,6 @@
-import { lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
+import AboutSection from "@/components/AboutSection";
+import ContactSection from "@/components/ContactSection";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
 import UmrahProgramsSection from "@/components/UmrahProgramsSection";
@@ -46,16 +47,8 @@ const Index = () => {
         {show("why-us") && <WhyChooseUsSection />}
         {show("transport") && <TransportSection />}
         {show("catering") && <CateringSection />}
-        {show("about") && (
-          <Suspense fallback={<SectionFallback />}>
-            <AboutSection />
-          </Suspense>
-        )}
-        {show("contact") && (
-          <Suspense fallback={<SectionFallback />}>
-            <ContactSection />
-          </Suspense>
-        )}
+        {show("about") && <AboutSection />}
+        {show("contact") && <ContactSection />}
         <Footer />
         <WhatsAppFloat />
         <BackToTop />
