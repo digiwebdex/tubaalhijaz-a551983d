@@ -14,6 +14,7 @@ import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { generateInvoice, generateReceipt, CompanyInfo, InvoicePayment } from "@/lib/invoiceGenerator";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { PayOnlineButton } from "@/components/PayOnlineButton";
+import DriverInfoCard from "@/components/DriverInfoCard";
 
 interface Booking {
   id: string;
