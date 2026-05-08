@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/lib/api";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, Bus, ArrowRight } from "lucide-react";
@@ -39,6 +40,12 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
     pickup_address: "",
     dropoff_address: "",
     notes: "",
+    route_type: "",
+    flight_number: "",
+    arrival_airport: "",
+    hotel_destination: "",
+    makkah_hotel_name: "",
+    madinah_hotel_name: "",
   });
 
   const total = useMemo(() => Number(service?.price_sar || 0), [service]);
@@ -49,6 +56,8 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
       pickup_date: "", pickup_time: "", passengers: 1,
       guest_name: "", guest_phone: "", guest_email: "",
       pickup_address: "", dropoff_address: "", notes: "",
+      route_type: "", flight_number: "", arrival_airport: "",
+      hotel_destination: "", makkah_hotel_name: "", madinah_hotel_name: "",
     });
   };
 
@@ -75,6 +84,12 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
         pickup_address: form.pickup_address,
         dropoff_address: form.dropoff_address,
         notes: form.notes,
+        route_type: form.route_type || null,
+        flight_number: form.flight_number || null,
+        arrival_airport: form.arrival_airport || null,
+        hotel_destination: form.hotel_destination || null,
+        makkah_hotel_name: form.makkah_hotel_name || null,
+        madinah_hotel_name: form.madinah_hotel_name || null,
         total_price: total,
         currency: "SAR",
         user_id: auth.user?.id || null,
@@ -126,6 +141,60 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
             <div>
               <Label>{isBn ? "যাত্রী সংখ্যা" : "Passengers"}</Label>
               <Input type="number" min={1} max={50} value={form.passengers} onChange={(e) => setForm({ ...form, passengers: Number(e.target.value) })} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>{isBn ? "রুট টাইপ" : "Route Type"}</Label>
+                <Select value={form.route_type} onValueChange={(v) => setForm({ ...form, route_type: v })}>
+                  <SelectTrigger><SelectValue placeholder={isBn ? "নির্বাচন করুন" : "Select"} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="full">{isBn ? "ফুল রুট" : "Full Route"}</SelectItem>
+                    <SelectItem value="single">{isBn ? "সিঙ্গেল রুট" : "Single Route"}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>{isBn ? "ফ্লাইট নাম্বার" : "Flight Number"}</Label>
+                <Input value={form.flight_number} onChange={(e) => setForm({ ...form, flight_number: e.target.value })} placeholder="e.g. SV805" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>{isBn ? "এয়ারপোর্ট" : "Arrival Airport"}</Label>
+                <Select value={form.arrival_airport} onValueChange={(v) => setForm({ ...form, arrival_airport: v })}>
+                  <SelectTrigger><SelectValue placeholder={isBn ? "নির্বাচন করুন" : "Select"} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="JED">Jeddah (JED)</SelectItem>
+                    <SelectItem value="MED">Madinah (MED)</SelectItem>
+                    <SelectItem value="RUH">Riyadh (RUH)</SelectItem>
+                    <SelectItem value="DMM">Dammam (DMM)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>{isBn ? "হোটেল গন্তব্য" : "Hotel Destination"}</Label>
+                <Select value={form.hotel_destination} onValueChange={(v) => setForm({ ...form, hotel_destination: v })}>
+                  <SelectTrigger><SelectValue placeholder={isBn ? "নির্বাচন করুন" : "Select"} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="makkah">Makkah</SelectItem>
+                    <SelectItem value="madinah">Madinah</SelectItem>
+                    <SelectItem value="jeddah">Jeddah</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>{isBn ? "মক্কা হোটেল" : "Makkah Hotel Name"}</Label>
+                <Input value={form.makkah_hotel_name} onChange={(e) => setForm({ ...form, makkah_hotel_name: e.target.value })} />
+              </div>
+              <div>
+                <Label>{isBn ? "মদিনা হোটেল" : "Madinah Hotel Name"}</Label>
+                <Input value={form.madinah_hotel_name} onChange={(e) => setForm({ ...form, madinah_hotel_name: e.target.value })} />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
