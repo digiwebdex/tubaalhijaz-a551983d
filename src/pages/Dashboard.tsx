@@ -27,6 +27,12 @@ interface Booking {
   created_at: string;
   packages: { name: string; type: string } | null;
   installment_plan_id: string | null;
+  driver_name?: string | null;
+  driver_phone?: string | null;
+  vehicle_number?: string | null;
+  pickup_location?: string | null;
+  pickup_time?: string | null;
+  driver_notes?: string | null;
 }
 
 interface Payment {
