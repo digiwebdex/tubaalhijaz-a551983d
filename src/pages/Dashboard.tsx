@@ -14,6 +14,7 @@ import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { generateInvoice, generateReceipt, CompanyInfo, InvoicePayment } from "@/lib/invoiceGenerator";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { PayOnlineButton } from "@/components/PayOnlineButton";
+import DriverInfoCard from "@/components/DriverInfoCard";
 
 interface Booking {
   id: string;
@@ -26,6 +27,12 @@ interface Booking {
   created_at: string;
   packages: { name: string; type: string } | null;
   installment_plan_id: string | null;
+  driver_name?: string | null;
+  driver_phone?: string | null;
+  vehicle_number?: string | null;
+  pickup_location?: string | null;
+  pickup_time?: string | null;
+  driver_notes?: string | null;
 }
 
 interface Payment {
@@ -596,6 +603,15 @@ const Dashboard = () => {
                         />
                       </div>
                     )}
+
+                    <DriverInfoCard
+                      driver_name={b.driver_name}
+                      driver_phone={b.driver_phone}
+                      vehicle_number={b.vehicle_number}
+                      pickup_location={b.pickup_location}
+                      pickup_time={b.pickup_time}
+                      driver_notes={b.driver_notes}
+                    />
 
                     {/* Download Invoice */}
                     <button

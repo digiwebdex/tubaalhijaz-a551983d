@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import AdminActionMenu, { ActionItem } from "@/components/admin/AdminActionMenu";
+import DriverInfoEditor from "@/components/admin/DriverInfoEditor";
 import { handlePhoneChange } from "@/lib/phoneValidation";
 import CustomerSearchSelect from "@/components/admin/CustomerSearchSelect";
 import { format } from "date-fns";
@@ -1182,6 +1183,18 @@ export default function AdminBookingsPage() {
                 <div><span className="text-muted-foreground text-xs block">Notes</span><p className="text-sm">{viewBooking.notes}</p></div>
               )}
               <BookingDetail bookingId={viewBooking.id} />
+              <DriverInfoEditor
+                bookingId={viewBooking.id}
+                initial={{
+                  driver_name: viewBooking.driver_name,
+                  driver_phone: viewBooking.driver_phone,
+                  vehicle_number: viewBooking.vehicle_number,
+                  pickup_location: viewBooking.pickup_location,
+                  pickup_time: viewBooking.pickup_time,
+                  driver_notes: viewBooking.driver_notes,
+                }}
+                onSaved={fetchBookings}
+              />
             </div>
           )}
         </DialogContent>

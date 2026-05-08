@@ -322,6 +322,9 @@ export type Database = {
           cost_price_per_person: number | null
           created_at: string
           discount: number
+          driver_name: string | null
+          driver_notes: string | null
+          driver_phone: string | null
           due_amount: number | null
           extra_expense: number | null
           guest_address: string | null
@@ -339,6 +342,8 @@ export type Database = {
           paid_amount: number
           paid_by_moallem: number
           paid_to_supplier: number
+          pickup_location: string | null
+          pickup_time: string | null
           profit_amount: number | null
           selling_price_per_person: number | null
           status: string
@@ -350,6 +355,7 @@ export type Database = {
           tracking_id: string
           updated_at: string
           user_id: string | null
+          vehicle_number: string | null
         }
         Insert: {
           booking_type?: string
@@ -359,6 +365,9 @@ export type Database = {
           cost_price_per_person?: number | null
           created_at?: string
           discount?: number
+          driver_name?: string | null
+          driver_notes?: string | null
+          driver_phone?: string | null
           due_amount?: number | null
           extra_expense?: number | null
           guest_address?: string | null
@@ -376,6 +385,8 @@ export type Database = {
           paid_amount?: number
           paid_by_moallem?: number
           paid_to_supplier?: number
+          pickup_location?: string | null
+          pickup_time?: string | null
           profit_amount?: number | null
           selling_price_per_person?: number | null
           status?: string
@@ -387,6 +398,7 @@ export type Database = {
           tracking_id?: string
           updated_at?: string
           user_id?: string | null
+          vehicle_number?: string | null
         }
         Update: {
           booking_type?: string
@@ -396,6 +408,9 @@ export type Database = {
           cost_price_per_person?: number | null
           created_at?: string
           discount?: number
+          driver_name?: string | null
+          driver_notes?: string | null
+          driver_phone?: string | null
           due_amount?: number | null
           extra_expense?: number | null
           guest_address?: string | null
@@ -413,6 +428,8 @@ export type Database = {
           paid_amount?: number
           paid_by_moallem?: number
           paid_to_supplier?: number
+          pickup_location?: string | null
+          pickup_time?: string | null
           profit_amount?: number | null
           selling_price_per_person?: number | null
           status?: string
@@ -424,6 +441,7 @@ export type Database = {
           tracking_id?: string
           updated_at?: string
           user_id?: string | null
+          vehicle_number?: string | null
         }
         Relationships: [
           {
