@@ -2425,13 +2425,18 @@ export type Database = {
       }
       transport_orders: {
         Row: {
+          arrival_airport: string | null
           created_at: string
           currency: string
           dropoff_address: string | null
+          flight_number: string | null
           guest_email: string | null
           guest_name: string
           guest_phone: string
+          hotel_destination: string | null
           id: string
+          madinah_hotel_name: string | null
+          makkah_hotel_name: string | null
           notes: string | null
           passengers: number
           pickup_address: string | null
@@ -2439,6 +2444,7 @@ export type Database = {
           pickup_time: string | null
           route_from: string | null
           route_to: string | null
+          route_type: string | null
           service_id: string | null
           status: string
           total_price: number
@@ -2448,13 +2454,18 @@ export type Database = {
           vehicle_type: string
         }
         Insert: {
+          arrival_airport?: string | null
           created_at?: string
           currency?: string
           dropoff_address?: string | null
+          flight_number?: string | null
           guest_email?: string | null
           guest_name: string
           guest_phone: string
+          hotel_destination?: string | null
           id?: string
+          madinah_hotel_name?: string | null
+          makkah_hotel_name?: string | null
           notes?: string | null
           passengers?: number
           pickup_address?: string | null
@@ -2462,6 +2473,7 @@ export type Database = {
           pickup_time?: string | null
           route_from?: string | null
           route_to?: string | null
+          route_type?: string | null
           service_id?: string | null
           status?: string
           total_price?: number
@@ -2471,13 +2483,18 @@ export type Database = {
           vehicle_type: string
         }
         Update: {
+          arrival_airport?: string | null
           created_at?: string
           currency?: string
           dropoff_address?: string | null
+          flight_number?: string | null
           guest_email?: string | null
           guest_name?: string
           guest_phone?: string
+          hotel_destination?: string | null
           id?: string
+          madinah_hotel_name?: string | null
+          makkah_hotel_name?: string | null
           notes?: string | null
           passengers?: number
           pickup_address?: string | null
@@ -2485,6 +2502,7 @@ export type Database = {
           pickup_time?: string | null
           route_from?: string | null
           route_to?: string | null
+          route_type?: string | null
           service_id?: string | null
           status?: string
           total_price?: number
