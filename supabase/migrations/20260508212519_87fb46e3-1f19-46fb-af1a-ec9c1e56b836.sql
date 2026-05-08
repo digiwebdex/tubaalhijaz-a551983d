@@ -1,0 +1,7 @@
+ALTER TABLE public.bookings
+  ADD COLUMN IF NOT EXISTS driver_name TEXT,
+  ADD COLUMN IF NOT EXISTS driver_phone TEXT,
+  ADD COLUMN IF NOT EXISTS vehicle_number TEXT,
+  ADD COLUMN IF NOT EXISTS pickup_location TEXT,
+  ADD COLUMN IF NOT EXISTS pickup_time TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS driver_notes TEXT;
