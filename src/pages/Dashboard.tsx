@@ -598,6 +598,15 @@ const Dashboard = () => {
                       </div>
                     )}
 
+                    <DriverInfoCard
+                      driver_name={b.driver_name}
+                      driver_phone={b.driver_phone}
+                      vehicle_number={b.vehicle_number}
+                      pickup_location={b.pickup_location}
+                      pickup_time={b.pickup_time}
+                      driver_notes={b.driver_notes}
+                    />
+
                     {/* Download Invoice */}
                     <button
                       onClick={() => handleDownloadInvoice(b)}
