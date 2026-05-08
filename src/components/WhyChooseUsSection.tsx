@@ -9,12 +9,12 @@ const COPY = {
     headingHighlight: "across the world",
     sub: "Six promises that define every TUBA ALHIJAZ journey.",
     items: [
-      { icon: ShieldCheck, title: "Licensed Operator", desc: "Registered Saudi Umrah service provider, fully compliant with the Ministry of Hajj & Umrah." },
-      { icon: MapPin,      title: "Makkah-Based Office", desc: "On-the-ground team in the Holy City — instant assistance, no middlemen." },
-      { icon: Headphones,  title: "24/7 Multilingual Support", desc: "English, Bangla and Arabic support every hour of your trip." },
-      { icon: Hotel,       title: "Direct Hotel Contracts", desc: "Long-term contracts with 2★ to 5★ hotels in Makkah, Madinah and Jeddah." },
-      { icon: BadgeDollarSign, title: "Transparent Pricing", desc: "All-inclusive quotes — no hidden surcharges, no surprise add-ons." },
-      { icon: Globe2,      title: "Global Agent Network", desc: "Partnerships with travel agents in Bangladesh, Malaysia, Indonesia and beyond." },
+      { icon: ShieldCheck, title: "Saudi Investor Company", desc: "A trusted, Saudi government-approved service provider." },
+      { icon: MapPin,      title: "International Office Network", desc: "Offices in Makkah, India, Bangladesh, Indonesia and Pakistan." },
+      { icon: Headphones,  title: "24/7 Multilingual Support", desc: "English, Bangla and Arabic — assistance anytime." },
+      { icon: Hotel,       title: "Own Hotel Facilities", desc: "Quality hotel facilities in Makkah, Madinah and Jeddah." },
+      { icon: BadgeDollarSign, title: "Transparent Pricing", desc: "Clear all-inclusive pricing — no hidden charges." },
+      { icon: Globe2,      title: "Global Agent Network", desc: "Agent network across Bangladesh, India, Pakistan, Indonesia, Morocco and more." },
     ],
   },
   bn: {
@@ -23,14 +23,13 @@ const COPY = {
     headingHighlight: "বিশ্বজুড়ে",
     sub: "ছয়টি প্রতিশ্রুতি — প্রতিটি যাত্রায় নিশ্চিত।",
     items: [
-      { icon: ShieldCheck, title: "লাইসেন্সপ্রাপ্ত", desc: "মন্ত্রণালয় অনুমোদিত সৌদি উমরাহ সেবা প্রদানকারী।" },
-      { icon: MapPin,      title: "মক্কাভিত্তিক অফিস", desc: "পবিত্র নগরীতে আমাদের নিজস্ব টিম — দ্রুত সহায়তা।" },
-      { icon: Headphones,  title: "২৪/৭ মাল্টিলিঙ্গুয়াল সাপোর্ট", desc: "ইংরেজি, বাংলা ও আরবি — সবসময়।" },
-      { icon: Hotel,       title: "সরাসরি হোটেল চুক্তি", desc: "মক্কা, মদিনা ও জেদ্দার ২★ থেকে ৫★ হোটেল।" },
-      { icon: BadgeDollarSign, title: "স্বচ্ছ মূল্য", desc: "সব কিছু সহ মূল্য — কোনো গোপন চার্জ নেই।" },
-      { icon: Globe2,      title: "গ্লোবাল এজেন্ট নেটওয়ার্ক", desc: "বাংলাদেশ, মালয়েশিয়া, ইন্দোনেশিয়াসহ বিশ্বজুড়ে।" },
+      { icon: ShieldCheck, title: "সৌদি ইনভেস্টর কোম্পানি", desc: "সৌদি সরকার অনুমোদিত বিশ্বস্ত সেবা প্রদানকারী প্রতিষ্ঠান।" },
+      { icon: MapPin,      title: "আন্তর্জাতিক অফিস নেটওয়ার্ক", desc: "মক্কা, ভারত, বাংলাদেশ, ইন্দোনেশিয়া ও পাকিস্তানে আমাদের অফিস রয়েছে।" },
+      { icon: Headphones,  title: "২৪/৭ মাল্টিল্যাঙ্গুয়েজ সাপোর্ট", desc: "ইংরেজি, বাংলা ও আরবি — সবসময় সহায়তা।" },
+      { icon: Hotel,       title: "নিজস্ব হোটেল সুবিধা", desc: "মক্কা, মদিনা ও জেদ্দার মানসম্মত হোটেল সুবিধা।" },
+      { icon: BadgeDollarSign, title: "স্বচ্ছ মূল্য", desc: "সব কিছু স্পষ্ট মূল্য — কোনো গোপন চার্জ নেই।" },
+      { icon: Globe2,      title: "গ্লোবাল এজেন্ট নেটওয়ার্ক", desc: "বাংলাদেশ, ভারত, পাকিস্তান, ইন্দোনেশিয়া, মরক্কোসহ বিশ্বের বিভিন্ন দেশে আমাদের এজেন্ট নেটওয়ার্ক রয়েছে।" },
     ],
-  },
 };
 
 const WhyChooseUsSection = () => {
