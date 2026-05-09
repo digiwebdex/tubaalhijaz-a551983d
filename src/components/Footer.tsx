@@ -1,7 +1,8 @@
-import { Phone, Mail, MapPin, Facebook, Instagram, Sparkles } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, Instagram } from "lucide-react";
 import logo from "@/assets/tuba-logo.png";
 import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 import { useLanguage } from "@/i18n/LanguageContext";
+import LiveTransportSection from "@/components/LiveTransportSection";
 
 const Footer = () => {
   const { data: content } = useBulkSiteContent("footer");
