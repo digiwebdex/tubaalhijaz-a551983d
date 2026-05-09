@@ -7,10 +7,11 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/api";
 
 const fallback = [
-  { vehicle_type: "Sedan (1–3 pax)", route_from: "Jeddah Airport", route_to: "Makkah Hotel", price_sar: 250 },
-  { vehicle_type: "SUV (1–5 pax)", route_from: "Jeddah Airport", route_to: "Makkah Hotel", price_sar: 380 },
-  { vehicle_type: "Hiace (1–11 pax)", route_from: "Makkah", route_to: "Madinah", price_sar: 850 },
+  { vehicle_type: "Bus (1–50 pax)", route_from: "Jeddah Airport", route_to: "Makkah Hotel", price_sar: 1800 },
   { vehicle_type: "Coaster (1–25 pax)", route_from: "Ziyarah Tour", route_to: "Makkah", price_sar: 1200 },
+  { vehicle_type: "Hiace (1–11 pax)", route_from: "Makkah", route_to: "Madinah", price_sar: 850 },
+  { vehicle_type: "SUV (1–5 pax)", route_from: "Jeddah Airport", route_to: "Makkah Hotel", price_sar: 380 },
+  { vehicle_type: "Sedan (1–3 pax)", route_from: "Jeddah Airport", route_to: "Makkah Hotel", price_sar: 250 },
 ];
 
 const TransportSection = () => {

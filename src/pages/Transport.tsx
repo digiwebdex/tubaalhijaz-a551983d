@@ -17,12 +17,12 @@ import ReviewsSection from "@/components/ReviewsSection";
 import transportImg from "@/assets/tuba-transport.jpg";
 
 const fallback: TransportService[] = [
-  { vehicle_type: "Sedan (1–3 pax)", route_from: "Jeddah Airport", route_to: "Makkah Hotel", price_sar: 250, capacity: 3 },
-  { vehicle_type: "SUV / GMC (1–5 pax)", route_from: "Jeddah Airport", route_to: "Makkah Hotel", price_sar: 380, capacity: 5 },
-  { vehicle_type: "Hiace (1–11 pax)", route_from: "Makkah", route_to: "Madinah", price_sar: 850, capacity: 11 },
-  { vehicle_type: "Coaster (1–25 pax)", route_from: "Ziyarah Tour", route_to: "Makkah", price_sar: 1200, capacity: 25 },
-  { vehicle_type: "Bus 30-Seater", route_from: "Madinah", route_to: "Makkah", price_sar: 1800, capacity: 30 },
   { vehicle_type: "Bus 50-Seater", route_from: "Madinah", route_to: "Makkah", price_sar: 2500, capacity: 50 },
+  { vehicle_type: "Bus 30-Seater", route_from: "Madinah", route_to: "Makkah", price_sar: 1800, capacity: 30 },
+  { vehicle_type: "Coaster (1–25 pax)", route_from: "Ziyarah Tour", route_to: "Makkah", price_sar: 1200, capacity: 25 },
+  { vehicle_type: "Hiace (1–11 pax)", route_from: "Makkah", route_to: "Madinah", price_sar: 850, capacity: 11 },
+  { vehicle_type: "SUV / GMC (1–5 pax)", route_from: "Jeddah Airport", route_to: "Makkah Hotel", price_sar: 380, capacity: 5 },
+  { vehicle_type: "Sedan (1–3 pax)", route_from: "Jeddah Airport", route_to: "Makkah Hotel", price_sar: 250, capacity: 3 },
 ];
 
 const features = [
