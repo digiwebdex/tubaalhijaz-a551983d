@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import AdminActionMenu, { ActionItem } from "@/components/admin/AdminActionMenu";
 import DriverInfoEditor from "@/components/admin/DriverInfoEditor";
+import TripCompletionMessage from "@/components/admin/TripCompletionMessage";
 import { handlePhoneChange } from "@/lib/phoneValidation";
 import CustomerSearchSelect from "@/components/admin/CustomerSearchSelect";
 import { format } from "date-fns";
