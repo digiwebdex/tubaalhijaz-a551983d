@@ -247,6 +247,16 @@ export default function GallerySection() {
             >
               {filtered[activeIndex].type === "image" ? (
                 <img src={filtered[activeIndex].src} alt={`Gallery ${activeIndex + 1}`} className="w-full h-full object-contain max-h-[85vh]" />
+              ) : filtered[activeIndex].type === "youtube" ? (
+                <div className="relative w-full aspect-video bg-black">
+                  <iframe
+                    src={getYouTubeEmbedUrl(filtered[activeIndex].src) || ""}
+                    title={filtered[activeIndex].title || "YouTube video"}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full"
+                  />
+                </div>
               ) : (
                 <video src={filtered[activeIndex].src} controls autoPlay playsInline className="w-full max-h-[85vh]" />
               )}
