@@ -1,6 +1,8 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { Bus, Car, MapPin } from "lucide-react";
+import { Bus, Car, MapPin, Check, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import TransportOrderDialog, { TransportService } from "@/components/TransportOrderDialog";
 import busImg from "@/assets/transport-bus.jpg";
 import coasterImg from "@/assets/transport-coaster.jpg";
 import hiaceImg from "@/assets/transport-hiace.jpg";
@@ -45,6 +47,22 @@ const TransportSection = () => {
 
   const services = data && data.length > 0 ? data : fallback;
   const [active, setActive] = useState(0);
+  const [expanded, setExpanded] = useState<number | null>(null);
+  const [orderOpen, setOrderOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<TransportService | null>(null);
+
+  const benefitsFor = (vt: string) => {
+    const t = vt.toLowerCase();
+    const common = isBn
+      ? ["অভিজ্ঞ ড্রাইভার", "এসি ও পরিচ্ছন্ন গাড়ি", "২৪/৭ সাপোর্ট", "অন-টাইম পিকআপ"]
+      : ["Experienced driver", "AC & clean vehicle", "24/7 support", "On-time pickup"];
+    if (t.includes("bus")) return [...common, isBn ? "বড় গ্রুপের জন্য আদর্শ (১–৫০ জন)" : "Ideal for large groups (1–50 pax)", isBn ? "বড় লাগেজ স্পেস" : "Spacious luggage area"];
+    if (t.includes("coaster")) return [...common, isBn ? "মিড-সাইজ গ্রুপ (১–২৫ জন)" : "Mid-size groups (1–25 pax)", isBn ? "জিয়ারাহ ট্যুরে আরামদায়ক" : "Comfortable for Ziyarah tours"];
+    if (t.includes("hiace")) return [...common, isBn ? "পরিবার/ছোট গ্রুপ (১–১১ জন)" : "Family / small group (1–11 pax)", isBn ? "ফ্লেক্সিবল রুট" : "Flexible routing"];
+    if (t.includes("suv")) return [...common, isBn ? "প্রিমিয়াম রাইড (১–৫ জন)" : "Premium ride (1–5 pax)", isBn ? "VIP কমফোর্ট" : "VIP comfort"];
+    if (t.includes("sedan")) return [...common, isBn ? "প্রাইভেট ট্রান্সফার (১–৩ জন)" : "Private transfer (1–3 pax)", isBn ? "দ্রুত ও নিরিবিলি" : "Fast & private"];
+    return common;
+  };
 
   return (
     <section id="transport" className="py-24 bg-secondary/40 relative overflow-hidden">
@@ -137,27 +155,80 @@ const TransportSection = () => {
             </p>
 
             <div className="space-y-3 mb-8">
-              {services.slice(0, 5).map((s: any, i: number) => (
-                <div key={i} className="flex items-center justify-between p-4 bg-card rounded-xl border border-border hover:border-primary/40 transition">
-                  <div className="flex items-center gap-3">
-                    <Car className="h-5 w-5 text-primary" />
-                    <div>
-                      <div className="font-semibold text-sm">{s.vehicle_type}</div>
-                      <div className="text-xs text-muted-foreground flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {s.route_from} → {s.route_to}
+              {services.slice(0, 5).map((s: any, i: number) => {
+                const isOpen = expanded === i;
+                return (
+                  <div
+                    key={i}
+                    className={`bg-card rounded-xl border transition ${isOpen ? "border-primary/60 shadow-elevated" : "border-border hover:border-primary/40"}`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => { setExpanded(isOpen ? null : i); setActive(i); }}
+                      className="w-full flex items-center justify-between p-4 text-left"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Car className="h-5 w-5 text-primary" />
+                        <div>
+                          <div className="font-semibold text-sm">{s.vehicle_type}</div>
+                          <div className="text-xs text-muted-foreground flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {s.route_from} → {s.route_to}
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                      <div className="flex items-center gap-3">
+                        <div className="font-heading font-bold text-primary">SAR {s.price_sar}</div>
+                        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                      </div>
+                    </button>
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-4 pb-4 pt-1 border-t border-border">
+                            <ul className="space-y-2 mb-4 mt-3">
+                              {benefitsFor(s.vehicle_type).map((b, bi) => (
+                                <li key={bi} className="flex items-start gap-2 text-sm">
+                                  <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                                  <span>{b}</span>
+                                </li>
+                              ))}
+                            </ul>
+                            <Button
+                              className="w-full"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedService({
+                                  id: s.id,
+                                  vehicle_type: s.vehicle_type,
+                                  route_from: s.route_from,
+                                  route_to: s.route_to,
+                                  price_sar: Number(s.price_sar) || 0,
+                                  capacity: s.capacity,
+                                });
+                                setOrderOpen(true);
+                              }}
+                            >
+                              {isBn ? "বুকিং করুন" : "Book Now"}
+                            </Button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                  <div className="text-right">
-                    <div className="font-heading font-bold text-primary">SAR {s.price_sar}</div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </motion.div>
         </div>
       </div>
+      <TransportOrderDialog open={orderOpen} onOpenChange={setOrderOpen} service={selectedService} />
     </section>
   );
 };
