@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import AdminActionMenu, { ActionItem } from "@/components/admin/AdminActionMenu";
 import DriverInfoEditor from "@/components/admin/DriverInfoEditor";
+import TripCompletionMessage from "@/components/admin/TripCompletionMessage";
 import { handlePhoneChange } from "@/lib/phoneValidation";
 import CustomerSearchSelect from "@/components/admin/CustomerSearchSelect";
 import { format } from "date-fns";
@@ -1194,6 +1195,13 @@ export default function AdminBookingsPage() {
                   driver_notes: viewBooking.driver_notes,
                 }}
                 onSaved={fetchBookings}
+              />
+              <TripCompletionMessage
+                bookingId={viewBooking.id}
+                trackingId={viewBooking.tracking_id}
+                customerName={viewBooking.customer_name || (viewBooking as any).profiles?.full_name}
+                customerPhone={viewBooking.customer_phone || (viewBooking as any).profiles?.phone}
+                userId={viewBooking.user_id}
               />
             </div>
           )}
