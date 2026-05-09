@@ -110,14 +110,11 @@ const slides: Slide[] = [
     ctaLabel: { en: "Apply for Visa", bn: "ভিসার জন্য আবেদন" },
     ctaTarget: "services",
     features: [
-      { en: "Document checklist & review", bn: "ডকুমেন্ট চেকলিস্ট ও রিভিউ" },
       { en: "Mandatory insurance included", bn: "বাধ্যতামূলক ইন্স্যুরেন্স অন্তর্ভুক্ত" },
       { en: "Biometric appointment support", bn: "বায়োমেট্রিক অ্যাপয়েন্টমেন্ট সাপোর্ট" },
-      { en: "Real-time WhatsApp updates", bn: "রিয়েল-টাইম WhatsApp আপডেট" },
     ],
     stats: [
       { label: { en: "Processing", bn: "প্রসেসিং" }, value: "3–7 working days" },
-      { label: { en: "Stay", bn: "স্টে" }, value: "Up to 30 days" },
     ],
   },
 ];
