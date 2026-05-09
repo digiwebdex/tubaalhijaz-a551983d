@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Play, X, ChevronLeft, ChevronRight, Image as ImageIcon, Video, Building2, Plane, Sparkles } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
+import { getYouTubeEmbedUrl, getYouTubeThumbnail, isYouTubeUrl } from "@/lib/youtube";
 
 import office1 from "@/assets/gallery/office/office-1.jpg";
 import office2 from "@/assets/gallery/office/office-2.jpg";
