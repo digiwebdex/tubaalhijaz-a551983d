@@ -163,20 +163,25 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    padding-bottom: 0.15em;
+    line-height: 1.35;
   }
   .text-gradient-ocean {
     background: var(--gradient-ocean);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    padding-bottom: 0.15em;
+    line-height: 1.35;
   }
   .text-gradient-brand {
     background: var(--gradient-brand);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    padding-bottom: 0.15em;
+    line-height: 1.35;
   }
-
   .bg-gradient-gold,
   .bg-gradient-sunset { background: var(--gradient-sunset); }
   .bg-gradient-ocean { background: var(--gradient-ocean); }
