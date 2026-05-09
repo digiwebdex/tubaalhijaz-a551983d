@@ -16,9 +16,10 @@ import office7 from "@/assets/gallery/office/office-7.jpg";
 type Category = "office" | "travel" | "videos";
 
 type GalleryItem = {
-  type: "image" | "video";
+  type: "image" | "video" | "youtube";
   src: string;
   category: Category;
+  title?: string;
 };
 
 type TabType = "all" | Category;
