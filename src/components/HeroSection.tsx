@@ -105,7 +105,7 @@ const slides: Slide[] = [
     titleB: { en: "in sacred Umrah — Tuba Al-Hijaz", bn: "— তুবা আল-হিজাজ" },
     desc: {
       en: "End-to-end Umrah visa processing with insurance, biometrics guidance and document review — most approvals in 3 to 7 working days, valid for 30 days stay.",
-      bn: "শুরু থেকে শেষ পর্যন্ত উমরাহ ভিসা প্রসেসিং — ইন্স্যুরেন্স, বায়োমেট্রিক গাইডেন্স ও ডকুমেন্ট রিভিউ; বেশিরভাগ অনুমোদন ৩-৭ কর্মদিবসে, ৩০ দিন স্টে।",
+      bn: "ওমরাহ ভিসায় দীর্ঘ অপেক্ষার দিন শেষ! মক্কা-মদিনার হোটেল অ্যাপ্রুভ হওয়ার সর্বোচ্চ ২৪ ঘণ্টায় ওমরাহ ভিসা।",
     },
     ctaLabel: { en: "Apply for Visa", bn: "ভিসার জন্য আবেদন" },
     ctaTarget: "services",
