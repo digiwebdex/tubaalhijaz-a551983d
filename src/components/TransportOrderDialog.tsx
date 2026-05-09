@@ -1,13 +1,14 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/api";
 import { toast } from "sonner";
-import { Loader2, CheckCircle2, Bus, ArrowRight } from "lucide-react";
+import { Loader2, CheckCircle2, Plus, X, Trash2 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 export interface TransportService {
@@ -25,214 +26,468 @@ interface Props {
   service: TransportService | null;
 }
 
+interface HotelRow {
+  city: "MAKKAH" | "MADINAH";
+  hotel: string;
+  agreement_no: string;
+  check_in: string;
+  check_out: string;
+  rooms: string;
+}
+
+interface FlightRow {
+  type: "ARRIVAL" | "DEPARTURE";
+  airport: string;
+  date: string;
+  time: string;
+  flight_no: string;
+  airline: string;
+}
+
+interface MovementRow {
+  date: string;
+  from: string;
+  to: string;
+  time: string;
+}
+
+const BiLabel = ({ en, ar }: { en: string; ar: string }) => (
+  <div className="flex items-baseline justify-between gap-2 mb-1">
+    <span className="text-xs font-semibold text-foreground">{en}</span>
+    <span dir="rtl" className="text-xs text-muted-foreground font-arabic">{ar}</span>
+  </div>
+);
+
+const SectionTitle = ({ en, ar }: { en: string; ar: string }) => (
+  <div className="flex items-center justify-between border-b border-border pb-2 mb-3 mt-2">
+    <h3 className="font-heading text-sm font-bold uppercase tracking-wide">{en}</h3>
+    <span dir="rtl" className="text-sm text-muted-foreground">{ar}</span>
+  </div>
+);
+
+const nightsBetween = (a: string, b: string) => {
+  if (!a || !b) return 0;
+  const d1 = new Date(a).getTime();
+  const d2 = new Date(b).getTime();
+  if (isNaN(d1) || isNaN(d2) || d2 < d1) return 0;
+  return Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+};
+
 export default function TransportOrderDialog({ open, onOpenChange, service }: Props) {
   const { language } = useLanguage();
   const isBn = language === "bn";
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    pickup_date: "",
-    pickup_time: "",
-    passengers: 1,
-    guest_name: "",
-    guest_phone: "",
-    guest_email: "",
-    pickup_address: "",
-    dropoff_address: "",
-    notes: "",
-    route_type: "",
-    flight_number: "",
-    arrival_airport: "",
-    hotel_destination: "",
-    makkah_hotel_name: "",
-    madinah_hotel_name: "",
-  });
 
-  const total = useMemo(() => Number(service?.price_sar || 0), [service]);
+  const [agentName, setAgentName] = useState("");
+  const [agentCountry, setAgentCountry] = useState("");
+  const [umrahCompany, setUmrahCompany] = useState("");
+
+  const [groupNumbers, setGroupNumbers] = useState<string[]>([""]);
+  const [packageName, setPackageName] = useState("");
+  const [travelDate, setTravelDate] = useState("");
+
+  const [hotels, setHotels] = useState<HotelRow[]>([
+    { city: "MAKKAH", hotel: "", agreement_no: "", check_in: "", check_out: "", rooms: "" },
+    { city: "MADINAH", hotel: "", agreement_no: "", check_in: "", check_out: "", rooms: "" },
+  ]);
+
+  const [transportType, setTransportType] = useState("");
+  const [pilgrimCount, setPilgrimCount] = useState("");
+
+  const [flights, setFlights] = useState<FlightRow[]>([
+    { type: "ARRIVAL", airport: "", date: "", time: "", flight_no: "", airline: "" },
+    { type: "DEPARTURE", airport: "", date: "", time: "", flight_no: "", airline: "" },
+  ]);
+
+  const [movements, setMovements] = useState<MovementRow[]>([
+    { date: "", from: "", to: "", time: "" },
+  ]);
+
+  const [supMakkah, setSupMakkah] = useState("");
+  const [supMadinah, setSupMadinah] = useState("");
+  const [ops24, setOps24] = useState("");
+
+  const [contactName, setContactName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    if (service && open) {
+      const t = service.vehicle_type || "";
+      setTransportType(t.split("(")[0].trim().toUpperCase());
+    }
+  }, [service, open]);
 
   const reset = () => {
+    setAgentName(""); setAgentCountry(""); setUmrahCompany("");
+    setGroupNumbers([""]); setPackageName(""); setTravelDate("");
+    setHotels([
+      { city: "MAKKAH", hotel: "", agreement_no: "", check_in: "", check_out: "", rooms: "" },
+      { city: "MADINAH", hotel: "", agreement_no: "", check_in: "", check_out: "", rooms: "" },
+    ]);
+    setPilgrimCount("");
+    setFlights([
+      { type: "ARRIVAL", airport: "", date: "", time: "", flight_no: "", airline: "" },
+      { type: "DEPARTURE", airport: "", date: "", time: "", flight_no: "", airline: "" },
+    ]);
+    setMovements([{ date: "", from: "", to: "", time: "" }]);
+    setSupMakkah(""); setSupMadinah(""); setOps24("");
+    setContactName(""); setContactPhone(""); setContactEmail(""); setNotes("");
     setSuccess(null);
-    setForm({
-      pickup_date: "", pickup_time: "", passengers: 1,
-      guest_name: "", guest_phone: "", guest_email: "",
-      pickup_address: "", dropoff_address: "", notes: "",
-      route_type: "", flight_number: "", arrival_airport: "",
-      hotel_destination: "", makkah_hotel_name: "", madinah_hotel_name: "",
-    });
   };
 
-  const submit = async () => {
-    if (!service) return;
-    if (!form.guest_name.trim() || !form.guest_phone.trim() || !form.pickup_date) {
-      toast.error(isBn ? "নাম, ফোন ও পিকআপ তারিখ আবশ্যক" : "Name, phone and pickup date are required");
+  const updateHotel = (i: number, k: keyof HotelRow, v: string) => {
+    setHotels(prev => prev.map((r, idx) => idx === i ? { ...r, [k]: v } : r));
+  };
+  const updateFlight = (i: number, k: keyof FlightRow, v: string) => {
+    setFlights(prev => prev.map((r, idx) => idx === i ? { ...r, [k]: v } : r));
+  };
+  const updateMovement = (i: number, k: keyof MovementRow, v: string) => {
+    setMovements(prev => prev.map((r, idx) => idx === i ? { ...r, [k]: v } : r));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanGroups = groupNumbers.map(g => g.trim()).filter(Boolean);
+    if (cleanGroups.length === 0) {
+      toast.error(isBn ? "অন্তত একটি গ্রুপ নাম্বার দিন" : "Add at least one group number");
       return;
     }
+    if (!contactName.trim() || !contactPhone.trim()) {
+      toast.error(isBn ? "নাম এবং ফোন দিন" : "Name and phone are required");
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const { data: auth } = await supabase.auth.getUser();
-      const { data, error } = await supabase.from("transport_orders").insert({
-        service_id: service.id || null,
-        vehicle_type: service.vehicle_type,
-        route_from: service.route_from,
-        route_to: service.route_to,
-        pickup_date: form.pickup_date,
-        pickup_time: form.pickup_time,
-        passengers: form.passengers,
-        guest_name: form.guest_name,
-        guest_phone: form.guest_phone,
-        guest_email: form.guest_email || null,
-        pickup_address: form.pickup_address,
-        dropoff_address: form.dropoff_address,
-        notes: form.notes,
-        route_type: form.route_type || null,
-        flight_number: form.flight_number || null,
-        arrival_airport: form.arrival_airport || null,
-        hotel_destination: form.hotel_destination || null,
-        makkah_hotel_name: form.makkah_hotel_name || null,
-        madinah_hotel_name: form.madinah_hotel_name || null,
-        total_price: total,
-        currency: "SAR",
-        user_id: auth.user?.id || null,
-      } as any).select("tracking_id").single();
+      const hotelsPayload = hotels.map(h => ({
+        ...h,
+        nights: nightsBetween(h.check_in, h.check_out),
+      }));
+
+      const { data, error } = await (supabase as any)
+        .from("transport_voucher_orders")
+        .insert({
+          agent_name: agentName || null,
+          agent_country: agentCountry || null,
+          umrah_company: umrahCompany || null,
+          group_numbers: cleanGroups,
+          package_name: packageName || null,
+          travel_date: travelDate || null,
+          hotels: hotelsPayload,
+          transport_type: transportType || null,
+          pilgrim_count: pilgrimCount ? Number(pilgrimCount) : null,
+          flights,
+          internal_movements: movements,
+          supervisor_makkah_phone: supMakkah || null,
+          supervisor_madinah_phone: supMadinah || null,
+          ops_24h_phone: ops24 || null,
+          contact_name: contactName,
+          contact_phone: contactPhone,
+          contact_email: contactEmail || null,
+          notes: notes || null,
+        })
+        .select()
+        .single();
+
       if (error) throw error;
-      setSuccess((data as any).tracking_id);
-      toast.success(isBn ? "বুকিং সম্পন্ন হয়েছে" : "Booking received");
-    } catch (e: any) {
-      toast.error(e.message || "Failed");
+
+      // Fire-and-forget admin notification
+      try {
+        await (supabase as any).functions.invoke("send-notification", {
+          body: {
+            event_type: "transport_voucher_order",
+            subject: `New Transport Voucher Booking — ${transportType}`,
+            message: `New booking from ${contactName} (${contactPhone}). Groups: ${cleanGroups.join(", ")}. Package: ${packageName}. Pilgrims: ${pilgrimCount}.`,
+            booking_ref: data?.id,
+          },
+        });
+      } catch { /* non-fatal */ }
+
+      const ref = (data?.id as string)?.slice(0, 8).toUpperCase() || "OK";
+      setSuccess(ref);
+      toast.success(isBn ? "বুকিং সফল হয়েছে" : "Booking submitted successfully");
+    } catch (err: any) {
+      toast.error(err?.message || (isBn ? "সাবমিট ব্যর্থ হয়েছে" : "Submission failed"));
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleClose = (v: boolean) => {
+    if (!v && success) reset();
+    onOpenChange(v);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) reset(); onOpenChange(v); }}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Bus className="h-5 w-5 text-primary" />
-            {isBn ? "ট্রান্সপোর্ট বুকিং" : "Book Transport"}
-          </DialogTitle>
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-5xl max-h-[92vh] p-0">
+        <DialogHeader className="px-6 pt-6 pb-3 border-b">
+          <div className="flex items-center justify-between gap-4">
+            <DialogTitle className="font-heading text-xl">
+              {isBn ? "ট্রান্সপোর্ট ভাউচার বুকিং" : "Transport Voucher Booking"}
+            </DialogTitle>
+            <span dir="rtl" className="text-base font-semibold">قسيمة النقل</span>
+          </div>
           <DialogDescription>
-            {service?.vehicle_type} — {service?.route_from} → {service?.route_to}
+            {service?.vehicle_type} · {service?.route_from} → {service?.route_to} · SAR {service?.price_sar}
           </DialogDescription>
         </DialogHeader>
 
         {success ? (
-          <div className="text-center py-8 space-y-3">
-            <CheckCircle2 className="h-14 w-14 text-primary mx-auto" />
-            <h3 className="text-xl font-bold">{isBn ? "বুকিং নিশ্চিত!" : "Booking Confirmed!"}</h3>
-            <p className="text-sm text-muted-foreground">{isBn ? "ট্র্যাকিং আইডি" : "Tracking ID"}</p>
-            <p className="text-lg font-mono font-bold text-primary">{success}</p>
-            <p className="text-xs text-muted-foreground">{isBn ? "আমরা শীঘ্রই যোগাযোগ করব।" : "Our team will contact you shortly."}</p>
-            <Button onClick={() => { reset(); onOpenChange(false); }} className="mt-4">{isBn ? "বন্ধ করুন" : "Close"}</Button>
+          <div className="p-10 text-center">
+            <CheckCircle2 className="w-16 h-16 text-primary mx-auto mb-4" />
+            <h3 className="font-heading text-2xl font-bold mb-2">
+              {isBn ? "বুকিং সফল!" : "Booking Submitted!"}
+            </h3>
+            <p className="text-muted-foreground mb-2">
+              {isBn ? "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব" : "We will contact you shortly"}
+            </p>
+            <p className="text-sm font-mono bg-secondary inline-block px-4 py-2 rounded">REF: {success}</p>
+            <div className="mt-6">
+              <Button onClick={() => handleClose(false)}>{isBn ? "বন্ধ করুন" : "Close"}</Button>
+            </div>
           </div>
         ) : (
-          <div className="space-y-4 py-2">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>{isBn ? "পিকআপ তারিখ" : "Pickup Date"} *</Label>
-                <Input type="date" value={form.pickup_date} onChange={(e) => setForm({ ...form, pickup_date: e.target.value })} />
+          <form onSubmit={handleSubmit}>
+            <ScrollArea className="max-h-[70vh] px-6 py-4">
+              {/* Header row */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <BiLabel en="Agent name" ar="اسم الوكيل" />
+                  <Input value={agentName} onChange={e => setAgentName(e.target.value)} placeholder="e.g. SAAD USWA" />
+                </div>
+                <div>
+                  <BiLabel en="Agent country" ar="دولة الوكيل" />
+                  <Input value={agentCountry} onChange={e => setAgentCountry(e.target.value)} placeholder="e.g. BANGLADESH" />
+                </div>
+                <div>
+                  <BiLabel en="Umrah Company" ar="شركة عمرة" />
+                  <Input value={umrahCompany} onChange={e => setUmrahCompany(e.target.value)} />
+                </div>
               </div>
-              <div>
-                <Label>{isBn ? "পিকআপ সময়" : "Pickup Time"}</Label>
-                <Input type="time" value={form.pickup_time} onChange={(e) => setForm({ ...form, pickup_time: e.target.value })} />
-              </div>
-            </div>
-            <div>
-              <Label>{isBn ? "যাত্রী সংখ্যা" : "Passengers"}</Label>
-              <Input type="number" min={1} max={50} value={form.passengers} onChange={(e) => setForm({ ...form, passengers: Number(e.target.value) })} />
-            </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>{isBn ? "রুট টাইপ" : "Route Type"}</Label>
-                <Select value={form.route_type} onValueChange={(v) => setForm({ ...form, route_type: v })}>
-                  <SelectTrigger><SelectValue placeholder={isBn ? "নির্বাচন করুন" : "Select"} /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="full">{isBn ? "ফুল রুট" : "Full Route"}</SelectItem>
-                    <SelectItem value="single">{isBn ? "সিঙ্গেল রুট" : "Single Route"}</SelectItem>
-                  </SelectContent>
-                </Select>
+              {/* Group + Package */}
+              <SectionTitle en="Group / Package" ar="المجموعة / البرنامج" />
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-1">
+                  <BiLabel en="Group numbers" ar="أرقام المجموعات" />
+                  <div className="space-y-2">
+                    {groupNumbers.map((g, i) => (
+                      <div key={i} className="flex gap-2">
+                        <Input
+                          value={g}
+                          onChange={e => setGroupNumbers(prev => prev.map((x, idx) => idx === i ? e.target.value : x))}
+                          placeholder={`Group #${i + 1}`}
+                        />
+                        {groupNumbers.length > 1 && (
+                          <Button type="button" variant="ghost" size="icon"
+                            onClick={() => setGroupNumbers(prev => prev.filter((_, idx) => idx !== i))}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                    <Button type="button" variant="outline" size="sm"
+                      onClick={() => setGroupNumbers(prev => [...prev, ""])}>
+                      <Plus className="h-3 w-3 mr-1" /> {isBn ? "আরেকটি যোগ করুন" : "Add another"}
+                    </Button>
+                  </div>
+                </div>
+                <div>
+                  <BiLabel en="Package / Program" ar="البرنامج" />
+                  <Input value={packageName} onChange={e => setPackageName(e.target.value)} placeholder="e.g. REYAZUL JANNAH" />
+                </div>
+                <div>
+                  <BiLabel en="Travel date" ar="التاريخ" />
+                  <Input type="date" value={travelDate} onChange={e => setTravelDate(e.target.value)} />
+                </div>
               </div>
-              <div>
-                <Label>{isBn ? "ফ্লাইট নাম্বার" : "Flight Number"}</Label>
-                <Input value={form.flight_number} onChange={(e) => setForm({ ...form, flight_number: e.target.value })} placeholder="e.g. SV805" />
-              </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>{isBn ? "এয়ারপোর্ট" : "Arrival Airport"}</Label>
-                <Select value={form.arrival_airport} onValueChange={(v) => setForm({ ...form, arrival_airport: v })}>
-                  <SelectTrigger><SelectValue placeholder={isBn ? "নির্বাচন করুন" : "Select"} /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="JED">Jeddah (JED)</SelectItem>
-                    <SelectItem value="MED">Madinah (MED)</SelectItem>
-                    <SelectItem value="RUH">Riyadh (RUH)</SelectItem>
-                    <SelectItem value="DMM">Dammam (DMM)</SelectItem>
-                  </SelectContent>
-                </Select>
+              {/* Hotels */}
+              <SectionTitle en="Hotels" ar="الفنادق" />
+              <div className="space-y-4">
+                {hotels.map((h, i) => (
+                  <div key={i} className="border border-border rounded-lg p-3 bg-secondary/30">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Badge variant="outline">{h.city}</Badge>
+                      <span dir="rtl" className="text-sm text-muted-foreground">
+                        {h.city === "MAKKAH" ? "مكة المكرمة" : "المدينة المنورة"}
+                      </span>
+                    </div>
+                    <div className="grid md:grid-cols-6 gap-3">
+                      <div className="md:col-span-2">
+                        <BiLabel en="Hotel" ar="الفندق" />
+                        <Input value={h.hotel} onChange={e => updateHotel(i, "hotel", e.target.value)} />
+                      </div>
+                      <div>
+                        <BiLabel en="Agreement No." ar="رقم الاتفاقية" />
+                        <Input value={h.agreement_no} onChange={e => updateHotel(i, "agreement_no", e.target.value)} />
+                      </div>
+                      <div>
+                        <BiLabel en="Check-in" ar="تاريخ الدخول" />
+                        <Input type="date" value={h.check_in} onChange={e => updateHotel(i, "check_in", e.target.value)} />
+                      </div>
+                      <div>
+                        <BiLabel en="Check-out" ar="تاريخ الخروج" />
+                        <Input type="date" value={h.check_out} onChange={e => updateHotel(i, "check_out", e.target.value)} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <BiLabel en="Nights" ar="الليالي" />
+                          <Input value={nightsBetween(h.check_in, h.check_out) || ""} readOnly className="bg-muted" />
+                        </div>
+                        <div>
+                          <BiLabel en="Rooms" ar="الغرف" />
+                          <Input type="number" min={0} value={h.rooms} onChange={e => updateHotel(i, "rooms", e.target.value)} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div>
-                <Label>{isBn ? "হোটেল গন্তব্য" : "Hotel Destination"}</Label>
-                <Select value={form.hotel_destination} onValueChange={(v) => setForm({ ...form, hotel_destination: v })}>
-                  <SelectTrigger><SelectValue placeholder={isBn ? "নির্বাচন করুন" : "Select"} /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="makkah">Makkah</SelectItem>
-                    <SelectItem value="madinah">Madinah</SelectItem>
-                    <SelectItem value="jeddah">Jeddah</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>{isBn ? "মক্কা হোটেল" : "Makkah Hotel Name"}</Label>
-                <Input value={form.makkah_hotel_name} onChange={(e) => setForm({ ...form, makkah_hotel_name: e.target.value })} />
+              {/* Transport */}
+              <SectionTitle en="Transport" ar="النقل" />
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <BiLabel en="Type of transportation" ar="نوع الحافلة" />
+                  <Input value={transportType} onChange={e => setTransportType(e.target.value)} />
+                </div>
+                <div>
+                  <BiLabel en="Number of pilgrims" ar="عدد المعتمرين" />
+                  <Input type="number" min={1} value={pilgrimCount} onChange={e => setPilgrimCount(e.target.value)} />
+                </div>
               </div>
-              <div>
-                <Label>{isBn ? "মদিনা হোটেল" : "Madinah Hotel Name"}</Label>
-                <Input value={form.madinah_hotel_name} onChange={(e) => setForm({ ...form, madinah_hotel_name: e.target.value })} />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>{isBn ? "পূর্ণ নাম" : "Full Name"} *</Label>
-                <Input value={form.guest_name} onChange={(e) => setForm({ ...form, guest_name: e.target.value })} />
-              </div>
-              <div>
-                <Label>{isBn ? "ফোন (WhatsApp)" : "Phone (WhatsApp)"} *</Label>
-                <Input value={form.guest_phone} onChange={(e) => setForm({ ...form, guest_phone: e.target.value })} placeholder="+966..." />
-              </div>
-            </div>
-            <div>
-              <Label>Email</Label>
-              <Input type="email" value={form.guest_email} onChange={(e) => setForm({ ...form, guest_email: e.target.value })} />
-            </div>
-            <div>
-              <Label>{isBn ? "পিকআপ ঠিকানা" : "Pickup Address"}</Label>
-              <Input value={form.pickup_address} onChange={(e) => setForm({ ...form, pickup_address: e.target.value })} placeholder={isBn ? "হোটেল / এয়ারপোর্ট টার্মিনাল" : "Hotel / Airport terminal"} />
-            </div>
-            <div>
-              <Label>{isBn ? "ড্রপ-অফ ঠিকানা" : "Drop-off Address"}</Label>
-              <Input value={form.dropoff_address} onChange={(e) => setForm({ ...form, dropoff_address: e.target.value })} />
-            </div>
-            <div>
-              <Label>{isBn ? "নোট" : "Notes"}</Label>
-              <Textarea rows={2} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-            </div>
 
-            <div className="flex items-center justify-between rounded-xl border border-border bg-secondary/40 p-4">
-              <div className="text-sm text-muted-foreground">{isBn ? "মোট আনুমানিক" : "Estimated Total"}</div>
-              <div className="font-heading text-2xl font-bold text-primary">SAR {total}</div>
-            </div>
+              {/* Flights */}
+              <SectionTitle en="Flights" ar="الرحلات" />
+              <div className="space-y-3">
+                {flights.map((f, i) => (
+                  <div key={i} className="border border-border rounded-lg p-3 bg-secondary/30">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Badge>{f.type}</Badge>
+                      <span dir="rtl" className="text-sm text-muted-foreground">
+                        {f.type === "ARRIVAL" ? "وصول" : "مغادرة"}
+                      </span>
+                    </div>
+                    <div className="grid md:grid-cols-5 gap-3">
+                      <div>
+                        <BiLabel en="Airport" ar="المطار" />
+                        <Input value={f.airport} onChange={e => updateFlight(i, "airport", e.target.value)} placeholder="JEDDAH AIRPORT" />
+                      </div>
+                      <div>
+                        <BiLabel en="Date" ar="التاريخ" />
+                        <Input type="date" value={f.date} onChange={e => updateFlight(i, "date", e.target.value)} />
+                      </div>
+                      <div>
+                        <BiLabel en="Time" ar="الوقت" />
+                        <Input type="time" value={f.time} onChange={e => updateFlight(i, "time", e.target.value)} />
+                      </div>
+                      <div>
+                        <BiLabel en="Flight number" ar="رقم الرحلة" />
+                        <Input value={f.flight_no} onChange={e => updateFlight(i, "flight_no", e.target.value)} placeholder="QR 1182" />
+                      </div>
+                      <div>
+                        <BiLabel en="Airline" ar="الخطوط" />
+                        <Input value={f.airline} onChange={e => updateFlight(i, "airline", e.target.value)} placeholder="QATAR AIRWAYS" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-            <Button onClick={submit} disabled={submitting} className="w-full" size="lg">
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <ArrowRight className="h-4 w-4 mr-2" />}
-              {isBn ? "বুকিং নিশ্চিত করুন" : "Confirm Booking"}
-            </Button>
-          </div>
+              {/* Internal movements */}
+              <SectionTitle en="Internal Movements" ar="التحركات الداخلية" />
+              <div className="space-y-2">
+                {movements.map((m, i) => (
+                  <div key={i} className="grid grid-cols-12 gap-2 items-end">
+                    <div className="col-span-1">
+                      <Label className="text-xs">S/N</Label>
+                      <Input value={i + 1} readOnly className="bg-muted text-center" />
+                    </div>
+                    <div className="col-span-2">
+                      <Label className="text-xs">Date / التاريخ</Label>
+                      <Input type="date" value={m.date} onChange={e => updateMovement(i, "date", e.target.value)} />
+                    </div>
+                    <div className="col-span-3">
+                      <Label className="text-xs">From / من</Label>
+                      <Input value={m.from} onChange={e => updateMovement(i, "from", e.target.value)} />
+                    </div>
+                    <div className="col-span-3">
+                      <Label className="text-xs">To / إلى</Label>
+                      <Input value={m.to} onChange={e => updateMovement(i, "to", e.target.value)} />
+                    </div>
+                    <div className="col-span-2">
+                      <Label className="text-xs">Time / الساعة</Label>
+                      <Input type="time" value={m.time} onChange={e => updateMovement(i, "time", e.target.value)} />
+                    </div>
+                    <div className="col-span-1">
+                      <Button type="button" variant="ghost" size="icon"
+                        onClick={() => setMovements(prev => prev.filter((_, idx) => idx !== i))}
+                        disabled={movements.length === 1}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                <Button type="button" variant="outline" size="sm"
+                  onClick={() => setMovements(prev => [...prev, { date: "", from: "", to: "", time: "" }])}>
+                  <Plus className="h-3 w-3 mr-1" /> {isBn ? "সারি যোগ করুন" : "Add row"}
+                </Button>
+              </div>
+
+              {/* Supervisors */}
+              <SectionTitle en="Supervisors" ar="المناديب" />
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <BiLabel en="Makkah supervisor" ar="المشرف في مكة" />
+                  <Input value={supMakkah} onChange={e => setSupMakkah(e.target.value)} placeholder="Mobile" />
+                </div>
+                <div>
+                  <BiLabel en="Madinah supervisor" ar="المشرف في المدينة" />
+                  <Input value={supMadinah} onChange={e => setSupMadinah(e.target.value)} placeholder="Mobile" />
+                </div>
+                <div>
+                  <BiLabel en="Operations 24h" ar="العمليات 24 ساعة" />
+                  <Input value={ops24} onChange={e => setOps24(e.target.value)} placeholder="Mobile" />
+                </div>
+              </div>
+
+              {/* Contact */}
+              <SectionTitle en="Your Contact" ar="معلومات الاتصال" />
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <BiLabel en="Full name" ar="الاسم الكامل" />
+                  <Input value={contactName} onChange={e => setContactName(e.target.value)} required />
+                </div>
+                <div>
+                  <BiLabel en="Phone" ar="الهاتف" />
+                  <Input value={contactPhone} onChange={e => setContactPhone(e.target.value)} required />
+                </div>
+                <div>
+                  <BiLabel en="Email" ar="البريد الإلكتروني" />
+                  <Input type="email" value={contactEmail} onChange={e => setContactEmail(e.target.value)} />
+                </div>
+                <div>
+                  <BiLabel en="Notes" ar="ملاحظات" />
+                  <Textarea rows={1} value={notes} onChange={e => setNotes(e.target.value)} />
+                </div>
+              </div>
+            </ScrollArea>
+
+            <div className="flex justify-end gap-2 px-6 py-4 border-t bg-secondary/30">
+              <Button type="button" variant="outline" onClick={() => handleClose(false)}>
+                {isBn ? "বাতিল" : "Cancel"}
+              </Button>
+              <Button type="submit" disabled={submitting}>
+                {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {isBn ? "বুকিং সাবমিট করুন" : "Submit Booking"}
+              </Button>
+            </div>
+          </form>
         )}
       </DialogContent>
     </Dialog>
