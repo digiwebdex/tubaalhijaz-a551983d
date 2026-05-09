@@ -1196,6 +1196,13 @@ export default function AdminBookingsPage() {
                 }}
                 onSaved={fetchBookings}
               />
+              <TripCompletionMessage
+                bookingId={viewBooking.id}
+                trackingId={viewBooking.tracking_id}
+                customerName={viewBooking.customer_name || (viewBooking as any).profiles?.full_name}
+                customerPhone={viewBooking.customer_phone || (viewBooking as any).profiles?.phone}
+                userId={viewBooking.user_id}
+              />
             </div>
           )}
         </DialogContent>
