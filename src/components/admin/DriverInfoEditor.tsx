@@ -131,7 +131,7 @@ export default function DriverInfoEditor({ bookingId, initial, onSaved }: Props)
         <Truck className="h-5 w-5 text-primary" /> Driver & Trip Information
       </h3>
       <p className="text-xs text-muted-foreground">
-        যাত্রী travel করার আগে driver/pickup details update করুন। এই info যাত্রীর Account Dashboard এ live দেখাবে।
+        যাত্রী travel করার আগে driver/pickup details update করুন। Save করলে যাত্রীর Email ও SMS এ Driver Name, Contact, Vehicle, Pickup Time ও Route Details automatic চলে যাবে। চাইলে WhatsApp এ ও পাঠান।
       </p>
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
