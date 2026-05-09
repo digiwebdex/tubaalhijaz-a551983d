@@ -114,7 +114,7 @@ const slides: Slide[] = [
       { en: "Biometric appointment support", bn: "বায়োমেট্রিক অ্যাপয়েন্টমেন্ট সাপোর্ট" },
     ],
     stats: [
-      { label: { en: "Delivery", bn: "ডেলিভারি" }, value: "12 Hours (Except Friday)" },
+      { label: { en: "Delivery", bn: "ডেলিভারি" }, value: "12 Hours" },
     ],
   },
 ];
