@@ -5,7 +5,7 @@ import { supabase } from "@/lib/api";
 import { toast } from "sonner";
 import {
   LogOut, Package, CreditCard, AlertTriangle, User, FileText,
-  ChevronDown, ChevronUp, Search, Save, MapPin, Phone, Mail, Settings, Download
+  ChevronDown, ChevronUp, Search, Save, MapPin, Phone, Mail, Settings, Download, History
 } from "lucide-react";
 import { motion } from "framer-motion";
 import logo from "@/assets/logo.png";
@@ -46,7 +46,7 @@ interface Payment {
   booking_id: string;
 }
 
-type TabKey = "overview" | "bookings" | "payments" | "due" | "profile";
+type TabKey = "overview" | "bookings" | "payments" | "due" | "history" | "profile";
 
 const Dashboard = () => {
   useSessionTimeout();
@@ -226,6 +226,7 @@ const Dashboard = () => {
     { key: "bookings", label: t("dashboard.myBookings"), icon: Package },
     { key: "payments", label: t("dashboard.payments"), icon: CreditCard },
     { key: "due", label: t("dashboard.dueAlerts"), icon: AlertTriangle },
+    { key: "history", label: "History", icon: History },
     { key: "profile", label: t("dashboard.profile"), icon: Settings },
   ];
 
@@ -710,6 +711,115 @@ const Dashboard = () => {
                       )}
                     </div>
                     <p className="text-xl font-heading font-bold text-destructive">৳{Number(p.amount).toLocaleString("en-IN")}</p>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+
+        {/* ──── History Tab (Report & History System) ──── */}
+        {activeTab === "history" && (
+          <div className="space-y-4">
+            <div className="bg-card border border-border rounded-xl p-5">
+              <h2 className="font-heading text-lg font-bold flex items-center gap-2 mb-1">
+                <History className="h-5 w-5 text-primary" /> Report & History
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                পুরনো Voucher Download, Driver তথ্য, Trip History ও Payment History — সব এক জায়গায়।
+              </p>
+            </div>
+
+            {bookings.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground bg-card border border-border rounded-xl">
+                <History className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>কোনো history পাওয়া যায়নি।</p>
+              </div>
+            ) : (
+              bookings.map((b) => {
+                const bPayments = getBookingPayments(b.id);
+                const paidCount = bPayments.filter((p) => p.status === "completed").length;
+                return (
+                  <div key={b.id} className="bg-card border border-border rounded-xl p-5 space-y-4">
+                    {/* Trip header */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <Link
+                          to={`/track?id=${formatTrackingId(b.tracking_id)}`}
+                          className="font-mono font-bold text-primary hover:underline text-sm"
+                        >
+                          {formatTrackingId(b.tracking_id)}
+                        </Link>
+                        <p className="text-sm text-muted-foreground">
+                          {b.packages?.name || "N/A"} • {b.num_travelers} {b.num_travelers > 1 ? t("dashboard.travelers") : t("dashboard.traveler")}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Booked: {new Date(b.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <span className={`text-xs font-semibold px-3 py-1 rounded-full capitalize self-start ${statusColor(b.status)}`}>
+                        {statusLabels[b.status] || b.status}
+                      </span>
+                    </div>
+
+                    {/* Voucher download */}
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        onClick={() => handleDownloadInvoice(b)}
+                        disabled={generatingPdf === b.id}
+                        className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline disabled:opacity-50"
+                      >
+                        <Download className="h-4 w-4" />
+                        {generatingPdf === b.id ? t("dashboard.generating") : "Download Voucher"}
+                      </button>
+                    </div>
+
+                    {/* Driver / trip info */}
+                    <DriverInfoCard
+                      driver_name={b.driver_name}
+                      driver_phone={b.driver_phone}
+                      vehicle_number={b.vehicle_number}
+                      pickup_location={b.pickup_location}
+                      pickup_time={b.pickup_time}
+                      driver_notes={b.driver_notes}
+                    />
+
+                    {/* Payment history */}
+                    {bPayments.length > 0 && (
+                      <div className="border-t border-border pt-3">
+                        <p className="text-xs font-semibold text-muted-foreground mb-2">
+                          Payment History ({paidCount}/{bPayments.length})
+                        </p>
+                        <div className="space-y-1.5">
+                          {bPayments.map((p) => (
+                            <div key={p.id} className="flex items-center justify-between text-sm py-1.5 px-3 rounded-md bg-muted/30">
+                              <div className="flex items-center gap-3">
+                                <span className="text-muted-foreground w-6">#{p.installment_number || "—"}</span>
+                                <span className="font-medium tabular-nums">৳{Number(p.amount).toLocaleString("en-IN")}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {p.paid_at ? new Date(p.paid_at).toLocaleDateString() : (p.due_date ? `Due: ${new Date(p.due_date).toLocaleDateString()}` : "")}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full capitalize ${statusColor(p.status)}`}>
+                                  {p.status}
+                                </span>
+                                {p.status === "completed" && (
+                                  <button
+                                    onClick={() => handleDownloadReceipt(p, b)}
+                                    disabled={generatingPdf === p.id}
+                                    className="text-xs text-primary hover:underline"
+                                    title="Download Receipt"
+                                  >
+                                    <Download className="h-3 w-3" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })
