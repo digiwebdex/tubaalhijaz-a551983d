@@ -56,8 +56,8 @@ const slides: Slide[] = [
       en: "Airport pickups, intercity coaches and private vehicles between Jeddah, Makkah, Madinah and all Ziyarat sites — driven by licensed, experienced chauffeurs.",
       bn: "জেদ্দা, মক্কা, মদিনা ও সকল জিয়ারত স্থানের জন্য এয়ারপোর্ট পিকআপ, ইন্টারসিটি কোচ ও প্রাইভেট ভেহিকল — অভিজ্ঞ লাইসেন্সধারী চালক সহ।",
     },
-    ctaLabel: { en: "View Details", bn: "বিস্তারিত দেখুন" },
-    ctaTarget: "/transport",
+    ctaLabel: { en: "Book Transport", bn: "ট্রান্সপোর্ট বুক করুন" },
+    ctaTarget: "transport",
     features: [
       { en: "Airport meet & greet", bn: "এয়ারপোর্ট মিট অ্যান্ড গ্রিট" },
       { en: "GMC, Hiace & 30-50 seater coaches", bn: "GMC, হায়েস ও ৩০-৫০ সিটার কোচ" },

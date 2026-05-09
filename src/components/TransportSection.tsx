@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import { Bus, Car, MapPin, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Bus, Car, MapPin } from "lucide-react";
 import transportImg from "@/assets/tuba-transport.jpg";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
@@ -83,7 +82,7 @@ const TransportSection = () => {
             </p>
 
             <div className="space-y-3 mb-8">
-              {services.slice(0, 4).map((s: any, i: number) => (
+              {services.slice(0, 5).map((s: any, i: number) => (
                 <div key={i} className="flex items-center justify-between p-4 bg-card rounded-xl border border-border hover:border-primary/40 transition">
                   <div className="flex items-center gap-3">
                     <Car className="h-5 w-5 text-primary" />
@@ -101,14 +100,6 @@ const TransportSection = () => {
                 </div>
               ))}
             </div>
-
-            <Link
-              to="/transport"
-              className="inline-flex items-center gap-2 bg-gradient-sunset text-white font-semibold px-7 py-3.5 rounded-full shadow-gold hover:shadow-glow transition-all hover:scale-105"
-            >
-              {isBn ? "বিস্তারিত দেখুন" : "View Details"}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
           </motion.div>
         </div>
       </div>
