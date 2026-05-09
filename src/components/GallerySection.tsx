@@ -65,18 +65,26 @@ export default function GallerySection() {
   // Merge: ensure CMS items have a category (default to travel) and always include office images
   const items: GalleryItem[] = useMemo(() => {
     const cms = (content?.items as Partial<GalleryItem>[] | undefined)?.map((it) => ({
-      type: (it.type as "image" | "video") || "image",
+      type: (it.type as GalleryItem["type"]) || "image",
       src: it.src as string,
-      category: (it.category as Category) || (it.type === "video" ? "videos" : "travel"),
+      category: (it.category as Category) || (it.type === "video" || it.type === "youtube" ? "videos" : "travel"),
     })) as GalleryItem[] | undefined;
     const base = cms && cms.length ? cms : defaultItems;
     const hasOffice = base.some((b) => b.category === "office");
-    return hasOffice ? base : [...officeImages.map((src) => ({ type: "image" as const, src, category: "office" as const })), ...base];
+    const withOffice = hasOffice ? base : [...officeImages.map((src) => ({ type: "image" as const, src, category: "office" as const })), ...base];
+
+    // Merge CMS-managed YouTube videos
+    const videoItems = (content?.video_items as { url: string; title?: string }[] | undefined) || [];
+    const youtubeItems: GalleryItem[] = videoItems
+      .filter((v) => isYouTubeUrl(v.url))
+      .map((v) => ({ type: "youtube", src: v.url, category: "videos", title: v.title }));
+
+    return [...withOffice, ...youtubeItems];
   }, [content]);
 
   const filtered = useMemo(() => {
     if (activeTab === "all") return items;
-    if (activeTab === "videos") return items.filter((i) => i.type === "video");
+    if (activeTab === "videos") return items.filter((i) => i.type === "video" || i.type === "youtube");
     return items.filter((i) => i.category === activeTab);
   }, [activeTab, items]);
 
