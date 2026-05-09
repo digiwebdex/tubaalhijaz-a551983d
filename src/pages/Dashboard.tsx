@@ -226,6 +226,7 @@ const Dashboard = () => {
     { key: "bookings", label: t("dashboard.myBookings"), icon: Package },
     { key: "payments", label: t("dashboard.payments"), icon: CreditCard },
     { key: "due", label: t("dashboard.dueAlerts"), icon: AlertTriangle },
+    { key: "history", label: "History", icon: History },
     { key: "profile", label: t("dashboard.profile"), icon: Settings },
   ];
 
