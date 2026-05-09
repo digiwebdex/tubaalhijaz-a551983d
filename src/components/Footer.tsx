@@ -32,30 +32,7 @@ const Footer = () => {
 
   return (
     <>
-      <section className="relative overflow-hidden">
-        <div className="bg-gradient-brand py-16 md:py-20 relative">
-          <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-primary/30 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-96 h-96 rounded-full bg-accent/40 blur-3xl" />
-          <div className="container mx-auto px-4 relative z-10 text-center">
-            <Sparkles className="h-10 w-10 text-primary-glow mx-auto mb-4" />
-            <h3 className="text-white font-heading text-3xl md:text-5xl font-bold mb-4">
-              {isBn ? "আপনার পবিত্র যাত্রার পরিকল্পনা শুরু হোক" : "Let's plan your blessed journey"}
-            </h3>
-            <p className="text-white/85 text-base md:text-lg max-w-xl mx-auto mb-8">
-              {isBn
-                ? "মক্কা থেকে সরাসরি আমাদের টিমের সাথে কথা বলুন।"
-                : "Speak directly with our Makkah-based team — anytime."}
-            </p>
-            <a
-              href={`tel:${phone.replace(/[\s-+]/g, "")}`}
-              className="inline-flex items-center gap-2 bg-white text-accent font-bold px-8 py-4 rounded-full shadow-elevated hover:scale-105 transition-transform"
-            >
-              <Phone className="h-4 w-4" />
-              {phone}
-            </a>
-          </div>
-        </div>
-      </section>
+      <LiveTransportSection />
 
       <footer className="bg-charcoal text-white py-16 relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-sunset" />
