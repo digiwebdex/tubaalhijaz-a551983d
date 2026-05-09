@@ -101,8 +101,8 @@ const slides: Slide[] = [
     image: heroVisa,
     Icon: FileCheck2,
     eyebrow: { en: "Umrah Visa", bn: "উমরাহ ভিসা" },
-    titleA: { en: "Fast, hassle-free", bn: "দ্রুত ও ঝামেলাহীন" },
-    titleB: { en: "Umrah visas", bn: "উমরাহ ভিসা" },
+    titleA: { en: "Your trusted partner", bn: "পবিত্র ওমরাহ পালনে আপনার বিশ্বস্ত সঙ্গী" },
+    titleB: { en: "in sacred Umrah — Tuba Al-Hijaz", bn: "— তুবা আল-হিজাজ" },
     desc: {
       en: "End-to-end Umrah visa processing with insurance, biometrics guidance and document review — most approvals in 3 to 7 working days, valid for 30 days stay.",
       bn: "শুরু থেকে শেষ পর্যন্ত উমরাহ ভিসা প্রসেসিং — ইন্স্যুরেন্স, বায়োমেট্রিক গাইডেন্স ও ডকুমেন্ট রিভিউ; বেশিরভাগ অনুমোদন ৩-৭ কর্মদিবসে, ৩০ দিন স্টে।",
