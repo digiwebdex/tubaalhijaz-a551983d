@@ -25,27 +25,24 @@ type Slide = {
 
 const slides: Slide[] = [
   {
-    key: "hotel",
-    image: heroHotel,
-    Icon: BedDouble,
-    eyebrow: { en: "Hotel Booking", bn: "হোটেল বুকিং" },
-    titleA: { en: "Stay steps from", bn: "হারামের পাশে" },
-    titleB: { en: "the Haram", bn: "থাকুন আরামে" },
+    key: "visa",
+    image: heroVisa,
+    Icon: FileCheck2,
+    eyebrow: { en: "Umrah Visa", bn: "উমরাহ ভিসা" },
+    titleA: { en: "Your trusted partner", bn: "পবিত্র ওমরাহ পালনে আপনার বিশ্বস্ত সঙ্গী" },
+    titleB: { en: "in sacred Umrah — Tuba Al-Hijaz", bn: "— তুবা আল-হিজাজ" },
     desc: {
-      en: "Handpicked 3★ to 5★ hotels in Makkah & Madinah — Haram-view rooms, family suites and budget-friendly options with daily breakfast and free Wi-Fi.",
-      bn: "মক্কা ও মদিনায় বাছাই করা ৩★ থেকে ৫★ হোটেল — হারাম-ভিউ রুম, ফ্যামিলি স্যুট ও বাজেট প্যাকেজ, প্রতিদিন ব্রেকফাস্ট ও ফ্রি Wi-Fi সহ।",
+      en: "End-to-end Umrah visa processing with insurance, biometrics guidance and document review — most approvals in 3 to 7 working days, valid for 30 days stay.",
+      bn: "ওমরাহ ভিসায় দীর্ঘ অপেক্ষার দিন শেষ! মক্কা-মদিনার হোটেল অ্যাপ্রুভ হওয়ার সর্বোচ্চ ২৪ ঘণ্টায় ওমরাহ ভিসা।",
     },
-    ctaLabel: { en: "Book a Hotel", bn: "হোটেল বুক করুন" },
+    ctaLabel: { en: "Apply for Visa", bn: "ভিসার জন্য আবেদন" },
     ctaTarget: "services",
     features: [
-      { en: "Haram-view & courtyard rooms", bn: "হারাম-ভিউ ও কোর্টইয়ার্ড রুম" },
-      { en: "Free cancellation up to 48h", bn: "৪৮ ঘণ্টা পর্যন্ত ফ্রি ক্যান্সেলেশন" },
-      { en: "Daily breakfast included", bn: "প্রতিদিন ব্রেকফাস্ট অন্তর্ভুক্ত" },
-      { en: "Group & family discounts", bn: "গ্রুপ ও ফ্যামিলি ডিসকাউন্ট" },
+      { en: "Mandatory insurance included", bn: "বাধ্যতামূলক ইন্স্যুরেন্স অন্তর্ভুক্ত" },
+      { en: "Biometric appointment support", bn: "বায়োমেট্রিক অ্যাপয়েন্টমেন্ট সাপোর্ট" },
     ],
     stats: [
-      { label: { en: "From", bn: "শুরু" }, value: "SAR 180/night" },
-      { label: { en: "Cities", bn: "শহর" }, value: "Makkah · Madinah · Jeddah" },
+      { label: { en: "Processing", bn: "প্রসেসিং" }, value: "Within 24 Hours" },
     ],
   },
   {
@@ -73,6 +70,30 @@ const slides: Slide[] = [
     ],
   },
   {
+    key: "hotel",
+    image: heroHotel,
+    Icon: BedDouble,
+    eyebrow: { en: "Hotel Booking", bn: "হোটেল বুকিং" },
+    titleA: { en: "Stay steps from", bn: "হারামের পাশে" },
+    titleB: { en: "the Haram", bn: "থাকুন আরামে" },
+    desc: {
+      en: "Handpicked 3★ to 5★ hotels in Makkah & Madinah — Haram-view rooms, family suites and budget-friendly options with daily breakfast and free Wi-Fi.",
+      bn: "মক্কা ও মদিনায় বাছাই করা ৩★ থেকে ৫★ হোটেল — হারাম-ভিউ রুম, ফ্যামিলি স্যুট ও বাজেট প্যাকেজ, প্রতিদিন ব্রেকফাস্ট ও ফ্রি Wi-Fi সহ।",
+    },
+    ctaLabel: { en: "Book a Hotel", bn: "হোটেল বুক করুন" },
+    ctaTarget: "services",
+    features: [
+      { en: "Haram-view & courtyard rooms", bn: "হারাম-ভিউ ও কোর্টইয়ার্ড রুম" },
+      { en: "Free cancellation up to 48h", bn: "৪৮ ঘণ্টা পর্যন্ত ফ্রি ক্যান্সেলেশন" },
+      { en: "Daily breakfast included", bn: "প্রতিদিন ব্রেকফাস্ট অন্তর্ভুক্ত" },
+      { en: "Group & family discounts", bn: "গ্রুপ ও ফ্যামিলি ডিসকাউন্ট" },
+    ],
+    stats: [
+      { label: { en: "From", bn: "শুরু" }, value: "SAR 180/night" },
+      { label: { en: "Cities", bn: "শহর" }, value: "Makkah · Madinah · Jeddah" },
+    ],
+  },
+  {
     key: "catering",
     image: heroCatering,
     Icon: UtensilsCrossed,
@@ -94,27 +115,6 @@ const slides: Slide[] = [
     stats: [
       { label: { en: "From", bn: "শুরু" }, value: "SAR 25/meal" },
       { label: { en: "Standard", bn: "স্ট্যান্ডার্ড" }, value: "100% Halal Tayyib" },
-    ],
-  },
-  {
-    key: "visa",
-    image: heroVisa,
-    Icon: FileCheck2,
-    eyebrow: { en: "Umrah Visa", bn: "উমরাহ ভিসা" },
-    titleA: { en: "Your trusted partner", bn: "পবিত্র ওমরাহ পালনে আপনার বিশ্বস্ত সঙ্গী" },
-    titleB: { en: "in sacred Umrah — Tuba Al-Hijaz", bn: "— তুবা আল-হিজাজ" },
-    desc: {
-      en: "End-to-end Umrah visa processing with insurance, biometrics guidance and document review — most approvals in 3 to 7 working days, valid for 30 days stay.",
-      bn: "ওমরাহ ভিসায় দীর্ঘ অপেক্ষার দিন শেষ! মক্কা-মদিনার হোটেল অ্যাপ্রুভ হওয়ার সর্বোচ্চ ২৪ ঘণ্টায় ওমরাহ ভিসা।",
-    },
-    ctaLabel: { en: "Apply for Visa", bn: "ভিসার জন্য আবেদন" },
-    ctaTarget: "services",
-    features: [
-      { en: "Mandatory insurance included", bn: "বাধ্যতামূলক ইন্স্যুরেন্স অন্তর্ভুক্ত" },
-      { en: "Biometric appointment support", bn: "বায়োমেট্রিক অ্যাপয়েন্টমেন্ট সাপোর্ট" },
-    ],
-    stats: [
-      { label: { en: "Processing", bn: "প্রসেসিং" }, value: "Within 24 Hours" },
     ],
   },
 ];
