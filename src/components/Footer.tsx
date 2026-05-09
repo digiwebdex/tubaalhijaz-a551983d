@@ -103,6 +103,12 @@ const Footer = () => {
           <div className="mt-14 pt-8 border-t border-white/10 text-center text-sm text-white/40">
             <p>© {new Date().getFullYear()} {companyName}. {isBn ? "সর্বস্বত্ব সংরক্ষিত।" : "All rights reserved."}</p>
             <p className="mt-2 text-xs text-white/30">{tagline}</p>
+            <p className="mt-3 text-xs text-white/30">
+              {isBn ? "ডিজাইন এবং ডেভেলপড বাই " : "Design & Developed by "}
+              <a href="https://digiwebdex.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 transition-colors underline underline-offset-2">
+                DigiWebDex
+              </a>
+            </p>
           </div>
         </div>
       </footer>
