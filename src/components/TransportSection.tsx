@@ -83,7 +83,7 @@ const TransportSection = () => {
             </p>
 
             <div className="space-y-3 mb-8">
-              {services.slice(0, 4).map((s: any, i: number) => (
+              {services.slice(0, 5).map((s: any, i: number) => (
                 <div key={i} className="flex items-center justify-between p-4 bg-card rounded-xl border border-border hover:border-primary/40 transition">
                   <div className="flex items-center gap-3">
                     <Car className="h-5 w-5 text-primary" />
