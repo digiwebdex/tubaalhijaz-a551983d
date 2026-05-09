@@ -7,6 +7,7 @@ import UmrahProgramsSection from "@/components/UmrahProgramsSection";
 import WhyChooseUsSection from "@/components/WhyChooseUsSection";
 import TransportSection from "@/components/TransportSection";
 import CateringSection from "@/components/CateringSection";
+import GallerySection from "@/components/GallerySection";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import BackToTop from "@/components/BackToTop";
@@ -35,6 +36,7 @@ const Index = () => {
         {show("transport") && <TransportSection />}
         {show("catering") && <CateringSection />}
         {show("about") && <AboutSection />}
+        {show("gallery") && <GallerySection />}
         {show("contact") && <ContactSection />}
         <Footer />
         <WhatsAppFloat />
