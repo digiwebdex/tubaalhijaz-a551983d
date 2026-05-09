@@ -159,10 +159,15 @@ export default function DriverInfoEditor({ bookingId, initial, onSaved }: Props)
           <Textarea value={form.driver_notes} onChange={(e) => setForm({ ...form, driver_notes: e.target.value })} placeholder="Any special instructions" />
         </div>
       </div>
-      <Button onClick={handleSave} disabled={saving} className="bg-gradient-gold text-primary-foreground">
-        {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Truck className="h-4 w-4 mr-2" />}
-        Save Driver Info
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={handleSave} disabled={saving} className="bg-gradient-gold text-primary-foreground">
+          {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Truck className="h-4 w-4 mr-2" />}
+          Save & Notify (Email + SMS)
+        </Button>
+        <Button type="button" variant="outline" onClick={openWhatsApp}>
+          <MessageCircle className="h-4 w-4 mr-2" /> Send via WhatsApp
+        </Button>
+      </div>
     </div>
   );
 }
