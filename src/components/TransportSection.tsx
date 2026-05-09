@@ -47,6 +47,22 @@ const TransportSection = () => {
 
   const services = data && data.length > 0 ? data : fallback;
   const [active, setActive] = useState(0);
+  const [expanded, setExpanded] = useState<number | null>(null);
+  const [orderOpen, setOrderOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<TransportService | null>(null);
+
+  const benefitsFor = (vt: string) => {
+    const t = vt.toLowerCase();
+    const common = isBn
+      ? ["অভিজ্ঞ ড্রাইভার", "এসি ও পরিচ্ছন্ন গাড়ি", "২৪/৭ সাপোর্ট", "অন-টাইম পিকআপ"]
+      : ["Experienced driver", "AC & clean vehicle", "24/7 support", "On-time pickup"];
+    if (t.includes("bus")) return [...common, isBn ? "বড় গ্রুপের জন্য আদর্শ (১–৫০ জন)" : "Ideal for large groups (1–50 pax)", isBn ? "বড় লাগেজ স্পেস" : "Spacious luggage area"];
+    if (t.includes("coaster")) return [...common, isBn ? "মিড-সাইজ গ্রুপ (১–২৫ জন)" : "Mid-size groups (1–25 pax)", isBn ? "জিয়ারাহ ট্যুরে আরামদায়ক" : "Comfortable for Ziyarah tours"];
+    if (t.includes("hiace")) return [...common, isBn ? "পরিবার/ছোট গ্রুপ (১–১১ জন)" : "Family / small group (1–11 pax)", isBn ? "ফ্লেক্সিবল রুট" : "Flexible routing"];
+    if (t.includes("suv")) return [...common, isBn ? "প্রিমিয়াম রাইড (১–৫ জন)" : "Premium ride (1–5 pax)", isBn ? "VIP কমফোর্ট" : "VIP comfort"];
+    if (t.includes("sedan")) return [...common, isBn ? "প্রাইভেট ট্রান্সফার (১–৩ জন)" : "Private transfer (1–3 pax)", isBn ? "দ্রুত ও নিরিবিলি" : "Fast & private"];
+    return common;
+  };
 
   return (
     <section id="transport" className="py-24 bg-secondary/40 relative overflow-hidden">
