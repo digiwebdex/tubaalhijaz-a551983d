@@ -1031,6 +1031,48 @@ export type Database = {
           },
         ]
       }
+      failed_jobs: {
+        Row: {
+          attempts: number
+          error_message: string | null
+          error_stack: string | null
+          failed_at: string
+          id: number
+          job_id: string
+          job_name: string | null
+          payload: Json | null
+          queue_name: string
+          resolved_at: string | null
+          retried_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          error_message?: string | null
+          error_stack?: string | null
+          failed_at?: string
+          id?: number
+          job_id: string
+          job_name?: string | null
+          payload?: Json | null
+          queue_name: string
+          resolved_at?: string | null
+          retried_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          error_message?: string | null
+          error_stack?: string | null
+          failed_at?: string
+          id?: number
+          job_id?: string
+          job_name?: string | null
+          payload?: Json | null
+          queue_name?: string
+          resolved_at?: string | null
+          retried_at?: string | null
+        }
+        Relationships: []
+      }
       financial_summary: {
         Row: {
           id: string
@@ -2312,6 +2354,45 @@ export type Database = {
           status?: string
           token?: string
           tracking_id?: string | null
+        }
+        Relationships: []
+      }
+      queue_job_logs: {
+        Row: {
+          attempts: number
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          id: number
+          job_id: string
+          job_name: string | null
+          payload_summary: string | null
+          queue_name: string
+          status: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: number
+          job_id: string
+          job_name?: string | null
+          payload_summary?: string | null
+          queue_name: string
+          status: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: number
+          job_id?: string
+          job_name?: string | null
+          payload_summary?: string | null
+          queue_name?: string
+          status?: string
         }
         Relationships: []
       }
