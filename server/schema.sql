@@ -1240,6 +1240,12 @@ INSERT INTO message_templates (event_key, channel, language, subject, body) VALU
   ('visa_approved','email','ar','تمت الموافقة على التأشيرة — {{tracking_id}}','عزيزي {{name}}،\n\nنبشّرك بالموافقة على تأشيرتك السعودية. يرجى الاستعداد للسفر بتاريخ {{travel_date}}.'),
   ('visa_approved','sms','en',NULL,'Tuba Al Hijaz: Visa APPROVED for {{name}} ({{tracking_id}}). Travel: {{travel_date}}.')
 ON CONFLICT DO NOTHING;
+
+CREATE INDEX IF NOT EXISTS idx_message_templates_event ON message_templates(event_key, channel, language);
+
+-- =============================================
+-- INDEXES
+-- =============================================
 CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_package_id ON bookings(package_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_moallem_id ON bookings(moallem_id);
