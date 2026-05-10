@@ -403,33 +403,32 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
               <SectionTitle en="Internal Movements" ar="التحركات الداخلية" />
               <div className="space-y-2">
                 {movements.map((m, i) => (
-                  <div key={i} className="grid grid-cols-12 gap-2 items-end">
-                    <div className="col-span-1">
-                      <Label className="text-xs">S/N</Label>
-                      <Input value={i + 1} readOnly className="bg-muted text-center" />
-                    </div>
-                    <div className="col-span-2">
-                      <Label className="text-xs">Date / التاريخ</Label>
-                      <Input type="date" value={m.date} onChange={e => updateMovement(i, "date", e.target.value)} />
-                    </div>
-                    <div className="col-span-3">
-                      <Label className="text-xs">From / من</Label>
-                      <Input value={m.from} onChange={e => updateMovement(i, "from", e.target.value)} />
-                    </div>
-                    <div className="col-span-3">
-                      <Label className="text-xs">To / إلى</Label>
-                      <Input value={m.to} onChange={e => updateMovement(i, "to", e.target.value)} />
-                    </div>
-                    <div className="col-span-2">
-                      <Label className="text-xs">Time / الساعة</Label>
-                      <Input type="time" value={m.time} onChange={e => updateMovement(i, "time", e.target.value)} />
-                    </div>
-                    <div className="col-span-1">
-                      <Button type="button" variant="ghost" size="icon"
+                  <div key={i} className="border border-border rounded-lg p-3 bg-secondary/30 relative">
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant="outline">#{i + 1}</Badge>
+                      <Button type="button" variant="ghost" size="icon" className="h-7 w-7"
                         onClick={() => setMovements(prev => prev.filter((_, idx) => idx !== i))}
                         disabled={movements.length === 1}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div>
+                        <Label className="text-xs">Date / التاريخ</Label>
+                        <Input type="date" value={m.date} onChange={e => updateMovement(i, "date", e.target.value)} />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Time / الساعة</Label>
+                        <Input type="time" value={m.time} onChange={e => updateMovement(i, "time", e.target.value)} />
+                      </div>
+                      <div>
+                        <Label className="text-xs">From / من</Label>
+                        <Input value={m.from} onChange={e => updateMovement(i, "from", e.target.value)} />
+                      </div>
+                      <div>
+                        <Label className="text-xs">To / إلى</Label>
+                        <Input value={m.to} onChange={e => updateMovement(i, "to", e.target.value)} />
+                      </div>
                     </div>
                   </div>
                 ))}
