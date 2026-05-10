@@ -450,8 +450,16 @@ app.get('/api/bookings', authenticate, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-app.use('/api/bookings', createCrudRoutes('bookings', { adminOnly: true }));
-app.use('/api/payments', createCrudRoutes('payments', { adminOnly: true }));
+const triggers = require('./services/messagingTriggers');
+app.use('/api/bookings', createCrudRoutes('bookings', {
+  adminOnly: true,
+  afterCreate: triggers.onBookingCreated,
+  afterUpdate: triggers.onBookingUpdated,
+}));
+app.use('/api/payments', createCrudRoutes('payments', {
+  adminOnly: true,
+  afterCreate: triggers.onPaymentCreated,
+}));
 app.use('/api/expenses', createCrudRoutes('expenses', { adminOnly: true }));
 app.use('/api/transactions', createCrudRoutes('transactions', { adminOnly: true }));
 app.use('/api/profiles', createCrudRoutes('profiles', { adminOnly: true }));
