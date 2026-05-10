@@ -1372,3 +1372,75 @@ CREATE TABLE IF NOT EXISTS online_payment_sessions (
 );
 CREATE INDEX IF NOT EXISTS idx_ops_booking ON online_payment_sessions(booking_id);
 CREATE INDEX IF NOT EXISTS idx_ops_status ON online_payment_sessions(status);
+
+-- ===================================================================
+-- TRANSPORT VOUCHERS & INTERNAL MOVEMENTS (Phase 2)
+-- ===================================================================
+CREATE TABLE IF NOT EXISTS transport_vouchers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  voucher_no TEXT NOT NULL UNIQUE,
+  booking_id UUID REFERENCES bookings(id) ON DELETE SET NULL,
+
+  -- Agent
+  agent_name TEXT,
+  agent_country TEXT,
+  umrah_company TEXT,
+  group_name TEXT,
+
+  -- Hotels
+  makkah_hotel TEXT,
+  madinah_hotel TEXT,
+  agreement_number TEXT,
+  check_in_date DATE,
+  check_out_date DATE,
+  nights INTEGER,
+  total_rooms INTEGER,
+
+  -- Transport
+  transport_company TEXT,
+  vehicle_type TEXT,
+  driver_name TEXT,
+  driver_phone TEXT,
+  num_pilgrims INTEGER NOT NULL DEFAULT 0,
+
+  -- Flight
+  arrival_flight TEXT,
+  departure_flight TEXT,
+  airline TEXT,
+  flight_number TEXT,
+  airport TEXT,
+  flight_date DATE,
+  flight_time TEXT,
+
+  -- Supervisors
+  makkah_supervisor TEXT,
+  madinah_supervisor TEXT,
+  ops_24h_phone TEXT,
+
+  -- Meta
+  notes TEXT,
+  status TEXT NOT NULL DEFAULT 'active',
+  language TEXT NOT NULL DEFAULT 'en',
+  issued_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_transport_vouchers_booking ON transport_vouchers(booking_id);
+CREATE INDEX IF NOT EXISTS idx_transport_vouchers_status ON transport_vouchers(status);
+
+CREATE TABLE IF NOT EXISTS movement_schedules (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  voucher_id UUID REFERENCES transport_vouchers(id) ON DELETE CASCADE,
+  serial_no INTEGER NOT NULL DEFAULT 1,
+  movement_date DATE,
+  from_location TEXT NOT NULL,
+  to_location TEXT NOT NULL,
+  movement_time TEXT,
+  vehicle TEXT,
+  driver TEXT,
+  status TEXT NOT NULL DEFAULT 'scheduled', -- scheduled | in_progress | completed | cancelled
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_movement_schedules_voucher ON movement_schedules(voucher_id);
+CREATE INDEX IF NOT EXISTS idx_movement_schedules_date ON movement_schedules(movement_date);
