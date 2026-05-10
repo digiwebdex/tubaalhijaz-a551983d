@@ -8,6 +8,8 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import CateringOrderDialog, { CateringPlan } from "./CateringOrderDialog";
+import { useNavigate } from "react-router-dom";
+import { requireCustomerLogin } from "@/lib/bookingAuth";
 
 const categoryImages: Record<string, string> = {
   Breakfast: breakfastImg,
@@ -28,6 +30,7 @@ const fallback: CateringPlan[] = [
 
 const CateringSection = () => {
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const isBn = language === "bn";
   const [selected, setSelected] = useState<CateringPlan | null>(null);
 
@@ -46,8 +49,9 @@ const CateringSection = () => {
 
   const packages = (data && data.length > 0 ? data : fallback).slice(0, 3);
 
-  const handleClick = (p: any) => {
+  const handleClick = async (p: any) => {
     const meal = p.meal_type as keyof typeof categoryImages;
+    if (!(await requireCustomerLogin(navigate, `/?book=catering&meal=${encodeURIComponent(meal)}#catering`))) return;
     setSelected({
       id: p.id,
       name: p.name || `${meal} Plan`,
