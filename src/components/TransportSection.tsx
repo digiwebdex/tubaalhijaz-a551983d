@@ -11,6 +11,8 @@ import sedanImg from "@/assets/transport-sedan.jpg";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
+import { useNavigate } from "react-router-dom";
+import { requireCustomerLogin } from "@/lib/bookingAuth";
 
 const collage = [
   { key: "bus", img: busImg, label: { en: "Bus", bn: "বাস" } },
@@ -30,6 +32,7 @@ const fallback = [
 
 const TransportSection = () => {
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const isBn = language === "bn";
 
   const { data } = useQuery({
@@ -202,8 +205,9 @@ const TransportSection = () => {
                             </ul>
                             <Button
                               className="w-full"
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
+                                if (!(await requireCustomerLogin(navigate, `/?book=transport&service=${encodeURIComponent(s.vehicle_type)}#transport`))) return;
                                 setSelectedService({
                                   id: s.id,
                                   vehicle_type: s.vehicle_type,
