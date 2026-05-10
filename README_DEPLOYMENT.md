@@ -141,11 +141,22 @@ sudo -u postgres psql -d tubaalhijaz_db -f server/schema.sql
 
 ## Step 7 — Backend `.env`
 
+Generate the JWT secrets FIRST (outside the editor), copy each printed value, then paste them into `server/.env` while editing:
+
+```bash
+# Run each line, copy the printed hex value
+openssl rand -hex 48   # → paste as JWT_SECRET
+openssl rand -hex 48   # → paste as JWT_REFRESH_SECRET
+```
+
+Then create and edit the env file:
+
 ```bash
 cp server/.env.tubaalhijaz.example server/.env
 nano server/.env
-# Fill in: DATABASE_URL (URL-encode the password), JWT_SECRET,
-# ADMIN_EMAIL, ADMIN_PASSWORD, BULK_SMS_*, RESEND_API_KEY, SSLCOMMERZ_*
+# Fill in: DATABASE_URL (URL-encode the password),
+# JWT_SECRET + JWT_REFRESH_SECRET (paste the values generated above),
+# ADMIN_EMAIL, ADMIN_PASSWORD, BULKSMSBD_*, RESEND_API_KEY, SSLCZ_*
 ```
 
 ## Step 8 — Frontend `.env` + build (Bun)
