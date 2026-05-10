@@ -15,6 +15,8 @@ import { generateInvoice, generateReceipt, CompanyInfo, InvoicePayment } from "@
 import { useLanguage } from "@/i18n/LanguageContext";
 import { PayOnlineButton } from "@/components/PayOnlineButton";
 import DriverInfoCard from "@/components/DriverInfoCard";
+import BookingTimeline from "@/components/BookingTimeline";
+import { StatusBadge } from "@/components/StatusBadge";
 
 interface Booking {
   id: string;
