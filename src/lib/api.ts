@@ -1,14 +1,8 @@
-// API Client - Replaces Supabase client
-// Drop-in replacement for all supabase.from() and supabase.auth calls
-
-import { createClient } from '@supabase/supabase-js';
+// Self-hosted API client for Tuba Al Hijaz
+// All calls go to the VPS backend at VITE_API_URL (default '/api').
+// No external SDK dependencies.
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
-
-// Supabase client for auth (used when VPS backend is unavailable)
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
-const supabaseClient = SUPABASE_URL && SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 // Token management
 class TokenManager {
@@ -685,127 +679,53 @@ const storage = {
 };
 
 // =============================================
-// Functions API (replaces supabase.functions)
+// Functions API — calls VPS backend only
 // =============================================
 const functions = {
   async invoke(name: string, options?: { body?: any }) {
-    // Edge functions that have VPS equivalents — try VPS first
-    const vpsRoutes = ['track-booking', 'verify-invoice', 'create-guest-booking', 'send-notification', 'send-reminder', 'booking-notifications', 'send-otp', 'upload-booking-document'];
-    const isVpsRoute = name.startsWith('auth/') || vpsRoutes.includes(name);
-    const allowEdgeFallback = name === 'send-otp';
-    let vpsErrorMessage: string | null = null;
+    const path = name.startsWith('auth/') ? `/${name}` : `/${name}`;
+    const isFormData = options?.body instanceof FormData;
+    const token = TokenManager.getAccessToken();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (!isFormData) headers['Content-Type'] = 'application/json';
 
-    if (isVpsRoute) {
-      try {
-        const path = `/${name}`;
-        const isFormData = options?.body instanceof FormData;
-        const token = TokenManager.getAccessToken();
-        const headers: Record<string, string> = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-        if (!isFormData) headers['Content-Type'] = 'application/json';
-
-        const res = await fetch(`${API_URL}${path}`, {
-          method: 'POST',
-          headers,
-          body: isFormData ? options.body : (options?.body ? JSON.stringify(options.body) : undefined),
-        });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({ error: 'Request failed' }));
-          vpsErrorMessage = err.error || 'Request failed';
-          // For business-logic errors (4xx), don't fallback — return VPS error directly
-          if (!allowEdgeFallback || (res.status >= 400 && res.status < 500)) {
-            return { data: null, error: { message: vpsErrorMessage } };
-          }
-        } else {
-          const data = await res.json().catch(() => ({}));
-          return { data, error: null };
-        }
-      } catch (err: any) {
-        vpsErrorMessage = err.message || 'VPS unreachable';
-        if (!allowEdgeFallback) {
-          return { data: null, error: { message: vpsErrorMessage } };
-        }
-      }
-    }
-
-    // Call Supabase Edge Function directly
-    const supabaseUrl = SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL || '';
-    const supabaseKey = SUPABASE_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
-    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || '';
-
-    // Build the edge function URL
-    let edgeFnUrl = '';
-    if (supabaseUrl) {
-      edgeFnUrl = `${supabaseUrl}/functions/v1/${name}`;
-    } else if (projectId) {
-      edgeFnUrl = `https://${projectId}.supabase.co/functions/v1/${name}`;
-    }
-
-    if (edgeFnUrl) {
-      try {
-        const headers: Record<string, string> = {
-          'Content-Type': 'application/json',
-        };
-        if (supabaseKey) {
-          headers['apikey'] = supabaseKey;
-          headers['Authorization'] = `Bearer ${supabaseKey}`;
-        }
-        const res = await fetch(edgeFnUrl, {
-          method: 'POST',
-          headers,
-          body: options?.body ? JSON.stringify(options.body) : undefined,
-        });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({ error: 'Edge function error' }));
-          return { data: null, error: { message: err.error || vpsErrorMessage || 'Edge function error' } };
-        }
-        const data = await res.json();
-        return { data, error: null };
-      } catch (err: any) {
-        return { data: null, error: { message: err.message || vpsErrorMessage || 'Edge function error' } };
-      }
-    }
-
-    if (vpsErrorMessage) {
-      return { data: null, error: { message: vpsErrorMessage } };
-    }
-
-    // Last resort: try VPS /functions/ path for non-VPS routes
     try {
-      const res = await apiFetch(`/functions/${name}`, {
+      const res = await fetch(`${API_URL}${path}`, {
         method: 'POST',
-        body: options?.body ? JSON.stringify(options.body) : undefined,
+        headers,
+        body: isFormData ? options.body : (options?.body ? JSON.stringify(options.body) : undefined),
       });
-      const contentType = res.headers?.get?.('content-type') || '';
-      if (contentType.includes('application/json')) {
-        if (!res.ok) {
-          const err = await res.json();
-          return { data: null, error: { message: err.error } };
-        }
-        const data = await res.json();
-        return { data, error: null };
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Request failed' }));
+        return { data: null, error: { message: err.error || 'Request failed' } };
       }
-    } catch {}
-
-    return { data: null, error: { message: 'Function not available' } };
+      const data = await res.json().catch(() => ({}));
+      return { data, error: null };
+    } catch (err: any) {
+      return { data: null, error: { message: err.message || 'Backend unreachable' } };
+    }
   },
 };
 
 // =============================================
-// Main export (drop-in supabase replacement)
+// Main export — self-hosted backend client
 // =============================================
-export const supabase = {
+export const apiClient = {
   auth,
   storage,
   functions,
   from(table: string) {
     return new QueryBuilder(table);
   },
-  // Channel stub for realtime (not needed for VPS)
+  // Realtime stub (not used in production VPS build)
   channel(_name: string) {
     return {
       on: () => ({ subscribe: () => ({}) }),
       subscribe: () => ({}),
     };
   },
+  removeChannel(_ch: any) {},
 };
+
+export type ApiClient = typeof apiClient;
