@@ -27,6 +27,7 @@ interface AuditLog {
   user_agent: string | null;
   changes: any;
   metadata: any;
+  severity?: string | null;
 }
 
 const ACTION_COLORS: Record<string, string> = {
@@ -34,6 +35,12 @@ const ACTION_COLORS: Record<string, string> = {
   update: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100",
   delete: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
   login: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100",
+};
+
+const SEVERITY_META: Record<string, { color: string; Icon: any }> = {
+  info: { color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200", Icon: Info },
+  warning: { color: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100", Icon: AlertTriangle },
+  critical: { color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100", Icon: AlertCircle },
 };
 
 export default function AdminAuditLogsPage() {
