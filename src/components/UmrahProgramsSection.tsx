@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Star, Check, Crown, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -56,6 +56,19 @@ const UmrahProgramsSection = () => {
   const navigate = useNavigate();
   const t = COPY[language === "bn" ? "bn" : "en"];
   const [openTier, setOpenTier] = useState<ProgramTier | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("book") !== "umrah" || openTier) return;
+    const tier = params.get("tier") as ProgramTier | null;
+    const nextTier = PROGRAMS.some((p) => p.key === tier) ? tier! : "silver";
+
+    requireCustomerLogin(navigate, `/?book=umrah&tier=${nextTier}#programs`).then((allowed) => {
+      if (!allowed) return;
+      setOpenTier(nextTier);
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.hash || ""}`);
+    });
+  }, [navigate, openTier]);
 
   return (
     <section id="programs" className="py-24 relative overflow-hidden">
