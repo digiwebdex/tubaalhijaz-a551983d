@@ -21,6 +21,7 @@ import type { AppRole } from "@/hooks/useUserRole";
 
 const operationsMenu = [
   { title: "Dashboard",            url: "/admin",                       icon: LayoutDashboard, roles: ["admin", "accountant", "viewer"] },
+  { title: "Operations Center",    url: "/admin/operations",            icon: LayoutDashboard, roles: ["admin", "accountant", "booking", "viewer"] },
   { title: "Umrah Bookings",       url: "/admin/bookings",              icon: FileText,        roles: ["admin", "accountant", "booking", "viewer"] },
   { title: "Umrah Orders",         url: "/admin/umrah-orders",          icon: ScrollText,      roles: ["admin", "accountant", "booking", "viewer"] },
   { title: "Umrah Packages",       url: "/admin/packages",              icon: Package,         roles: ["admin", "viewer"] },
