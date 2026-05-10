@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { apiClient } from "@/lib/apiClient";
-import { apiClient as supabaseClient } from "@/lib/apiClient";
+import { apiClient } from "@/lib/apiClient";
 import { toast } from "sonner";
 import { Plus, X, Edit2, Trash2, Save, ToggleLeft, ToggleRight, Upload, Loader2, Eye, Copy, ListChecks } from "lucide-react";
 import { useIsViewer } from "@/components/admin/AdminLayout";
@@ -58,9 +58,9 @@ export default function AdminPackagesPage() {
     if (file.size > 5 * 1024 * 1024) { toast.error("File size must be under 5MB"); return; }
     setUploading(true);
     const path = `packages/${Date.now()}-${file.name}`;
-    const { error } = await supabaseClient.storage.from("hotel-images").upload(path, file, { upsert: true });
+    const { error } = await apiClient.storage.from("hotel-images").upload(path, file, { upsert: true });
     if (error) { toast.error(error.message); setUploading(false); return; }
-    const { data: { publicUrl } } = supabaseClient.storage.from("hotel-images").getPublicUrl(path);
+    const { data: { publicUrl } } = apiClient.storage.from("hotel-images").getPublicUrl(path);
     setForm(f => ({ ...f, image_url: publicUrl }));
     setUploading(false);
   };

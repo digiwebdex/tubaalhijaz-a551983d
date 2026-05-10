@@ -92,7 +92,7 @@ async function apiFetch(path: string, options: RequestInit & { skipRedirect?: bo
 }
 
 // =============================================
-// Auth API (replaces supabase.auth)
+// Auth API
 // =============================================
 export const auth = {
   async signInWithPassword({ email, password }: { email: string; password: string }) {
@@ -282,7 +282,7 @@ const tableUrlMap: Record<string, string> = {
 };
 
 // =============================================
-// Query Builder (replaces supabase.from())
+// Query Builder
 // =============================================
 class QueryBuilder {
   private table: string;
@@ -502,7 +502,7 @@ class QueryBuilder {
 }
 
 // =============================================
-// Storage API (replaces supabase.storage)
+// Storage API
 // =============================================
 const storage = {
   from(bucket: string) {

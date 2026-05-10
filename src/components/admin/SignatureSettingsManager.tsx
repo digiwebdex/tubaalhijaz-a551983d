@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { apiClient } from "@/lib/apiClient";
-import { apiClient as supabaseClient } from "@/lib/apiClient";
+import { apiClient } from "@/lib/apiClient";
 import { toast } from "sonner";
 import { Upload, Trash2, Save, Stamp, PenTool } from "lucide-react";
 
@@ -55,7 +55,7 @@ export default function SignatureSettingsManager() {
     const ext = file.name.split(".").pop();
     const path = `${type}/${Date.now()}.${ext}`;
 
-    const { error } = await supabaseClient.storage
+    const { error } = await apiClient.storage
       .from("company-assets")
       .upload(path, file, { upsert: true });
 
@@ -65,7 +65,7 @@ export default function SignatureSettingsManager() {
       return;
     }
 
-    const { data: urlData } = supabaseClient.storage
+    const { data: urlData } = apiClient.storage
       .from("company-assets")
       .getPublicUrl(path);
 
