@@ -168,6 +168,7 @@ const App = () => (
               <Route path="invoices/:id" element={<AdminBilingualInvoicePage />} />
               <Route path="invoices" element={<AdminComingSoonPage title="Invoices" description="Open any booking and click the new Bilingual Invoice action to generate a SAR/BDT invoice with QR verification." />} />
               <Route path="message-templates" element={<AdminMessageTemplatesPage />} />
+              <Route path="operations" element={<AdminOperationsCenterPage />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
