@@ -110,9 +110,14 @@ export default function AdminAuditLogsPage() {
             <p className="text-sm text-muted-foreground">সব admin action-এর সম্পূর্ণ ট্র্যাকিং</p>
           </div>
         </div>
-        <Button onClick={fetchLogs} disabled={loading} variant="outline" size="sm">
-          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} /> Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={exportCsv} variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" /> Export CSV
+          </Button>
+          <Button onClick={fetchLogs} disabled={loading} variant="outline" size="sm">
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} /> Refresh
+          </Button>
+        </div>
       </div>
 
       <Card>
