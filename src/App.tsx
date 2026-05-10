@@ -68,6 +68,8 @@ const AdminTransportPage = lazy(() => import("./pages/admin/AdminTransportPage")
 const AdminCateringPage = lazy(() => import("./pages/admin/AdminCateringPage"));
 const AdminUmrahOrdersPage = lazy(() => import("./pages/admin/AdminUmrahOrdersPage"));
 const AdminComingSoonPage = lazy(() => import("./pages/admin/AdminComingSoonPage"));
+const AdminTransportVouchersPage = lazy(() => import("./pages/admin/AdminTransportVouchersPage"));
+const AdminInternalMovementsPage = lazy(() => import("./pages/admin/AdminInternalMovementsPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
