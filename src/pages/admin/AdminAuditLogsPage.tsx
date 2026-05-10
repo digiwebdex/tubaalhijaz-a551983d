@@ -188,10 +188,10 @@ export default function AdminAuditLogsPage() {
             </TableHeader>
             <TableBody>
               {loading && (
-                <TableRow><TableCell colSpan={8} className="text-center py-8">লোড হচ্ছে...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={9} className="text-center py-8">লোড হচ্ছে...</TableCell></TableRow>
               )}
               {!loading && filtered.length === 0 && (
-                <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">কোনো লগ পাওয়া যায়নি</TableCell></TableRow>
+                <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">কোনো লগ পাওয়া যায়নি</TableCell></TableRow>
               )}
               {filtered.map((log) => (
                 <TableRow key={log.id}>
