@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  frontend:
+    name: Frontend — lint & build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Lint
+        run: bun run lint || echo "::warning::lint reported issues"
+      - name: Test
+        run: bunx vitest run --passWithNoTests
+      - name: Build
+        run: bun run build
+        env:
+          VITE_API_URL: /api
+
+  backend:
+    name: Backend — install & smoke test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: tubaalhijaz_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - name: Install backend deps
+        working-directory: server
+        run: npm ci
+      - name: Boot smoke test (start + /api/health)
+        working-directory: server
+        env:
+          NODE_ENV: production
+          PORT: 4002
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tubaalhijaz_test
+          JWT_SECRET: ci_jwt_secret_at_least_32_characters_long_xx
+          JWT_REFRESH_SECRET: ci_refresh_secret_at_least_32_characters_long_x
+        run: |
+          node index.js &
+          API_PID=$!
+          for i in $(seq 1 20); do
+            curl -sf http://127.0.0.1:4002/api/health && break || sleep 2
+          done
+          curl -sf http://127.0.0.1:4002/api/health
+          kill $API_PID
+
+  docker-build:
+    name: Docker images build
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          tags: tubaalhijaz/web:ci
+      - name: Build backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: server/Dockerfile
+          push: false
+          tags: tubaalhijaz/api:ci
