@@ -177,6 +177,7 @@ export default function AdminAuditLogsPage() {
               <TableRow>
                 <TableHead>Time</TableHead>
                 <TableHead>Actor</TableHead>
+                <TableHead>Severity</TableHead>
                 <TableHead>Action</TableHead>
                 <TableHead>Entity</TableHead>
                 <TableHead>Path</TableHead>
