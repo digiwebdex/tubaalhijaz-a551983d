@@ -214,6 +214,7 @@ const App = () => (
                     <Route path="airport-coordinator" element={<AdminAirportCoordinatorPage />} />
                     <Route path="ops-alerts" element={<AdminOpsAlertsPage />} />
                     <Route path="system-health" element={<AdminSystemHealthPage />} />
+                    <Route path="queue-monitor" element={<AdminQueueMonitorPage />} />
                   </Route>
 
                   <Route path="/agent" element={<AgentLayout />}>

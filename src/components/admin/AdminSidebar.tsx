@@ -81,6 +81,7 @@ const systemMenu = [
   { title: "Audit Logs",           url: "/admin/audit-logs",            icon: Shield,          roles: ["admin"] },
   { title: "Security & 2FA",       url: "/admin/security",              icon: ShieldCheck,     roles: ["admin"] },
   { title: "System Health",        url: "/admin/system-health",         icon: Activity,        roles: ["admin"] },
+  { title: "Queue Monitor",        url: "/admin/queue-monitor",         icon: Activity,        roles: ["admin"] },
   { title: "User Guide",           url: "/admin/guide",                 icon: BookOpen,        roles: ["admin", "accountant", "cms_manager", "support"] },
   { title: "Settings",             url: "/admin/settings",              icon: Settings,        roles: ["admin"] },
 ];
