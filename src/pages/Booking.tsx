@@ -116,6 +116,14 @@ const Booking = () => {
   });
   const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
 
+  // Pre-booking registration gate (for unauthenticated users)
+  const [regName, setRegName] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPhone, setRegPhone] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [regShowPassword, setRegShowPassword] = useState(false);
+  const [registering, setRegistering] = useState(false);
+
   const [createdBooking, setCreatedBooking] = useState<{ id: string; tracking_id: string } | null>(null);
 
   const normalizePaymentMethods = (value: unknown) => {
