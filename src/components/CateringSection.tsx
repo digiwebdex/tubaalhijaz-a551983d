@@ -1,6 +1,19 @@
 import { motion } from "framer-motion";
 import { UtensilsCrossed, Coffee, Soup, ArrowRight } from "lucide-react";
-import cateringImg from "@/assets/tuba-catering.jpg";
+import breakfastImg from "@/assets/category-breakfast.jpg";
+import lunchImg from "@/assets/category-lunch.jpg";
+import dinnerImg from "@/assets/category-dinner.jpg";
+
+const categoryImages: Record<string, string> = {
+  Breakfast: breakfastImg,
+  Lunch: lunchImg,
+  Dinner: dinnerImg,
+};
+const categoryLabelsBn: Record<string, string> = {
+  Breakfast: "সকালের নাস্তা",
+  Lunch: "দুপুরের খাবার",
+  Dinner: "রাতের খাবার",
+};
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/api";
