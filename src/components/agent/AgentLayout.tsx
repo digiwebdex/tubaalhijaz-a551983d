@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate, Outlet, NavLink } from "react-router-dom";
-import { auth as api, db } from "@/lib/api";
+import { auth as api, apiClient } from "@/lib/api";
 import { toast } from "sonner";
 import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { NotificationBell } from "@/components/admin/NotificationBell";
