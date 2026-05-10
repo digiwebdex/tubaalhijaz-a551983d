@@ -163,7 +163,8 @@ const App = () => (
               <Route path="flights" element={<AdminComingSoonPage title="Flights" description="Arrival/departure flight schedule, airline coordination, airport transfer linking." />} />
               <Route path="drivers-vehicles" element={<AdminComingSoonPage title="Drivers & Vehicles" description="Bus & vehicle fleet, driver roster, capacity, availability tracking." />} />
               <Route path="agents" element={<AdminComingSoonPage title="Agents" description="Travel agents, commission tracking, due management, total bookings." />} />
-              <Route path="invoices" element={<AdminComingSoonPage title="Invoices" description="Bilingual SAR/BDT invoices with QR verification, PDF download, WhatsApp & email delivery." />} />
+              <Route path="invoices/:id" element={<AdminBilingualInvoicePage />} />
+              <Route path="invoices" element={<AdminComingSoonPage title="Invoices" description="Open any booking and click the new Bilingual Invoice action to generate a SAR/BDT invoice with QR verification." />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
