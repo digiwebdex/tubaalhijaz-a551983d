@@ -141,11 +141,22 @@ sudo -u postgres psql -d tubaalhijaz_db -f server/schema.sql
 
 ## Step 7 — Backend `.env`
 
+Generate the JWT secrets FIRST (outside the editor), copy each printed value, then paste them into `server/.env` while editing:
+
+```bash
+# Run each line, copy the printed hex value
+openssl rand -hex 48   # → paste as JWT_SECRET
+openssl rand -hex 48   # → paste as JWT_REFRESH_SECRET
+```
+
+Then create and edit the env file:
+
 ```bash
 cp server/.env.tubaalhijaz.example server/.env
 nano server/.env
-# Fill in: DATABASE_URL (URL-encode the password), JWT_SECRET,
-# ADMIN_EMAIL, ADMIN_PASSWORD, BULK_SMS_*, RESEND_API_KEY, SSLCOMMERZ_*
+# Fill in: DATABASE_URL (URL-encode the password),
+# JWT_SECRET + JWT_REFRESH_SECRET (paste the values generated above),
+# ADMIN_EMAIL, ADMIN_PASSWORD, BULKSMSBD_*, RESEND_API_KEY, SSLCZ_*
 ```
 
 ## Step 8 — Frontend `.env` + build (Bun)
@@ -176,6 +187,9 @@ pm2 startup systemd -u $USER --hp $HOME    # run the printed sudo command
 Verify: `curl -s http://127.0.0.1:4002/api/health` → JSON.
 
 ## Step 10 — Nginx (HTTP first, for Certbot)
+
+> **Do NOT** run `rm /etc/nginx/sites-enabled/default` or disable any other vhost.
+> Only ADD the `tubaalhijaz.com` symlink. Other sites on this VPS must remain untouched.
 
 ```bash
 sudo cp /var/www/tubaalhijaz/nginx/tubaalhijaz.com.conf.example /etc/nginx/sites-available/tubaalhijaz.com
