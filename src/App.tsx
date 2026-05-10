@@ -71,6 +71,7 @@ const AdminComingSoonPage = lazy(() => import("./pages/admin/AdminComingSoonPage
 const AdminTransportVouchersPage = lazy(() => import("./pages/admin/AdminTransportVouchersPage"));
 const AdminInternalMovementsPage = lazy(() => import("./pages/admin/AdminInternalMovementsPage"));
 const AdminBilingualInvoicePage = lazy(() => import("./pages/admin/AdminBilingualInvoicePage"));
+const AdminMessageTemplatesPage = lazy(() => import("./pages/admin/AdminMessageTemplatesPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -165,6 +166,7 @@ const App = () => (
               <Route path="agents" element={<AdminComingSoonPage title="Agents" description="Travel agents, commission tracking, due management, total bookings." />} />
               <Route path="invoices/:id" element={<AdminBilingualInvoicePage />} />
               <Route path="invoices" element={<AdminComingSoonPage title="Invoices" description="Open any booking and click the new Bilingual Invoice action to generate a SAR/BDT invoice with QR verification." />} />
+              <Route path="message-templates" element={<AdminMessageTemplatesPage />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
