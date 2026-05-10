@@ -1857,3 +1857,37 @@ CREATE TABLE IF NOT EXISTS airport_arrivals (
 );
 CREATE INDEX IF NOT EXISTS idx_airport_arrivals_sched ON airport_arrivals(scheduled_at DESC);
 CREATE INDEX IF NOT EXISTS idx_airport_arrivals_status ON airport_arrivals(pickup_status);
+
+-- =====================================================================
+-- Queue infrastructure (BullMQ) — added 2026-05
+-- =====================================================================
+CREATE TABLE IF NOT EXISTS public.queue_job_logs (
+  id BIGSERIAL PRIMARY KEY,
+  queue_name TEXT NOT NULL,
+  job_id TEXT NOT NULL,
+  job_name TEXT,
+  status TEXT NOT NULL CHECK (status IN ('completed','failed','stalled','retrying')),
+  attempts INT NOT NULL DEFAULT 1,
+  duration_ms INT,
+  payload_summary TEXT,
+  error_message TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_queue_job_logs_queue_status ON public.queue_job_logs (queue_name, status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_queue_job_logs_created_at ON public.queue_job_logs (created_at DESC);
+
+CREATE TABLE IF NOT EXISTS public.failed_jobs (
+  id BIGSERIAL PRIMARY KEY,
+  queue_name TEXT NOT NULL,
+  job_id TEXT NOT NULL,
+  job_name TEXT,
+  payload JSONB,
+  attempts INT NOT NULL DEFAULT 0,
+  error_message TEXT,
+  error_stack TEXT,
+  failed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  retried_at TIMESTAMPTZ,
+  resolved_at TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_failed_jobs_queue ON public.failed_jobs (queue_name, failed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_failed_jobs_unresolved ON public.failed_jobs (failed_at DESC) WHERE resolved_at IS NULL;
