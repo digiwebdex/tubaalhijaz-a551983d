@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useActivePackages } from "@/hooks/usePackagesData";
 import PackageCard from "@/components/PackageCard";
+import { requireCustomerLogin } from "@/lib/bookingAuth";
 
 const TYPE_ORDER = ["hajj", "umrah", "tour", "visa", "air_ticket", "hotel", "transport", "ziyara"];
 const TYPE_LABELS: Record<string, { en: string; bn: string }> = {
@@ -84,7 +85,12 @@ const PackagesSection = () => {
                     key={pkg.id}
                     pkg={pkg}
                     index={i}
-                    onBook={(p) => { setBookingPackageId(p.id); setBookingOpen(true); }}
+                    onBook={async (p) => {
+                      const redirectTo = `/?book=package&package=${p.id}#packages`;
+                      if (!(await requireCustomerLogin(navigate, redirectTo))) return;
+                      setBookingPackageId(p.id);
+                      setBookingOpen(true);
+                    }}
                   />
                 ))}
               </div>
