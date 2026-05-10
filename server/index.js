@@ -156,6 +156,7 @@ app.use('/api/auth', authRoutes);
 
 // RBAC + sessions + approvals + filtered audit logs
 app.use('/api/rbac', require('./routes/rbac'));
+app.use('/api/queues', require('./routes/queues'));
 
 // =============================================
 // GENERIC CRUD HELPER

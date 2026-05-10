@@ -65,6 +65,31 @@ services:
     ports:
       - "4002:4002"
 
+  worker:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    command: ["node", "worker.js"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-tubaalhijaz}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-tubaalhijaz}
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET is required}
+      BULKSMSBD_API_KEY: ${BULKSMSBD_API_KEY:-}
+      BULKSMSBD_SENDER_ID: ${BULKSMSBD_SENDER_ID:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      NOTIFICATION_FROM_EMAIL: ${NOTIFICATION_FROM_EMAIL:-}
+    volumes:
+      - uploads_data:/app/uploads
+      - worker_logs:/app/logs
+
   web:
     build:
       context: .
@@ -96,3 +121,4 @@ volumes:
   redis_data:
   uploads_data:
   api_logs:
+  worker_logs:

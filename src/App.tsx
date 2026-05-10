@@ -86,6 +86,7 @@ const AdminLiveOperationsMapPage = lazy(() => import("./pages/admin/AdminLiveOpe
 const AdminAirportCoordinatorPage = lazy(() => import("./pages/admin/AdminAirportCoordinatorPage"));
 const AdminOpsAlertsPage = lazy(() => import("./pages/admin/AdminOpsAlertsPage"));
 const AdminSystemHealthPage = lazy(() => import("./pages/admin/AdminSystemHealthPage"));
+const AdminQueueMonitorPage = lazy(() => import("./pages/admin/AdminQueueMonitorPage"));
 
 // Agent Portal
 const AgentLayout = lazy(() => import("./components/agent/AgentLayout"));
@@ -213,6 +214,7 @@ const App = () => (
                     <Route path="airport-coordinator" element={<AdminAirportCoordinatorPage />} />
                     <Route path="ops-alerts" element={<AdminOpsAlertsPage />} />
                     <Route path="system-health" element={<AdminSystemHealthPage />} />
+                    <Route path="queue-monitor" element={<AdminQueueMonitorPage />} />
                   </Route>
 
                   <Route path="/agent" element={<AgentLayout />}>
