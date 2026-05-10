@@ -143,7 +143,7 @@ export const auth = {
   async signOut() {
     if (hasCustomSession()) {
       try { await apiFetch('/auth/logout', { method: 'POST', skipRedirect: true }); } catch {}
-
+    }
     TokenManager.clear();
     return { error: null };
   },
