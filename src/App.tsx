@@ -73,6 +73,7 @@ const AdminInternalMovementsPage = lazy(() => import("./pages/admin/AdminInterna
 const AdminBilingualInvoicePage = lazy(() => import("./pages/admin/AdminBilingualInvoicePage"));
 const AdminMessageTemplatesPage = lazy(() => import("./pages/admin/AdminMessageTemplatesPage"));
 const AdminOperationsCenterPage = lazy(() => import("./pages/admin/AdminOperationsCenterPage"));
+const AdminGroupManifestPage = lazy(() => import("./pages/admin/AdminGroupManifestPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
