@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import breakfastImg from "@/assets/category-breakfast.jpg";
@@ -8,6 +8,8 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import CateringOrderDialog, { CateringPlan } from "./CateringOrderDialog";
+import { useNavigate } from "react-router-dom";
+import { requireCustomerLogin } from "@/lib/bookingAuth";
 
 const categoryImages: Record<string, string> = {
   Breakfast: breakfastImg,
@@ -28,6 +30,7 @@ const fallback: CateringPlan[] = [
 
 const CateringSection = () => {
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const isBn = language === "bn";
   const [selected, setSelected] = useState<CateringPlan | null>(null);
 
@@ -46,7 +49,7 @@ const CateringSection = () => {
 
   const packages = (data && data.length > 0 ? data : fallback).slice(0, 3);
 
-  const handleClick = (p: any) => {
+  const openPlan = (p: any) => {
     const meal = p.meal_type as keyof typeof categoryImages;
     setSelected({
       id: p.id,
@@ -57,6 +60,26 @@ const CateringSection = () => {
       image: categoryImages[meal],
     });
   };
+
+  const handleClick = async (p: any) => {
+    const meal = p.meal_type as keyof typeof categoryImages;
+    if (!(await requireCustomerLogin(navigate, `/?book=catering&meal=${encodeURIComponent(meal)}#catering`))) return;
+    openPlan(p);
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("book") !== "catering" || selected) return;
+    const meal = params.get("meal");
+    const plan = packages.find((p: any) => !meal || p.meal_type === meal) || packages[0];
+    if (!plan) return;
+
+    apiClient.auth.getSession().then(({ data: { session } }) => {
+      if (!session) return;
+      openPlan(plan);
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.hash || ""}`);
+    });
+  }, [packages, selected]);
 
   return (
     <section id="catering" className="py-24 bg-background relative overflow-hidden">

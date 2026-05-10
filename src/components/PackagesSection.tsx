@@ -1,11 +1,10 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import BookingDialog from "@/components/BookingDialog";
-import { useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useActivePackages } from "@/hooks/usePackagesData";
 import PackageCard from "@/components/PackageCard";
+import { requireCustomerLogin } from "@/lib/bookingAuth";
 
 const TYPE_ORDER = ["hajj", "umrah", "tour", "visa", "air_ticket", "hotel", "transport", "ziyara"];
 const TYPE_LABELS: Record<string, { en: string; bn: string }> = {
@@ -23,8 +22,6 @@ const PackagesSection = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { data: packages = [], isLoading: loading } = useActivePackages();
-  const [bookingPackageId, setBookingPackageId] = useState<string | null>(null);
-  const [bookingOpen, setBookingOpen] = useState(false);
 
   if (loading || packages.length === 0) return null;
 
@@ -84,7 +81,10 @@ const PackagesSection = () => {
                     key={pkg.id}
                     pkg={pkg}
                     index={i}
-                    onBook={(p) => { setBookingPackageId(p.id); setBookingOpen(true); }}
+                    onBook={async (p) => {
+                      const bookingPath = `/booking?package=${p.id}`;
+                      if (await requireCustomerLogin(navigate, bookingPath)) navigate(bookingPath);
+                    }}
                   />
                 ))}
               </div>
@@ -102,7 +102,6 @@ const PackagesSection = () => {
         </div>
       </div>
 
-      <BookingDialog open={bookingOpen} onOpenChange={setBookingOpen} packageId={bookingPackageId} />
     </section>
   );
 };

@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import hotelFallback from "@/assets/hotel-makkah.jpg";
 import roomFallback from "@/assets/hotel-room.jpg";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { requireCustomerLogin } from "@/lib/bookingAuth";
 
 const AMENITY_ICONS: Record<string, any> = {
   wifi: Wifi, parking: Car, restaurant: UtensilsCrossed, gym: Dumbbell,
@@ -54,14 +55,17 @@ const HotelDetail = () => {
   const totalPrice = selectedRoom ? nights * Number(selectedRoom.price_per_night) : 0;
 
   const handleBook = async () => {
-    if (!user) { navigate("/auth"); return; }
+    if (!(await requireCustomerLogin(navigate, `/hotels/${id}`))) return;
+    const { data: { session } } = await apiClient.auth.getSession();
+    const currentUser = session?.user;
+    if (!currentUser) return;
     if (!selectedRoom || !checkIn || !checkOut || nights < 1) {
       toast.error(t("hotelDetail.selectDatesRoom"));
       return;
     }
     setBooking(true);
     const { error } = await apiClient.from("hotel_bookings").insert({
-      user_id: user.id, hotel_id: hotel.id, room_id: selectedRoom.id,
+      user_id: currentUser.id, hotel_id: hotel.id, room_id: selectedRoom.id,
       check_in: checkIn, check_out: checkOut, guests, total_price: totalPrice,
     });
     if (error) {

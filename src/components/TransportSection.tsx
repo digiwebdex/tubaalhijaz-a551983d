@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Bus, Car, MapPin, Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TransportOrderDialog, { TransportService } from "@/components/TransportOrderDialog";
@@ -11,6 +11,8 @@ import sedanImg from "@/assets/transport-sedan.jpg";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
+import { useNavigate } from "react-router-dom";
+import { requireCustomerLogin } from "@/lib/bookingAuth";
 
 const collage = [
   { key: "bus", img: busImg, label: { en: "Bus", bn: "বাস" } },
@@ -30,6 +32,7 @@ const fallback = [
 
 const TransportSection = () => {
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const isBn = language === "bn";
 
   const { data } = useQuery({
@@ -50,6 +53,32 @@ const TransportSection = () => {
   const [expanded, setExpanded] = useState<number | null>(null);
   const [orderOpen, setOrderOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<TransportService | null>(null);
+
+  const openService = (s: any) => {
+    setSelectedService({
+      id: s.id,
+      vehicle_type: s.vehicle_type,
+      route_from: s.route_from,
+      route_to: s.route_to,
+      price_sar: Number(s.price_sar) || 0,
+      capacity: s.capacity,
+    });
+    setOrderOpen(true);
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("book") !== "transport" || orderOpen) return;
+    const serviceName = params.get("service");
+    const service = services.find((s: any) => !serviceName || s.vehicle_type === serviceName) || services[0];
+    if (!service) return;
+
+    apiClient.auth.getSession().then(({ data: { session } }) => {
+      if (!session) return;
+      openService(service);
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.hash || ""}`);
+    });
+  }, [services, orderOpen]);
 
   const benefitsFor = (vt: string) => {
     const t = vt.toLowerCase();
@@ -202,17 +231,10 @@ const TransportSection = () => {
                             </ul>
                             <Button
                               className="w-full"
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
-                                setSelectedService({
-                                  id: s.id,
-                                  vehicle_type: s.vehicle_type,
-                                  route_from: s.route_from,
-                                  route_to: s.route_to,
-                                  price_sar: Number(s.price_sar) || 0,
-                                  capacity: s.capacity,
-                                });
-                                setOrderOpen(true);
+                                if (!(await requireCustomerLogin(navigate, `/?book=transport&service=${encodeURIComponent(s.vehicle_type)}#transport`))) return;
+                                openService(s);
                               }}
                             >
                               {isBn ? "বুকিং করুন" : "Book Now"}

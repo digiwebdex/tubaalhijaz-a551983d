@@ -13,6 +13,8 @@ import PersonalDetailsStep, { type PersonalInfo } from "@/components/booking/Per
 import DocumentUploadStep, { type UploadedDoc } from "@/components/booking/DocumentUploadStep";
 import BookingSuccess from "@/components/booking/BookingSuccess";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useNavigate } from "react-router-dom";
+import { requireCustomerLogin } from "@/lib/bookingAuth";
 
 const PAYMENT_LOGOS: Record<string, string> = {
   bkash: bkashLogo,
@@ -41,6 +43,7 @@ interface BookingDialogProps {
 
 const BookingDialog = ({ open, onOpenChange, packageId }: BookingDialogProps) => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   const STEPS = [
     { label: t("booking.package") || "প্যাকেজ", icon: <Package className="h-4 w-4" /> },
@@ -91,6 +94,11 @@ const BookingDialog = ({ open, onOpenChange, packageId }: BookingDialogProps) =>
 
     const init = async () => {
       const { data: { session } } = await apiClient.auth.getSession();
+      if (!session) {
+        onOpenChange(false);
+        await requireCustomerLogin(navigate, `/booking${packageId ? `?package=${packageId}` : ""}`);
+        return;
+      }
       if (session) {
         setUser(session.user);
         const { data: profile } = await apiClient.from("profiles").select("*").eq("user_id", session.user.id).single();

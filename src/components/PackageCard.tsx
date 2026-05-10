@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Clock, Star, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { requireCustomerLogin } from "@/lib/bookingAuth";
 import heroImage from "@/assets/hero-kaaba-golden.jpg";
 import medinaImage from "@/assets/hero-medina.jpg";
 
@@ -34,9 +35,12 @@ const PackageCard = ({ pkg, index = 0, onBook }: PackageCardProps) => {
   const highlightTag = pkg.highlight_tag?.trim();
   const typeLabel = TYPE_DISPLAY[pkg.type]?.[language] || pkg.type;
 
-  const handleBook = () => {
+  const handleBook = async () => {
     if (onBook) onBook(pkg);
-    else navigate(`/booking?package=${pkg.id}`);
+    else {
+      const bookingPath = `/booking?package=${pkg.id}`;
+      if (await requireCustomerLogin(navigate, bookingPath)) navigate(bookingPath);
+    }
   };
 
   return (
