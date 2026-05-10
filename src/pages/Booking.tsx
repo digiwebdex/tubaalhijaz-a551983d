@@ -375,7 +375,8 @@ const Booking = () => {
             </h1>
             {!user && (
               <p className="text-xs text-muted-foreground">
-                {t("booking.noAccountNeeded") || "অ্যাকাউন্ট ছাড়াই বুকিং করুন!"} <Link to="/auth" className="text-primary hover:underline">{t("nav.signIn")}</Link>
+                {t("auth.alreadyHaveAccount") || "Already have an account?"}{" "}
+                <Link to="/auth" className="text-primary hover:underline">{t("nav.signIn")}</Link>
               </p>
             )}
           </motion.div>
@@ -392,6 +393,66 @@ const Booking = () => {
               trackingId={createdBooking.tracking_id}
               userId={user?.id || ""}
             />
+          ) : !user ? (
+            <motion.form
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              onSubmit={handleRegisterAndContinue}
+              className="bg-card border border-border rounded-xl p-6 space-y-4"
+            >
+              <div className="text-center mb-2">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-3">
+                  <User className="h-6 w-6 text-primary" />
+                </div>
+                <h2 className="text-lg font-semibold">{t("auth.createAccount") || "Create your account"}</h2>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Please create an account to continue with your booking. You'll be logged in automatically.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-1 block">{t("auth.fullName") || "Full name"}</label>
+                <input type="text" required maxLength={100} value={regName}
+                  onChange={(e) => setRegName(e.target.value)} className={inputClass}
+                  placeholder={t("auth.enterFullName") || "Your full name"} />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-1 block">{t("auth.email") || "Email"}</label>
+                <input type="email" required maxLength={255} value={regEmail}
+                  onChange={(e) => setRegEmail(e.target.value)} className={inputClass}
+                  placeholder="your@email.com" />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-1 block">{t("auth.phoneNumber") || "Phone"}</label>
+                <input type="tel" maxLength={15} value={regPhone}
+                  onChange={(e) => setRegPhone(e.target.value)} className={inputClass}
+                  placeholder="01XXXXXXXXX" />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-1 block">{t("auth.password") || "Password"}</label>
+                <div className="relative">
+                  <input type={regShowPassword ? "text" : "password"} required minLength={8}
+                    value={regPassword} onChange={(e) => setRegPassword(e.target.value)}
+                    className={`${inputClass} pr-20`}
+                    placeholder={t("auth.createStrongPw") || "Min 8 characters"} />
+                  <button type="button" onClick={() => setRegShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-primary hover:underline">
+                    {regShowPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Save your email and password — you'll use them to track your bookings.
+                </p>
+              </div>
+
+              <button type="submit" disabled={registering}
+                className="w-full bg-gradient-gold text-primary-foreground font-semibold py-3 rounded-md text-sm hover:opacity-90 transition-opacity shadow-gold disabled:opacity-50">
+                {registering ? "Creating account..." : "Register & Continue to Booking"}
+              </button>
+            </motion.form>
           ) : (
             <>
               <BookingStepIndicator steps={STEPS} currentStep={step} />
