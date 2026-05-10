@@ -5,6 +5,9 @@ const path = require('path');
 const fs = require('fs');
 const fsp = require('fs/promises');
 const multer = require('multer');
+const helmet = require('helmet');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 const { query } = require('./config/database');
 const { authenticate, requireRole, optionalAuth } = require('./middleware/auth');
 const { auditMiddleware } = require('./middleware/audit');
@@ -12,11 +15,77 @@ const authRoutes = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const startedAt = Date.now();
 
-// Middleware
+// Trust reverse proxy (Nginx) for accurate client IPs in rate-limit + audit logs.
+app.set('trust proxy', 1);
+
+// Security headers — disable CSP because the SPA injects inline runtime config.
+app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(compression());
 app.use(cors({ origin: process.env.FRONTEND_URL || '*', credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Global API throttle (generous default for normal app usage)
+app.use('/api', rateLimit({
+  windowMs: 60 * 1000,
+  max: 600,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please slow down.' },
+}));
+
+// Stricter brute-force protection on authentication endpoints
+app.use('/api/auth/login', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts. Please try again later.' },
+}));
+app.use('/api/auth/otp', rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many OTP requests. Please wait a few minutes.' },
+}));
+
+// Lightweight liveness/health endpoints (no auth, no rate-limit-relevant)
+app.get('/api/health', (_req, res) => {
+  res.json({
+    status: 'ok',
+    uptime_seconds: Math.floor((Date.now() - startedAt) / 1000),
+    timestamp: new Date().toISOString(),
+    version: process.env.APP_VERSION || '1.0.0',
+  });
+});
+
+app.get('/api/health/ready', async (_req, res) => {
+  const checks = { database: 'unknown', uploads: 'unknown' };
+  let httpStatus = 200;
+  try {
+    const dbStart = Date.now();
+    await query('SELECT 1');
+    checks.database = `ok (${Date.now() - dbStart}ms)`;
+  } catch (err) {
+    checks.database = `fail: ${err.message}`;
+    httpStatus = 503;
+  }
+  try {
+    await fsp.access(path.join(__dirname, 'uploads'));
+    checks.uploads = 'ok';
+  } catch {
+    checks.uploads = 'missing';
+  }
+  res.status(httpStatus).json({
+    status: httpStatus === 200 ? 'ready' : 'degraded',
+    uptime_seconds: Math.floor((Date.now() - startedAt) / 1000),
+    checks,
+    timestamp: new Date().toISOString(),
+  });
+});
 
 // File upload config
 const storage = multer.diskStorage({
@@ -1733,6 +1802,20 @@ app.get('*', (req, res) => {
   if (!req.path.startsWith('/api/')) {
     res.sendFile(path.join(frontendPath, 'index.html'));
   }
+});
+
+// =============================================
+// GLOBAL ERROR HANDLER (last middleware)
+// =============================================
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, _next) => {
+  const status = err.status || err.statusCode || 500;
+  if (status >= 500) {
+    console.error(`[api-error] ${req.method} ${req.originalUrl}`, err);
+  }
+  res.status(status).json({
+    error: err.expose || status < 500 ? err.message : 'Internal server error',
+  });
 });
 
 // =============================================
