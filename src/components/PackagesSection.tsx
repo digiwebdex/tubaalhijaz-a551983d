@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import BookingDialog from "@/components/BookingDialog";
 import { useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useActivePackages } from "@/hooks/usePackagesData";
@@ -24,8 +23,6 @@ const PackagesSection = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { data: packages = [], isLoading: loading } = useActivePackages();
-  const [bookingPackageId, setBookingPackageId] = useState<string | null>(null);
-  const [bookingOpen, setBookingOpen] = useState(false);
 
   if (loading || packages.length === 0) return null;
 
@@ -86,10 +83,8 @@ const PackagesSection = () => {
                     pkg={pkg}
                     index={i}
                     onBook={async (p) => {
-                      const redirectTo = `/?book=package&package=${p.id}#packages`;
-                      if (!(await requireCustomerLogin(navigate, redirectTo))) return;
-                      setBookingPackageId(p.id);
-                      setBookingOpen(true);
+                      const bookingPath = `/booking?package=${p.id}`;
+                      if (await requireCustomerLogin(navigate, bookingPath)) navigate(bookingPath);
                     }}
                   />
                 ))}
@@ -108,7 +103,6 @@ const PackagesSection = () => {
         </div>
       </div>
 
-      <BookingDialog open={bookingOpen} onOpenChange={setBookingOpen} packageId={bookingPackageId} />
     </section>
   );
 };
