@@ -476,9 +476,9 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
                   <Textarea rows={1} value={notes} onChange={e => setNotes(e.target.value)} />
                 </div>
               </div>
-            </ScrollArea>
+            </div>
 
-            <div className="flex justify-end gap-2 px-6 py-4 border-t bg-secondary/30">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 px-4 sm:px-6 py-3 sm:py-4 border-t bg-secondary/30 shrink-0">
               <Button type="button" variant="outline" onClick={() => handleClose(false)}>
                 {isBn ? "বাতিল" : "Cancel"}
               </Button>
