@@ -613,6 +613,7 @@ require('./services/messageDispatcher').start();
 
 // Phase 6 Slice B: QR / Public verification + scan logging
 app.use('/api/qr-verifications', createCrudRoutes('qr_verifications', { adminOnly: true, orderBy: 'created_at DESC' }));
+app.use('/api/document-reviews', require('./routes/documentReviews'));
 app.use('/api/public-tracking-logs', createCrudRoutes('public_tracking_logs', { adminOnly: true, orderBy: 'scanned_at DESC' }));
 app.use('/api/verify', require('./routes/verify'));
 
