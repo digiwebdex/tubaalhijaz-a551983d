@@ -89,8 +89,8 @@ export default function AdminVisaPage() {
     <div className="space-y-4 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Visa Processing</h1>
-          <p className="text-sm text-muted-foreground">Track visa applications, status & dues.</p>
+          <h1 className="text-2xl font-bold text-[#0F4C3A]">Visa Processing <span className="text-base font-normal text-[#C9A96E]" dir="rtl" style={{ fontFamily: "'Noto Naskh Arabic',serif" }}>· معالجة التأشيرات</span></h1>
+          <p className="text-sm text-muted-foreground">Track visa applications across the workflow: Pending → Processing → Approved.</p>
         </div>
         <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setEditing(null); setForm(emptyForm); }}}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-2" /> New Visa</Button></DialogTrigger>
@@ -161,6 +161,34 @@ export default function AdminVisaPage() {
           </CardContent></Card>
         ))}
       </div>
+
+      {/* Visa workflow funnel */}
+      <Card className="border-[#C9A96E]/30">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between text-xs font-semibold text-[#0F4C3A] mb-3">
+            <span>Visa Workflow / سير عمل التأشيرة</span>
+            <span className="text-muted-foreground">{items.length} total applications</span>
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { k: "pending", en: "Pending", ar: "قيد الانتظار", color: "bg-yellow-500" },
+              { k: "processing", en: "Processing", ar: "قيد المعالجة", color: "bg-blue-500" },
+              { k: "approved", en: "Approved", ar: "موافق عليه", color: "bg-green-500" },
+              { k: "rejected", en: "Rejected", ar: "مرفوض", color: "bg-red-500" },
+            ].map(s => {
+              const count = items.filter(i => i.visa_status === s.k).length;
+              return (
+                <div key={s.k} className="border border-gray-200 rounded p-3 hover:border-[#C9A96E] cursor-pointer" onClick={() => setFilter(s.k)}>
+                  <div className={`h-1 ${s.color} rounded mb-2`} />
+                  <div className="text-2xl font-bold tabular-nums text-[#0F4C3A]">{count}</div>
+                  <div className="text-xs">{s.en}</div>
+                  <div className="text-[10px] text-gray-500" dir="rtl" style={{ fontFamily: "'Noto Naskh Arabic',serif" }}>{s.ar}</div>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
