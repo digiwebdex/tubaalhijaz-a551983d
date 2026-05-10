@@ -57,7 +57,7 @@ const Auth = () => {
       const roles = data?.user?.roles || [];
       const isAdminRole = roles.some((r: string) => ["admin", "manager", "staff", "accountant", "booking", "cms", "viewer"].includes(r));
       toast.success(t("auth.welcomeBackToast"));
-      navigate(isAdminRole ? "/admin" : "/dashboard");
+      navigate(isAdminRole ? "/admin" : (redirectParam || "/dashboard"));
     } catch (err: any) {
       toast.error(err.message);
     } finally {
