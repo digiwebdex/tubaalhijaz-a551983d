@@ -188,6 +188,9 @@ Verify: `curl -s http://127.0.0.1:4002/api/health` → JSON.
 
 ## Step 10 — Nginx (HTTP first, for Certbot)
 
+> **Do NOT** run `rm /etc/nginx/sites-enabled/default` or disable any other vhost.
+> Only ADD the `tubaalhijaz.com` symlink. Other sites on this VPS must remain untouched.
+
 ```bash
 sudo cp /var/www/tubaalhijaz/nginx/tubaalhijaz.com.conf.example /etc/nginx/sites-available/tubaalhijaz.com
 sudo sed -i '/listen 443 ssl/,/^}/d' /etc/nginx/sites-available/tubaalhijaz.com
