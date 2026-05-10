@@ -108,20 +108,7 @@ const CateringSection = () => {
           ))}
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-10 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="relative"
-          >
-            <div className="grid grid-cols-2 gap-3">
-              <img src={breakfastImg} alt="Homemade breakfast" loading="lazy" className="rounded-2xl shadow-luxury w-full aspect-square object-cover col-span-2" />
-              <img src={lunchImg} alt="Homemade lunch" loading="lazy" className="rounded-2xl shadow-luxury w-full aspect-square object-cover" />
-              <img src={dinnerImg} alt="Homemade dinner" loading="lazy" className="rounded-2xl shadow-luxury w-full aspect-square object-cover" />
-            </div>
-          </motion.div>
-
+        <div className="max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
