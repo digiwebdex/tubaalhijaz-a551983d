@@ -27,6 +27,7 @@ const operationsMenu = [
   { title: "Umrah Packages",       url: "/admin/packages",              icon: Package,         roles: ["admin", "viewer"] },
   { title: "Transport Vouchers",   url: "/admin/transport-vouchers",    icon: FileSignature,   roles: ["admin", "accountant", "booking", "viewer"] },
   { title: "Internal Movements",   url: "/admin/movements",             icon: RouteIcon,       roles: ["admin", "accountant", "booking", "viewer"] },
+  { title: "Group Manifest",       url: "/admin/group-manifest",        icon: FileText,        roles: ["admin", "accountant", "booking", "viewer"] },
   { title: "Catering Bookings",    url: "/admin/catering",              icon: UtensilsCrossed, roles: ["admin", "accountant", "booking", "viewer"] },
   { title: "Visa Processing",      url: "/admin/visa",                  icon: FileCheck,       roles: ["admin", "accountant", "booking", "viewer"] },
 ];
