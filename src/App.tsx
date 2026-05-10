@@ -79,6 +79,16 @@ const AdminMessageLogsPage = lazy(() => import("./pages/admin/AdminMessageLogsPa
 const AdminQrVerificationsPage = lazy(() => import("./pages/admin/AdminQrVerificationsPage"));
 const AdminDocumentReviewsPage = lazy(() => import("./pages/admin/AdminDocumentReviewsPage"));
 
+// Agent Portal
+const AgentLayout = lazy(() => import("./components/agent/AgentLayout"));
+const AgentDashboardPage = lazy(() => import("./pages/agent/AgentDashboardPage"));
+const AgentBookingsPage = lazy(() => import("./pages/agent/AgentBookingsPage"));
+const AgentPilgrimsPage = lazy(() => import("./pages/agent/AgentPilgrimsPage"));
+const AgentGroupsPage = lazy(() => import("./pages/agent/AgentGroupsPage"));
+const AgentCommissionsPage = lazy(() => import("./pages/agent/AgentCommissionsPage"));
+const AgentDocumentsPage = lazy(() => import("./pages/agent/AgentDocumentsPage"));
+const AgentOperationsPage = lazy(() => import("./pages/agent/AgentOperationsPage"));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -180,6 +190,16 @@ const App = () => (
               <Route path="message-logs" element={<AdminMessageLogsPage />} />
               <Route path="qr-verifications" element={<AdminQrVerificationsPage />} />
               <Route path="document-reviews" element={<AdminDocumentReviewsPage />} />
+            </Route>
+
+            <Route path="/agent" element={<AgentLayout />}>
+              <Route index element={<AgentDashboardPage />} />
+              <Route path="bookings" element={<AgentBookingsPage />} />
+              <Route path="pilgrims" element={<AgentPilgrimsPage />} />
+              <Route path="groups" element={<AgentGroupsPage />} />
+              <Route path="commissions" element={<AgentCommissionsPage />} />
+              <Route path="documents" element={<AgentDocumentsPage />} />
+              <Route path="operations" element={<AgentOperationsPage />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
