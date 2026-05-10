@@ -7,6 +7,7 @@ import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "./AdminSidebar";
 import { NotificationBell } from "./NotificationBell";
+import GlobalSearch from "@/components/GlobalSearch";
 import { Eye } from "lucide-react";
 import type { AppRole } from "@/hooks/useUserRole";
 
@@ -98,6 +99,9 @@ export default function AdminLayout() {
           <main className="flex-1 flex flex-col min-w-0">
             <header className="h-14 border-b border-border flex items-center px-4 sticky top-0 bg-background z-40">
               <SidebarTrigger />
+              <div className="ml-4 flex-1">
+                <GlobalSearch />
+              </div>
               <div className="ml-auto flex items-center gap-2">
                 <NotificationBell />
                 <span className="text-xs text-muted-foreground capitalize bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold">
