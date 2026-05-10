@@ -1,8 +1,13 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { UtensilsCrossed, Coffee, Soup, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import breakfastImg from "@/assets/category-breakfast.jpg";
 import lunchImg from "@/assets/category-lunch.jpg";
 import dinnerImg from "@/assets/category-dinner.jpg";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/lib/api";
+import CateringOrderDialog, { CateringPlan } from "./CateringOrderDialog";
 
 const categoryImages: Record<string, string> = {
   Breakfast: breakfastImg,
@@ -14,21 +19,17 @@ const categoryLabelsBn: Record<string, string> = {
   Lunch: "দুপুরের খাবার",
   Dinner: "রাতের খাবার",
 };
-import { useLanguage } from "@/i18n/LanguageContext";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/lib/api";
 
-const fallback = [
-  { name: "Breakfast Plan", meal_type: "Breakfast", cuisine: "Arabic + Bangladeshi", price_per_meal: 18, Icon: Coffee },
-  { name: "Lunch Plan", meal_type: "Lunch", cuisine: "Bangladeshi Biryani", price_per_meal: 28, Icon: Soup },
-  { name: "Dinner Plan", meal_type: "Dinner", cuisine: "Arabic Kabsa & Bangla", price_per_meal: 28, Icon: UtensilsCrossed },
+const fallback: CateringPlan[] = [
+  { name: "Breakfast Plan", meal_type: "Breakfast", cuisine: "Arabic + Bangladeshi", price_per_meal: 18 },
+  { name: "Lunch Plan", meal_type: "Lunch", cuisine: "Bangladeshi Biryani", price_per_meal: 28 },
+  { name: "Dinner Plan", meal_type: "Dinner", cuisine: "Arabic Kabsa & Bangla", price_per_meal: 28 },
 ];
-
-const icons: Record<string, any> = { Breakfast: Coffee, Lunch: Soup, Dinner: UtensilsCrossed };
 
 const CateringSection = () => {
   const { language } = useLanguage();
   const isBn = language === "bn";
+  const [selected, setSelected] = useState<CateringPlan | null>(null);
 
   const { data } = useQuery({
     queryKey: ["catering_packages_public"],
@@ -43,11 +44,24 @@ const CateringSection = () => {
     },
   });
 
-  const packages = data && data.length > 0 ? data : fallback;
+  const packages = (data && data.length > 0 ? data : fallback).slice(0, 3);
+
+  const handleClick = (p: any) => {
+    const meal = p.meal_type as keyof typeof categoryImages;
+    setSelected({
+      id: p.id,
+      name: p.name || `${meal} Plan`,
+      meal_type: meal,
+      cuisine: p.cuisine,
+      price_per_meal: Number(p.price_per_meal) || 0,
+      image: categoryImages[meal],
+    });
+  };
 
   return (
     <section id="catering" className="py-24 bg-background relative overflow-hidden">
       <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-primary/5 blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-accent/5 blur-3xl" />
 
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
@@ -70,80 +84,77 @@ const CateringSection = () => {
               ? "বিশুদ্ধ হালাল বাংলা ও আরবী খাবার — প্রতিদিন আপনার হোটেলে পৌঁছে দেওয়া হবে।"
               : "100% Halal Bangladeshi & Arabic meals delivered fresh to your hotel — every single day."}
           </p>
+          <p className="mt-3 text-sm text-primary font-semibold">
+            {isBn ? "কোনো প্ল্যানে ক্লিক করে অর্ডার করুন →" : "Tap any plan to order →"}
+          </p>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-12"
-        >
-          {(["Breakfast", "Lunch", "Dinner"] as const).map((meal, idx) => (
-            <motion.div
-              key={meal}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="group relative overflow-hidden rounded-3xl shadow-luxury cursor-pointer"
-            >
-              <img
-                src={categoryImages[meal]}
-                alt={`${meal} — homemade fresh meal by TUBA ALHIJAZ`}
-                loading="lazy"
-                width={1024}
-                height={768}
-                className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <div className="text-white/70 text-[10px] font-bold tracking-[0.3em] uppercase mb-1">
-                  {isBn ? "তাজা ও ঘরে তৈরি" : "Fresh · Homemade"}
-                </div>
-                <h3 className="font-heading text-2xl md:text-3xl font-bold text-white">
-                  {isBn ? categoryLabelsBn[meal] : meal}
-                </h3>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <div className="max-w-3xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="space-y-4"
-          >
-            {packages.slice(0, 3).map((p: any, i: number) => {
-              const Icon = icons[p.meal_type] || UtensilsCrossed;
-              return (
-                <div key={i} className="flex items-center gap-5 p-5 bg-card rounded-2xl border border-border hover:border-primary/40 hover:shadow-luxury transition group">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-sunset flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition">
-                    <Icon className="h-7 w-7 text-white" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {packages.map((p: any, idx: number) => {
+            const meal = (p.meal_type || "Breakfast") as keyof typeof categoryImages;
+            const img = categoryImages[meal] || breakfastImg;
+            return (
+              <motion.button
+                type="button"
+                key={p.id || idx}
+                onClick={() => handleClick(p)}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                whileHover={{ y: -6 }}
+                className="group relative text-left rounded-3xl overflow-hidden bg-card border border-border shadow-luxury hover:shadow-glow hover:border-primary/40 transition-all focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <img
+                    src={img}
+                    alt={`${meal} — homemade meal by TUBA ALHIJAZ`}
+                    loading="lazy"
+                    width={1024}
+                    height={768}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute top-4 left-4">
+                    <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/90 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                      {isBn ? "তাজা · ঘরে তৈরি" : "Fresh · Homemade"}
+                    </span>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-heading text-xl font-bold">{p.name || p.meal_type}</h3>
-                    <p className="text-sm text-muted-foreground">{p.cuisine}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-heading font-bold text-primary text-xl">SAR {p.price_per_meal}</div>
-                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{isBn ? "প্রতি মিল" : "per meal"}</div>
+                  <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                    <h3 className="font-heading text-2xl md:text-3xl font-bold text-white drop-shadow">
+                      {isBn ? categoryLabelsBn[meal] : meal}
+                    </h3>
+                    <div className="text-right">
+                      <div className="font-heading text-white text-2xl font-bold leading-none">
+                        SAR {p.price_per_meal}
+                      </div>
+                      <div className="text-[9px] text-white/80 uppercase tracking-widest mt-1">
+                        {isBn ? "প্রতি মিল" : "per meal"}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              );
-            })}
-
-            <a
-              href="#contact"
-              className="inline-flex items-center gap-2 mt-4 bg-gradient-sunset text-white font-semibold px-7 py-3.5 rounded-full shadow-gold hover:shadow-glow transition-all hover:scale-105"
-            >
-              {isBn ? "ক্যাটারিং অর্ডার করুন" : "Order Catering"}
-              <ArrowRight className="h-4 w-4" />
-            </a>
-          </motion.div>
+                <div className="flex items-center justify-between p-5">
+                  <div>
+                    <div className="font-semibold text-foreground">{p.name || `${meal} Plan`}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{p.cuisine}</div>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-primary font-semibold text-sm group-hover:gap-3 transition-all">
+                    {isBn ? "অর্ডার" : "Order"}
+                    <ArrowRight className="h-4 w-4" />
+                  </div>
+                </div>
+              </motion.button>
+            );
+          })}
         </div>
       </div>
+
+      <CateringOrderDialog
+        open={!!selected}
+        onOpenChange={(v) => !v && setSelected(null)}
+        plan={selected}
+      />
     </section>
   );
 };
