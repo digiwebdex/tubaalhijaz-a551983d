@@ -173,6 +173,8 @@ const App = () => (
               <Route path="message-templates" element={<AdminMessageTemplatesPage />} />
               <Route path="operations" element={<AdminOperationsCenterPage />} />
               <Route path="group-manifest" element={<AdminGroupManifestPage />} />
+              <Route path="messaging-settings" element={<AdminMessagingSettingsPage />} />
+              <Route path="message-logs" element={<AdminMessageLogsPage />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
