@@ -118,6 +118,7 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/invoice" element={<InvoicePage />} />
             <Route path="/verify/:invoiceNumber" element={<VerifyInvoice />} />
+            <Route path="/verify/track/:trackingId" element={<VerifyInvoice />} />
             <Route path="/verify" element={<VerifyInvoice />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-conditions" element={<TermsConditions />} />
