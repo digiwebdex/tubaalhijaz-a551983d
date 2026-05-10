@@ -120,42 +120,17 @@ export const auth = {
         };
       }
 
-      if (resData?.error && (!supabaseClient || res.status < 500)) {
+      if (resData?.error) {
         return { data: null, error: { message: resData.error } };
       }
     } catch {
-      // Fall back to Supabase auth when the custom API is unavailable
-    }
-
-    if (supabaseClient) {
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) return { data: null, error: { message: error.message } };
-
-      const { data: rolesData } = await supabaseClient
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', data.user.id);
-
-      const roles = rolesData?.map((r: any) => r.role) || [];
-      const user = { id: data.user.id, email: data.user.email, roles, ...data.user.user_metadata };
-      TokenManager.setTokens(data.session.access_token, data.session.refresh_token);
-      TokenManager.setUser(user);
-      return { data: { user, session: data.session }, error: null };
+      // network error — fall through
     }
 
     return { data: null, error: { message: 'Login failed. Please try again.' } };
   },
 
   async signUp({ email, password, options }: { email: string; password: string; options?: { data?: any } }) {
-    if (supabaseClient) {
-      const { data, error } = await supabaseClient.auth.signUp({
-        email, password,
-        options: { data: options?.data },
-      });
-      if (error) return { data: null, error: { message: error.message } };
-      return { data: {}, error: null };
-    }
-
     const res = await apiFetch('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, password, full_name: options?.data?.full_name, phone: options?.data?.phone }),
