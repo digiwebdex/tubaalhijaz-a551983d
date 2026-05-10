@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import heroImage from "@/assets/hero-kaaba-golden.jpg";
 import { useLanguage } from "@/i18n/LanguageContext";
 import SEOHead, { productJsonLd, breadcrumbJsonLd } from "@/components/SEOHead";
+import { requireCustomerLogin } from "@/lib/bookingAuth";
 
 const PackageDetail = () => {
   const { id } = useParams();
@@ -163,10 +164,15 @@ const PackageDetail = () => {
                 )}
               </div>
 
-              <Link to={`/booking?package=${pkg.id}`}
+              <button
+                type="button"
+                onClick={async () => {
+                  const bookingPath = `/booking?package=${pkg.id}`;
+                  if (await requireCustomerLogin(navigate, bookingPath)) navigate(bookingPath);
+                }}
                 className="w-full py-3 rounded-md text-sm font-semibold text-center inline-flex items-center justify-center gap-2 bg-gradient-gold text-primary-foreground hover:opacity-90 transition-opacity shadow-gold">
                 {t("nav.bookNow")} <ArrowRight className="h-4 w-4" />
-              </Link>
+              </button>
               <p className="text-xs text-muted-foreground text-center mt-3">{t("pkgDetail.installmentAvailable")}</p>
             </div>
           </motion.div>
