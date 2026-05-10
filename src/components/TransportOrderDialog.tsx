@@ -223,8 +223,8 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-5xl max-h-[92vh] p-0">
-        <DialogHeader className="px-6 pt-6 pb-3 border-b">
+      <DialogContent className="max-w-5xl w-[96vw] sm:w-[95vw] max-h-[95vh] sm:max-h-[92vh] p-0 flex flex-col gap-0 overflow-hidden">
+        <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 border-b shrink-0">
           <div className="flex items-center justify-between gap-4">
             <DialogTitle className="font-heading text-xl">
               {isBn ? "ট্রান্সপোর্ট ভাউচার বুকিং" : "Transport Voucher Booking"}
