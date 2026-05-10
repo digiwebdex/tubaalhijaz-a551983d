@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { apiClient } from "@/lib/apiClient";
 const api = apiClient.auth;
 import { toast } from "sonner";
@@ -15,6 +15,9 @@ const OTP_LOGIN_ENABLED = false;
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectParam = searchParams.get("redirect");
+  const goAfterLogin = (fallback: string) => navigate(redirectParam || fallback);
   const { t, language } = useLanguage();
   const [mode, setMode] = useState<AuthMode>("login");
   const [loading, setLoading] = useState(false);
@@ -54,7 +57,7 @@ const Auth = () => {
       const roles = data?.user?.roles || [];
       const isAdminRole = roles.some((r: string) => ["admin", "manager", "staff", "accountant", "booking", "cms", "viewer"].includes(r));
       toast.success(t("auth.welcomeBackToast"));
-      navigate(isAdminRole ? "/admin" : "/dashboard");
+      navigate(isAdminRole ? "/admin" : (redirectParam || "/dashboard"));
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -136,7 +139,7 @@ const Auth = () => {
         });
         if (sessionError) throw sessionError;
         toast.success(language === "bn" ? "সফলভাবে লগইন হয়েছে!" : "Successfully logged in!");
-        navigate("/dashboard");
+        navigate(redirectParam || "/dashboard");
       } else {
         throw new Error("Authentication failed");
       }
