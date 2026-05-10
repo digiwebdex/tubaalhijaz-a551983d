@@ -143,9 +143,7 @@ export const auth = {
   async signOut() {
     if (hasCustomSession()) {
       try { await apiFetch('/auth/logout', { method: 'POST', skipRedirect: true }); } catch {}
-    } else if (supabaseClient) {
-      await supabaseClient.auth.signOut();
-    }
+
     TokenManager.clear();
     return { error: null };
   },
@@ -155,14 +153,6 @@ export const auth = {
     const user = TokenManager.getUser();
     if (token && user) {
       return { data: { session: { user: { id: user.id, email: user.email }, access_token: token } } };
-    }
-
-    if (supabaseClient) {
-      const { data } = await supabaseClient.auth.getSession();
-      if (data.session) {
-        return { data: { session: { user: { id: data.session.user.id, email: data.session.user.email }, access_token: data.session.access_token } } };
-      }
-      return { data: { session: null } };
     }
 
     return { data: { session: null } };
@@ -189,28 +179,10 @@ export const auth = {
       return { data: { user: { id: localUser.id, email: localUser.email, ...localUser } } };
     }
 
-    if (supabaseClient) {
-      const { data } = await supabaseClient.auth.getUser();
-      if (data.user) {
-        const localUser = TokenManager.getUser();
-        const roles = localUser?.roles || [];
-        return { data: { user: { id: data.user.id, email: data.user.email, ...data.user.user_metadata, roles } } };
-      }
-      return { data: { user: null } };
-    }
-
     return { data: { user: null } };
   },
 
   async resetPasswordForEmail(email: string, _options?: any) {
-    if (supabaseClient) {
-      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      if (error) return { error: { message: error.message } };
-      return { error: null };
-    }
-
     const res = await apiFetch('/auth/forgot-password', {
       method: 'POST',
       body: JSON.stringify({ email }),
@@ -221,12 +193,6 @@ export const auth = {
   },
 
   async updateUser({ password }: { password: string }) {
-    if (supabaseClient) {
-      const { error } = await supabaseClient.auth.updateUser({ password });
-      if (error) return { error: { message: error.message } };
-      return { data: {}, error: null };
-    }
-
     const res = await apiFetch('/auth/reset-password', {
       method: 'POST',
       body: JSON.stringify({ token: new URLSearchParams(window.location.search).get('token'), password }),
@@ -251,17 +217,6 @@ export const auth = {
       return { data: { subscription: { unsubscribe: () => window.removeEventListener('storage', handler) } } };
     }
 
-    if (supabaseClient) {
-      const { data } = supabaseClient.auth.onAuthStateChange((event, session) => {
-        if (session) {
-          callback(event, { user: { id: session.user.id, email: session.user.email }, access_token: session.access_token });
-        } else {
-          callback(event, null);
-        }
-      });
-      return { data: { subscription: { unsubscribe: () => data.subscription.unsubscribe() } } };
-    }
-
     // Fallback: localStorage-based
     const token = TokenManager.getAccessToken();
     const user = TokenManager.getUser();
@@ -280,19 +235,6 @@ export const auth = {
 
   async setSession(session: { access_token: string; refresh_token: string }) {
     TokenManager.clear();
-
-    if (supabaseClient) {
-      const { error } = await supabaseClient.auth.setSession({
-        access_token: session.access_token,
-        refresh_token: session.refresh_token,
-      });
-
-      if (error) {
-        return { error: { message: error.message } };
-      }
-
-      return { error: null };
-    }
 
     return { error: { message: 'Authentication client unavailable' } };
   },
@@ -488,23 +430,6 @@ class QueryBuilder {
           }
         } catch {}
         
-        // Fallback to Supabase client for public reads when VPS is unavailable
-        if (!vpsOk && supabaseClient) {
-          let query: any = supabaseClient.from(this.table).select(this.selectFields);
-          for (const f of this.filters) {
-            const eqMatch = f.match(/^([^_=]+)=(.+)$/);
-            if (eqMatch) {
-              query = query.eq(eqMatch[1], decodeURIComponent(eqMatch[2]));
-            }
-          }
-          if (this.orderByField) {
-            query = query.order(this.orderByField, { ascending: this.orderAsc });
-          }
-          if (this.limitVal) query = query.limit(this.limitVal);
-          if (this.singleRow) query = query.maybeSingle();
-          const result = await query;
-          return { data: result.data, error: result.error };
-        }
         
         if (!vpsOk) {
           return { data: null, error: { message: 'API unavailable' } };

@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { supabase } from "@/lib/api";
-import { supabase as supabaseClient } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
+import { apiClient as supabaseClient } from "@/lib/apiClient";
 import { toast } from "sonner";
 import { Plus, X, Edit2, Trash2, Save, ToggleLeft, ToggleRight, Upload, Loader2, Eye, Copy, ListChecks } from "lucide-react";
 import { useIsViewer } from "@/components/admin/AdminLayout";
@@ -45,7 +45,7 @@ export default function AdminPackagesPage() {
     }
   }, [urlType]);
 
-  const fetchPkgs = () => supabase.from("packages").select("*").order("created_at", { ascending: false }).then(({ data }) => setPackages(data || []));
+  const fetchPkgs = () => apiClient.from("packages").select("*").order("created_at", { ascending: false }).then(({ data }) => setPackages(data || []));
   useEffect(() => { fetchPkgs(); }, []);
 
   const filteredPackages = typeFilter === "all" ? packages : packages.filter(p => p.type === typeFilter);
@@ -92,7 +92,7 @@ export default function AdminPackagesPage() {
     e.preventDefault();
     if (!form.name.trim()) { toast.error("Package name is required"); return; }
     if (!form.price || parseFloat(form.price) <= 0) { toast.error("Please enter a valid price"); return; }
-    const { error } = await supabase.from("packages").insert(buildPayload(form));
+    const { error } = await apiClient.from("packages").insert(buildPayload(form));
     if (error) { toast.error(error.message); return; }
     toast.success("Package created");
     setShowForm(false); setForm({ ...EMPTY_FORM }); fetchPkgs();
@@ -119,7 +119,7 @@ export default function AdminPackagesPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingId) return;
-    const { error } = await supabase.from("packages").update(buildPayload(form)).eq("id", editingId);
+    const { error } = await apiClient.from("packages").update(buildPayload(form)).eq("id", editingId);
     if (error) { toast.error(error.message); return; }
     toast.success("Package updated");
     setShowForm(false); setEditingId(null); setForm({ ...EMPTY_FORM }); fetchPkgs();
@@ -127,7 +127,7 @@ export default function AdminPackagesPage() {
 
   const toggleActive = async (p: any) => {
     const newStatus = p.status === "active" ? "inactive" : "active";
-    const { error } = await supabase.from("packages").update({ 
+    const { error } = await apiClient.from("packages").update({ 
       status: newStatus, 
       is_active: newStatus === "active",
       show_on_website: newStatus === "inactive" ? false : p.show_on_website,
@@ -140,7 +140,7 @@ export default function AdminPackagesPage() {
   const handleDuplicate = async (p: any) => {
     const svc = Array.isArray(p.services) ? p.services : [];
     const feat = Array.isArray(p.features) ? p.features : [];
-    const { error } = await supabase.from("packages").insert({
+    const { error } = await apiClient.from("packages").insert({
       name: p.name + " (Copy)", type: p.type, description: p.description,
       price: p.price, duration_days: p.duration_days, image_url: p.image_url,
       start_date: p.start_date, expiry_date: p.expiry_date, services: svc, features: feat,
@@ -154,7 +154,7 @@ export default function AdminPackagesPage() {
 
   const confirmDelete = async () => {
     if (!deleteId) return;
-    const { error } = await supabase.from("packages").delete().eq("id", deleteId);
+    const { error } = await apiClient.from("packages").delete().eq("id", deleteId);
     if (error) { toast.error(error.message); return; }
     toast.success("Package deleted");
     setDeleteId(null); fetchPkgs();
