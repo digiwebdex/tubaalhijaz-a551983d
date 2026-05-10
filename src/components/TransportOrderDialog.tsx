@@ -251,8 +251,8 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
-            <ScrollArea className="max-h-[70vh] px-6 py-4">
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 space-y-2 overscroll-contain">
               {/* Header row */}
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
