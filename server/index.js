@@ -766,7 +766,7 @@ app.post('/api/backup/delete', authenticate, requireRole('admin'), async (req, r
 // SPECIAL ROUTES
 // =============================================
 
-// Bookings with joins (like supabase select with relations)
+// Bookings with joins (nested join (legacy comment))
 app.get('/api/bookings-full', authenticate, requireRole('admin'), async (req, res) => {
   try {
     const result = await query(`
@@ -777,7 +777,7 @@ app.get('/api/bookings-full', authenticate, requireRole('admin'), async (req, re
       LEFT JOIN moallems m ON b.moallem_id = m.id
       ORDER BY b.created_at DESC
     `);
-    // Format to match supabase nested structure
+    // Format nested join structure
     const bookings = result.rows.map(row => ({
       ...row,
       packages: { name: row.package_name, type: row.package_type, duration_days: row.duration_days, price: row.package_price },
