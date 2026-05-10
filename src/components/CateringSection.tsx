@@ -1,6 +1,19 @@
 import { motion } from "framer-motion";
 import { UtensilsCrossed, Coffee, Soup, ArrowRight } from "lucide-react";
-import cateringImg from "@/assets/tuba-catering.jpg";
+import breakfastImg from "@/assets/category-breakfast.jpg";
+import lunchImg from "@/assets/category-lunch.jpg";
+import dinnerImg from "@/assets/category-dinner.jpg";
+
+const categoryImages: Record<string, string> = {
+  Breakfast: breakfastImg,
+  Lunch: lunchImg,
+  Dinner: dinnerImg,
+};
+const categoryLabelsBn: Record<string, string> = {
+  Breakfast: "সকালের নাস্তা",
+  Lunch: "দুপুরের খাবার",
+  Dinner: "রাতের খাবার",
+};
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/api";
@@ -59,20 +72,43 @@ const CateringSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-10 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <img
-              src={cateringImg}
-              alt="Halal meals catered by TUBA ALHIJAZ"
-              loading="lazy"
-              className="rounded-3xl shadow-luxury w-full object-cover aspect-[4/3]"
-            />
-          </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-12"
+        >
+          {(["Breakfast", "Lunch", "Dinner"] as const).map((meal, idx) => (
+            <motion.div
+              key={meal}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              className="group relative overflow-hidden rounded-3xl shadow-luxury cursor-pointer"
+            >
+              <img
+                src={categoryImages[meal]}
+                alt={`${meal} — homemade fresh meal by TUBA ALHIJAZ`}
+                loading="lazy"
+                width={1024}
+                height={768}
+                className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <div className="text-white/70 text-[10px] font-bold tracking-[0.3em] uppercase mb-1">
+                  {isBn ? "তাজা ও ঘরে তৈরি" : "Fresh · Homemade"}
+                </div>
+                <h3 className="font-heading text-2xl md:text-3xl font-bold text-white">
+                  {isBn ? categoryLabelsBn[meal] : meal}
+                </h3>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
 
+        <div className="max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
