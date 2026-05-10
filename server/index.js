@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('./config/validateEnv')();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -11,6 +12,7 @@ const rateLimit = require('express-rate-limit');
 const { query } = require('./config/database');
 const { authenticate, requireRole, optionalAuth } = require('./middleware/auth');
 const { auditMiddleware } = require('./middleware/audit');
+const requestLogger = require('./middleware/requestLogger');
 const authRoutes = require('./routes/auth');
 
 const app = express();
@@ -25,6 +27,7 @@ app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { poli
 app.use(compression());
 app.use(cors({ origin: process.env.FRONTEND_URL || '*', credentials: true }));
 app.use(express.json({ limit: '10mb' }));
+app.use(requestLogger);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Global API throttle (generous default for normal app usage)
