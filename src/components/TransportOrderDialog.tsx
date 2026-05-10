@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/api";
 import { toast } from "sonner";
@@ -223,8 +223,8 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-5xl max-h-[92vh] p-0">
-        <DialogHeader className="px-6 pt-6 pb-3 border-b">
+      <DialogContent className="max-w-5xl w-[96vw] sm:w-[95vw] max-h-[95vh] sm:max-h-[92vh] p-0 flex flex-col gap-0 overflow-hidden">
+        <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 border-b shrink-0">
           <div className="flex items-center justify-between gap-4">
             <DialogTitle className="font-heading text-xl">
               {isBn ? "ট্রান্সপোর্ট ভাউচার বুকিং" : "Transport Voucher Booking"}
@@ -251,8 +251,8 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
-            <ScrollArea className="max-h-[70vh] px-6 py-4">
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 space-y-2 overscroll-contain">
               {/* Header row */}
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
@@ -403,33 +403,32 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
               <SectionTitle en="Internal Movements" ar="التحركات الداخلية" />
               <div className="space-y-2">
                 {movements.map((m, i) => (
-                  <div key={i} className="grid grid-cols-12 gap-2 items-end">
-                    <div className="col-span-1">
-                      <Label className="text-xs">S/N</Label>
-                      <Input value={i + 1} readOnly className="bg-muted text-center" />
-                    </div>
-                    <div className="col-span-2">
-                      <Label className="text-xs">Date / التاريخ</Label>
-                      <Input type="date" value={m.date} onChange={e => updateMovement(i, "date", e.target.value)} />
-                    </div>
-                    <div className="col-span-3">
-                      <Label className="text-xs">From / من</Label>
-                      <Input value={m.from} onChange={e => updateMovement(i, "from", e.target.value)} />
-                    </div>
-                    <div className="col-span-3">
-                      <Label className="text-xs">To / إلى</Label>
-                      <Input value={m.to} onChange={e => updateMovement(i, "to", e.target.value)} />
-                    </div>
-                    <div className="col-span-2">
-                      <Label className="text-xs">Time / الساعة</Label>
-                      <Input type="time" value={m.time} onChange={e => updateMovement(i, "time", e.target.value)} />
-                    </div>
-                    <div className="col-span-1">
-                      <Button type="button" variant="ghost" size="icon"
+                  <div key={i} className="border border-border rounded-lg p-3 bg-secondary/30 relative">
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant="outline">#{i + 1}</Badge>
+                      <Button type="button" variant="ghost" size="icon" className="h-7 w-7"
                         onClick={() => setMovements(prev => prev.filter((_, idx) => idx !== i))}
                         disabled={movements.length === 1}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div>
+                        <Label className="text-xs">Date / التاريخ</Label>
+                        <Input type="date" value={m.date} onChange={e => updateMovement(i, "date", e.target.value)} />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Time / الساعة</Label>
+                        <Input type="time" value={m.time} onChange={e => updateMovement(i, "time", e.target.value)} />
+                      </div>
+                      <div>
+                        <Label className="text-xs">From / من</Label>
+                        <Input value={m.from} onChange={e => updateMovement(i, "from", e.target.value)} />
+                      </div>
+                      <div>
+                        <Label className="text-xs">To / إلى</Label>
+                        <Input value={m.to} onChange={e => updateMovement(i, "to", e.target.value)} />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -476,9 +475,9 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
                   <Textarea rows={1} value={notes} onChange={e => setNotes(e.target.value)} />
                 </div>
               </div>
-            </ScrollArea>
+            </div>
 
-            <div className="flex justify-end gap-2 px-6 py-4 border-t bg-secondary/30">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 px-4 sm:px-6 py-3 sm:py-4 border-t bg-secondary/30 shrink-0">
               <Button type="button" variant="outline" onClick={() => handleClose(false)}>
                 {isBn ? "বাতিল" : "Cancel"}
               </Button>
