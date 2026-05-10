@@ -44,7 +44,7 @@ export default function AgentLayout() {
           return;
         }
         // Find linked supplier_agents record
-        const { data: agents } = await db.from("supplier_agents")
+        const { data: agents } = await apiClient.from("supplier_agents")
           .select("id,agent_name,company_name,commission_pct,agent_user_id")
           .eq("agent_user_id", user.id);
         const rec = Array.isArray(agents) ? agents[0] : null;
