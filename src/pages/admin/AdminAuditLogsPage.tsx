@@ -202,6 +202,18 @@ export default function AdminAuditLogsPage() {
                     {log.actor_email || <span className="text-muted-foreground">guest</span>}
                   </TableCell>
                   <TableCell>
+                    {(() => {
+                      const sev = (log.severity || "info").toLowerCase();
+                      const meta = SEVERITY_META[sev] || SEVERITY_META.info;
+                      const Ico = meta.Icon;
+                      return (
+                        <Badge className={meta.color}>
+                          <Ico className="h-3 w-3 mr-1" /> {sev}
+                        </Badge>
+                      );
+                    })()}
+                  </TableCell>
+                  <TableCell>
                     <Badge className={ACTION_COLORS[log.action] || "bg-muted"}>{log.action}</Badge>
                   </TableCell>
                   <TableCell className="text-sm">
