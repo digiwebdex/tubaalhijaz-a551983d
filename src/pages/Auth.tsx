@@ -139,7 +139,7 @@ const Auth = () => {
         });
         if (sessionError) throw sessionError;
         toast.success(language === "bn" ? "সফলভাবে লগইন হয়েছে!" : "Successfully logged in!");
-        navigate("/dashboard");
+        navigate(redirectParam || "/dashboard");
       } else {
         throw new Error("Authentication failed");
       }
