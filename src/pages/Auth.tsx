@@ -10,6 +10,9 @@ import { normalizePhone, getPhoneError, handlePhoneChange } from "@/lib/phoneVal
 
 type AuthMode = "login" | "register" | "forgot" | "otp";
 
+// Toggle to re-enable phone OTP login UI later.
+const OTP_LOGIN_ENABLED = false;
+
 const Auth = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
