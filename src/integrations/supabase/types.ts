@@ -1024,6 +1024,168 @@ export type Database = {
         }
         Relationships: []
       }
+      message_logs: {
+        Row: {
+          body: string | null
+          channel: string
+          created_at: string
+          error: string | null
+          event_key: string | null
+          id: string
+          provider_message_id: string | null
+          provider_response: Json
+          queue_id: string | null
+          recipient: string
+          related_id: string | null
+          related_type: string | null
+          status: string
+          subject: string | null
+        }
+        Insert: {
+          body?: string | null
+          channel: string
+          created_at?: string
+          error?: string | null
+          event_key?: string | null
+          id?: string
+          provider_message_id?: string | null
+          provider_response?: Json
+          queue_id?: string | null
+          recipient: string
+          related_id?: string | null
+          related_type?: string | null
+          status: string
+          subject?: string | null
+        }
+        Update: {
+          body?: string | null
+          channel?: string
+          created_at?: string
+          error?: string | null
+          event_key?: string | null
+          id?: string
+          provider_message_id?: string | null
+          provider_response?: Json
+          queue_id?: string | null
+          recipient?: string
+          related_id?: string | null
+          related_type?: string | null
+          status?: string
+          subject?: string | null
+        }
+        Relationships: []
+      }
+      message_queue: {
+        Row: {
+          attachments: Json
+          attempts: number
+          body: string
+          channel: string
+          created_at: string
+          created_by: string | null
+          event_key: string | null
+          id: string
+          language: string
+          last_error: string | null
+          max_attempts: number
+          next_attempt_at: string
+          payload: Json
+          provider_message_id: string | null
+          recipient: string
+          recipient_name: string | null
+          related_id: string | null
+          related_type: string | null
+          status: string
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          attachments?: Json
+          attempts?: number
+          body: string
+          channel: string
+          created_at?: string
+          created_by?: string | null
+          event_key?: string | null
+          id?: string
+          language?: string
+          last_error?: string | null
+          max_attempts?: number
+          next_attempt_at?: string
+          payload?: Json
+          provider_message_id?: string | null
+          recipient: string
+          recipient_name?: string | null
+          related_id?: string | null
+          related_type?: string | null
+          status?: string
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attachments?: Json
+          attempts?: number
+          body?: string
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          event_key?: string | null
+          id?: string
+          language?: string
+          last_error?: string | null
+          max_attempts?: number
+          next_attempt_at?: string
+          payload?: Json
+          provider_message_id?: string | null
+          recipient?: string
+          recipient_name?: string | null
+          related_id?: string | null
+          related_type?: string | null
+          status?: string
+          subject?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      message_templates: {
+        Row: {
+          body: string
+          channel: string
+          created_at: string
+          event_key: string
+          id: string
+          is_active: boolean
+          language: string
+          subject: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          body: string
+          channel: string
+          created_at?: string
+          event_key: string
+          id?: string
+          is_active?: boolean
+          language?: string
+          subject?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          body?: string
+          channel?: string
+          created_at?: string
+          event_key?: string
+          id?: string
+          is_active?: boolean
+          language?: string
+          subject?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       moallem_commission_payments: {
         Row: {
           amount: number
@@ -1352,6 +1514,45 @@ export type Database = {
           sms_enabled?: boolean
           updated_at?: string
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          event_type: string
+          id: string
+          link: string | null
+          metadata: Json
+          read_at: string | null
+          severity: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          link?: string | null
+          metadata?: Json
+          read_at?: string | null
+          severity?: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          link?: string | null
+          metadata?: Json
+          read_at?: string | null
+          severity?: string
+          title?: string
+          user_id?: string | null
         }
         Relationships: []
       }

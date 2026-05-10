@@ -594,6 +594,13 @@ app.use('/api/refunds', createCrudRoutes('refunds', { adminOnly: true }));
 app.use('/api/cancellation-policies', createCrudRoutes('cancellation_policies', { readAuth: false, writeAuth: true, adminOnly: true }));
 app.use('/api/audit-logs', createCrudRoutes('audit_logs', { adminOnly: true, orderBy: 'created_at DESC' }));
 
+// Phase 6: Messaging Engine (notifications + WhatsApp/SMS/Email queue)
+app.use('/api/message-templates', createCrudRoutes('message_templates', { adminOnly: true, orderBy: 'event_key ASC' }));
+app.use('/api/message-queue', createCrudRoutes('message_queue', { adminOnly: true, orderBy: 'created_at DESC' }));
+app.use('/api/message-logs', createCrudRoutes('message_logs', { adminOnly: true, orderBy: 'created_at DESC' }));
+app.use('/api', require('./routes/messaging'));
+require('./services/messageDispatcher').start();
+
 // ==============================================
 // BACKUP / RESTORE ROUTES
 // =============================================
