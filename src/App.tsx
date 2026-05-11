@@ -72,9 +72,9 @@ const AdminTransportPage = lazy(() => import("./pages/admin/AdminTransportPage")
 const AdminCateringPage = lazy(() => import("./pages/admin/AdminCateringPage"));
 const AdminUmrahOrdersPage = lazy(() => import("./pages/admin/AdminUmrahOrdersPage"));
 const AdminComingSoonPage = lazy(() => import("./pages/admin/AdminComingSoonPage"));
-const AdminTransportVouchersPage = lazy(() => import("./pages/admin/AdminTransportVouchersPage"));
+const AdminTransportBookingPage = lazy(() => import("./pages/admin/AdminTransportBookingPage"));
+const AdminTransportBookingInvoicePage = lazy(() => import("./pages/admin/AdminTransportBookingInvoicePage"));
 const AdminPendingBookingsPage = lazy(() => import("./pages/admin/AdminPendingBookingsPage"));
-const AdminInternalMovementsPage = lazy(() => import("./pages/admin/AdminInternalMovementsPage"));
 const AdminBilingualInvoicePage = lazy(() => import("./pages/admin/AdminBilingualInvoicePage"));
 const AdminMessageTemplatesPage = lazy(() => import("./pages/admin/AdminMessageTemplatesPage"));
 const AdminOperationsCenterPage = lazy(() => import("./pages/admin/AdminOperationsCenterPage"));
@@ -196,9 +196,9 @@ const App = () => (
                     <Route path="transport" element={<AdminTransportPage />} />
                     <Route path="catering" element={<AdminCateringPage />} />
                     <Route path="umrah-orders" element={<AdminUmrahOrdersPage />} />
-                    <Route path="transport-vouchers" element={<AdminTransportVouchersPage />} />
+                    <Route path="transport-booking" element={<AdminTransportBookingPage />} />
+                    <Route path="transport-booking/:id/invoice" element={<AdminTransportBookingInvoicePage />} />
                     <Route path="pending-bookings" element={<AdminPendingBookingsPage />} />
-                    <Route path="movements" element={<AdminInternalMovementsPage />} />
                     <Route path="pilgrims" element={<AdminComingSoonPage title="Pilgrim Management" description="Centralized pilgrim profiles: passport, visa, photo, booking history, payment history, travel history." />} />
                     <Route path="flights" element={<AdminComingSoonPage title="Flights" description="Arrival/departure flight schedule, airline coordination, airport transfer linking." />} />
                     <Route path="drivers-vehicles" element={<AdminComingSoonPage title="Drivers & Vehicles" description="Bus & vehicle fleet, driver roster, capacity, availability tracking." />} />
