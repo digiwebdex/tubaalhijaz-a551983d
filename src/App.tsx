@@ -73,6 +73,7 @@ const AdminCateringPage = lazy(() => import("./pages/admin/AdminCateringPage"));
 const AdminUmrahOrdersPage = lazy(() => import("./pages/admin/AdminUmrahOrdersPage"));
 const AdminComingSoonPage = lazy(() => import("./pages/admin/AdminComingSoonPage"));
 const AdminTransportVouchersPage = lazy(() => import("./pages/admin/AdminTransportVouchersPage"));
+const AdminPendingBookingsPage = lazy(() => import("./pages/admin/AdminPendingBookingsPage"));
 const AdminInternalMovementsPage = lazy(() => import("./pages/admin/AdminInternalMovementsPage"));
 const AdminBilingualInvoicePage = lazy(() => import("./pages/admin/AdminBilingualInvoicePage"));
 const AdminMessageTemplatesPage = lazy(() => import("./pages/admin/AdminMessageTemplatesPage"));
