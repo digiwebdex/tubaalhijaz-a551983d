@@ -236,6 +236,7 @@ const Dashboard = () => {
   const tabs: { key: TabKey; label: string; icon: any }[] = [
     { key: "overview", label: t("dashboard.overview"), icon: FileText },
     { key: "bookings", label: t("dashboard.myBookings"), icon: Package },
+    { key: "services", label: "My Services", icon: Package },
     { key: "payments", label: t("dashboard.payments"), icon: CreditCard },
     { key: "due", label: t("dashboard.dueAlerts"), icon: AlertTriangle },
     { key: "history", label: "History", icon: History },
