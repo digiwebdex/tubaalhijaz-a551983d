@@ -58,6 +58,9 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [transportOrders, setTransportOrders] = useState<any[]>([]);
+  const [cateringOrders, setCateringOrders] = useState<any[]>([]);
+  const [visaOrders, setVisaOrders] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [loading, setLoading] = useState(true);
   const [bookingDocs, setBookingDocs] = useState<Record<string, any[]>>({});
