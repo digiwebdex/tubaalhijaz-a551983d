@@ -1,7 +1,11 @@
 // Phase 6 — Messaging Engine
-// Polls message_queue every N seconds and dispatches WhatsApp / SMS / Email
-// using provider configs stored in company_settings (key: 'messaging_config').
+// When REDIS_URL is set: rows inserted into message_queue are dispatched
+// via BullMQ (queue: 'messaging'); the legacy SQL polling loop is disabled
+// to prevent duplicate sends.
+// When REDIS_URL is not set: falls back to the legacy in-process polling
+// loop so dev / no-Redis deployments keep working unchanged.
 const { query } = require('../config/database');
+const { isQueueEnabled, enqueue: queueEnqueue, QUEUE_NAMES } = require('../queues');
 
 const POLL_INTERVAL_MS = Number(process.env.MESSAGE_POLL_MS || 8000);
 const BATCH_SIZE = Number(process.env.MESSAGE_BATCH_SIZE || 10);
@@ -213,7 +217,29 @@ async function enqueue({
      event_key, related_type, related_id, JSON.stringify(payload || {}),
      JSON.stringify(attachments || []), created_by]
   );
-  return r.rows[0];
+  const row = r.rows[0];
+  // BullMQ path — push a job referencing the row id. Inline polling stays
+  // disabled (see start()) so this row will only be dispatched once.
+  if (isQueueEnabled()) {
+    try {
+      const job = await queueEnqueue(QUEUE_NAMES.MESSAGING, 'dispatch', { messageQueueId: row.id });
+      console.log(`[messageDispatcher] enqueued bullmq job=${job?.id} row=${row.id} channel=${row.channel}`);
+    } catch (err) {
+      console.error('[messageDispatcher] failed to enqueue bullmq job:', err.message);
+    }
+  }
+  return row;
+}
+
+function start() {
+  if (started) return;
+  started = true;
+  if (isQueueEnabled()) {
+    console.log('[messageDispatcher] BullMQ mode active — SQL polling loop disabled.');
+    return;
+  }
+  setInterval(tick, POLL_INTERVAL_MS).unref();
+  console.log(`[messageDispatcher] inline polling started (poll=${POLL_INTERVAL_MS}ms, batch=${BATCH_SIZE})`);
 }
 
 // Look up template by (event_key, channel, language) and enqueue rendered message.
@@ -247,11 +273,5 @@ async function enqueueFromTemplate({
   });
 }
 
-function start() {
-  if (started) return;
-  started = true;
-  setInterval(tick, POLL_INTERVAL_MS).unref();
-  console.log(`[messageDispatcher] started (poll=${POLL_INTERVAL_MS}ms, batch=${BATCH_SIZE})`);
-}
 
 module.exports = { start, enqueue, enqueueFromTemplate, renderTemplate, processOne, loadConfig };

@@ -14,7 +14,8 @@
 | Frontend | React 18 + Vite + Tailwind + shadcn       |
 | Backend  | Node.js + Express (`/server/index.js`)    |
 | DB       | Self-hosted PostgreSQL (local socket/TCP) |
-| Process  | PM2 (`tubaalhijaz-api`, port `4002`)      |
+| Queue    | Redis 7 + BullMQ (`tubaalhijaz-worker`)   |
+| Process  | PM2 (`tubaalhijaz-api` + `tubaalhijaz-worker`, port `4002`) |
 | Web      | Nginx + Certbot Let's Encrypt SSL         |
 
 ### Dependency status (verified clean)
@@ -101,6 +102,12 @@ node -v || (curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - &&
 # PM2
 sudo npm i -g pm2
 
+# Redis (required for BullMQ queues + tubaalhijaz-worker)
+sudo apt install -y redis-server
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+redis-cli ping     # must print: PONG
+
 # Bun (frontend build + install). Skip if already installed.
 bun -v || (curl -fsSL https://bun.sh/install | bash && source ~/.bashrc)
 bun -v
@@ -156,7 +163,8 @@ cp server/.env.tubaalhijaz.example server/.env
 nano server/.env
 # Fill in: DATABASE_URL (URL-encode the password),
 # JWT_SECRET + JWT_REFRESH_SECRET (paste the values generated above),
-# ADMIN_EMAIL, ADMIN_PASSWORD, BULKSMSBD_*, RESEND_API_KEY, SSLCZ_*
+# ADMIN_EMAIL, ADMIN_PASSWORD, BULKSMSBD_*, RESEND_API_KEY, SSLCZ_*,
+# REDIS_URL=redis://127.0.0.1:6379  (REQUIRED for tubaalhijaz-worker / BullMQ)
 ```
 
 ## Step 8 — Frontend `.env` + build (Bun)
@@ -176,6 +184,16 @@ This produces `dist/` which Nginx will serve as static files.
 
 ## Step 9 — Backend deps & start with PM2
 
+> Two PM2 processes are started by `ecosystem.config.cjs`:
+> - `tubaalhijaz-api` — Express server (port `4002`)
+> - `tubaalhijaz-worker` — BullMQ consumer (SMS / WhatsApp / Email / PDF / GPS / messaging)
+>
+> The worker requires Redis. Confirm `redis-cli ping` returns `PONG` and
+> `REDIS_URL` is set in `server/.env` BEFORE running `pm2 start`. Without
+> `REDIS_URL` the worker process will exit immediately on boot and the API
+> will fall back to the legacy in-process polling loop (no duplicate sends —
+> only one of the two paths is ever active).
+
 ```bash
 cd /var/www/tubaalhijaz/server && bun install
 cd /var/www/tubaalhijaz
@@ -184,7 +202,16 @@ pm2 save
 pm2 startup systemd -u $USER --hp $HOME    # run the printed sudo command
 ```
 
-Verify: `curl -s http://127.0.0.1:4002/api/health` → JSON.
+Verify:
+
+```bash
+redis-cli ping                                       # PONG
+pm2 status                                           # api + worker = online
+curl -s http://127.0.0.1:4002/api/health             # JSON ok
+curl -s http://127.0.0.1:4002/api/health/ready       # db + storage + redis
+pm2 logs tubaalhijaz-worker --lines 50               # "worker_ready"
+```
+
 
 ## Step 10 — Nginx (HTTP first, for Certbot)
 
@@ -240,20 +267,58 @@ In a browser:
 
 ```bash
 pm2 logs tubaalhijaz-api --lines 100
+pm2 logs tubaalhijaz-worker --lines 50
 tail -f /var/www/tubaalhijaz/logs/error.log
 sudo tail -f /var/log/nginx/error.log
 ```
 
+## Step 14b — Queue operations (BullMQ + Redis)
+
+**Enable queues:** set `REDIS_URL=redis://127.0.0.1:6379` in `server/.env`,
+then `pm2 restart tubaalhijaz-api tubaalhijaz-worker`.
+
+**Disable queues (fall back to inline polling):** unset `REDIS_URL` in
+`server/.env`, then `pm2 delete tubaalhijaz-worker && pm2 restart tubaalhijaz-api`.
+The API will resume the in-process polling loop. Only one path is ever
+active at a time, so notifications are never duplicated.
+
+**Restart only the worker:**
+```bash
+pm2 restart tubaalhijaz-worker
+```
+
+**Health checks:**
+```bash
+redis-cli ping                                  # PONG
+pm2 status                                      # api + worker = online
+pm2 logs tubaalhijaz-worker --lines 50          # job_completed / job_failed
+curl -s https://tubaalhijaz.com/api/queues      # JSON queue stats (admin auth required)
+```
+
+**Retry failed jobs:** open `https://tubaalhijaz.com/admin/queue-monitor`
+(role: super-admin / operations-manager). Each queue card lists waiting,
+active, completed, failed and paused counts plus per-job retry / remove
+actions backed by the `failed_jobs` table.
+
+**Confirm no duplicate dispatch:** in `pm2 logs tubaalhijaz-api` you
+should see `BullMQ mode active — SQL polling loop disabled.` exactly once
+on boot when `REDIS_URL` is set; if instead you see
+`inline polling started`, Redis is not reachable and the worker should
+NOT be running (it would exit on boot — confirm with `pm2 status`).
+
 ## Step 15 — Troubleshooting
 
-| Symptom                  | Fix                                                                 |
-|--------------------------|---------------------------------------------------------------------|
-| 502 Bad Gateway          | `pm2 restart tubaalhijaz-api` then check `pm2 logs`                 |
-| API 404 for `/api/*`     | Confirm Nginx `proxy_pass` port matches `ecosystem.config.cjs`      |
-| DB auth failed           | URL-encode the password in `DATABASE_URL`                           |
-| Certbot HTTP-01 fails    | Grey-cloud the Cloudflare A records, retry, re-orange after         |
-| `bun: command not found` | `source ~/.bashrc` or re-run the Bun installer in Step 3            |
-| Admin can't log in       | Reset password in DB using `bcryptjs` (see `server/scripts/`)       |
+| Symptom                       | Fix                                                                       |
+|-------------------------------|---------------------------------------------------------------------------|
+| 502 Bad Gateway               | `pm2 restart tubaalhijaz-api` then check `pm2 logs`                       |
+| API 404 for `/api/*`          | Confirm Nginx `proxy_pass` port matches `ecosystem.config.cjs`            |
+| DB auth failed                | URL-encode the password in `DATABASE_URL`                                 |
+| Certbot HTTP-01 fails         | Grey-cloud the Cloudflare A records, retry, re-orange after               |
+| `bun: command not found`      | `source ~/.bashrc` or re-run the Bun installer in Step 3                  |
+| Admin can't log in            | Reset password in DB using `bcryptjs` (see `server/scripts/`)             |
+| Worker keeps restarting       | `REDIS_URL` missing/wrong in `server/.env`; `redis-cli ping` must work    |
+| SMS/email not delivered       | `pm2 logs tubaalhijaz-worker`; check `failed_jobs` and `message_logs`     |
+| Notifications duplicated      | Both polling + worker active — ensure only one path runs (see Step 14b)   |
 
 ## Step 16 — Rollback / redeploy
 
@@ -263,7 +328,7 @@ git pull --ff-only
 bun install
 bun run build
 cd server && bun install
-pm2 restart tubaalhijaz-api
+pm2 restart tubaalhijaz-api tubaalhijaz-worker
 ```
 
 Full removal:
