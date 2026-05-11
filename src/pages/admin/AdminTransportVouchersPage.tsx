@@ -44,21 +44,43 @@ const initialForm = {
 
 export default function AdminTransportVouchersPage() {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(initialForm);
   const [saving, setSaving] = useState(false);
   const [previewVoucher, setPreviewVoucher] = useState<Voucher | null>(null);
+  const [orderDetail, setOrderDetail] = useState<any | null>(null);
 
   useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
     setLoading(true);
-    const { data, error } = await apiClient.from("transport_vouchers").select("*").order("issued_at", { ascending: false });
-    if (error) toast.error("Failed to load vouchers");
-    setVouchers((data as any) || []);
+    const [vRes, oRes] = await Promise.all([
+      apiClient.from("transport_vouchers").select("*").order("issued_at", { ascending: false }),
+      apiClient.from("transport_voucher_orders").select("*").order("created_at", { ascending: false }),
+    ]);
+    if (vRes.error) toast.error("Failed to load vouchers");
+    if (oRes.error) toast.error("Failed to load voucher orders");
+    setVouchers((vRes.data as any) || []);
+    setOrders((oRes.data as any) || []);
     setLoading(false);
+  };
+
+  const updateOrderStatus = async (id: string, status: string) => {
+    const { error } = await apiClient.from("transport_voucher_orders").update({ status }).eq("id", id);
+    if (error) { toast.error("Failed to update"); return; }
+    toast.success("Order updated");
+    fetchData();
+  };
+
+  const deleteOrder = async (id: string) => {
+    if (!confirm("Delete this voucher order?")) return;
+    const { error } = await apiClient.from("transport_voucher_orders").delete().eq("id", id);
+    if (error) { toast.error("Failed to delete"); return; }
+    toast.success("Order deleted");
+    fetchData();
   };
 
   const generateVoucherNo = () => {
