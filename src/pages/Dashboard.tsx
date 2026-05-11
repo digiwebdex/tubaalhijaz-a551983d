@@ -48,7 +48,7 @@ interface Payment {
   booking_id: string;
 }
 
-type TabKey = "overview" | "bookings" | "payments" | "due" | "history" | "profile";
+type TabKey = "overview" | "bookings" | "services" | "payments" | "due" | "history" | "profile";
 
 const Dashboard = () => {
   useSessionTimeout();
