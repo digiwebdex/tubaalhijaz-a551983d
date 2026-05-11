@@ -302,6 +302,46 @@ export default function AdminTransportVouchersPage() {
         )}
       </Card>
 
+      {/* Order detail modal */}
+      <Dialog open={!!orderDetail} onOpenChange={() => setOrderDetail(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Voucher Order Details</DialogTitle>
+          </DialogHeader>
+          {orderDetail && (
+            <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <div><b>Contact:</b> {orderDetail.contact_name} ({orderDetail.contact_phone})</div>
+                <div><b>Email:</b> {orderDetail.contact_email || "—"}</div>
+                <div><b>Agent:</b> {orderDetail.agent_name || "—"} ({orderDetail.agent_country || "—"})</div>
+                <div><b>Umrah Company:</b> {orderDetail.umrah_company || "—"}</div>
+                <div><b>Package:</b> {orderDetail.package_name || "—"}</div>
+                <div><b>Travel Date:</b> {orderDetail.travel_date || "—"}</div>
+                <div><b>Transport:</b> {orderDetail.transport_type || "—"}</div>
+                <div><b>Pilgrims:</b> {orderDetail.pilgrim_count || 0}</div>
+                <div><b>Makkah Sup. Phone:</b> {orderDetail.supervisor_makkah_phone || "—"}</div>
+                <div><b>Madinah Sup. Phone:</b> {orderDetail.supervisor_madinah_phone || "—"}</div>
+                <div><b>Ops 24h:</b> {orderDetail.ops_24h_phone || "—"}</div>
+                <div><b>Status:</b> {orderDetail.status}</div>
+              </div>
+              {orderDetail.group_numbers?.length > 0 && (
+                <div><b>Group Numbers:</b> {Array.isArray(orderDetail.group_numbers) ? orderDetail.group_numbers.join(", ") : JSON.stringify(orderDetail.group_numbers)}</div>
+              )}
+              {orderDetail.hotels && (
+                <div><b>Hotels:</b><pre className="bg-secondary/40 p-2 rounded text-xs overflow-x-auto">{JSON.stringify(orderDetail.hotels, null, 2)}</pre></div>
+              )}
+              {orderDetail.flights && (
+                <div><b>Flights:</b><pre className="bg-secondary/40 p-2 rounded text-xs overflow-x-auto">{JSON.stringify(orderDetail.flights, null, 2)}</pre></div>
+              )}
+              {orderDetail.internal_movements && (
+                <div><b>Internal Movements:</b><pre className="bg-secondary/40 p-2 rounded text-xs overflow-x-auto">{JSON.stringify(orderDetail.internal_movements, null, 2)}</pre></div>
+              )}
+              {orderDetail.notes && <div><b>Notes:</b> {orderDetail.notes}</div>}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Preview/Print modal */}
       <Dialog open={!!previewVoucher} onOpenChange={() => setPreviewVoucher(null)}>
         <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto p-0">
