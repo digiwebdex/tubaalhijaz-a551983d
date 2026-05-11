@@ -1,0 +1,1 @@
+ALTER TABLE public.transport_voucher_orders ADD COLUMN IF NOT EXISTS confirmed_at TIMESTAMPTZ;
