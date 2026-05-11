@@ -102,6 +102,12 @@ node -v || (curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - &&
 # PM2
 sudo npm i -g pm2
 
+# Redis (required for BullMQ queues + tubaalhijaz-worker)
+sudo apt install -y redis-server
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+redis-cli ping     # must print: PONG
+
 # Bun (frontend build + install). Skip if already installed.
 bun -v || (curl -fsSL https://bun.sh/install | bash && source ~/.bashrc)
 bun -v
