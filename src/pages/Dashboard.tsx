@@ -704,7 +704,7 @@ const Dashboard = () => {
                           <div className="text-xs font-mono text-muted-foreground mb-0.5">{o.tracking_id || o.id.slice(0, 8).toUpperCase()}</div>
                           {section.render(o)}
                         </div>
-                        <StatusBadge status={o.status} />
+                        <StatusBadge kind={(o.status as any) || "pending"} size="sm" />
                       </div>
                     ))}
                   </div>
