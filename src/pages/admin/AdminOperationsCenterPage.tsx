@@ -69,7 +69,7 @@ export default function AdminOperationsCenterPage() {
         {tile(Plane, "Arrivals Today", "وصول اليوم", arrivalsToday.length, "bg-blue-600", "/admin/bookings")}
         {tile(Hotel, "Departures (7d)", "مغادرات الأسبوع", departuresWeek.length, "bg-amber-600", "/admin/bookings")}
         {tile(FileCheck, "Visa Pending", "تأشيرات معلقة", visaPending.length, "bg-yellow-600", "/admin/visa")}
-        {tile(Bus, "Movements Today", "تحركات اليوم", todayMovements.length, "bg-emerald-700", "/admin/movements")}
+        {tile(Bus, "Movements Today", "تحركات اليوم", todayMovements.length, "bg-emerald-700", "/admin/transport-booking")}
         {tile(AlertTriangle, "Due Payments", "مستحقات", dues.length, "bg-red-600", "/admin/due-alerts")}
       </div>
 
