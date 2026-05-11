@@ -92,15 +92,9 @@ const Dashboard = () => {
   const fetchData = async () => {
     if (!user) return;
     setLoading(true);
-    const [profileRes, bookingsRes, paymentsRes, docsRes, transportRes, cateringRes, visaRes] = await Promise.all([
-      apiClient.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
-      apiClient.from("bookings").select("*, packages(name, type)").eq("user_id", user.id).order("created_at", { ascending: false }),
-      apiClient.from("payments").select("*").eq("user_id", user.id).order("due_date", { ascending: true }),
-      apiClient.from("booking_documents").select("*").eq("user_id", user.id),
-      (apiClient as any).from("transport_voucher_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      (apiClient as any).from("catering_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      (apiClient as any).from("visa_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-    ]);
+
+    // Load profile first to obtain phone for guest-booking fallback matching.
+    const profileRes = await apiClient.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
     setProfile(profileRes.data);
     if (profileRes.data) {
       setProfileForm({
@@ -110,11 +104,53 @@ const Dashboard = () => {
         address: profileRes.data.address || "",
       });
     }
-    setBookings((bookingsRes.data as any) || []);
-    setPayments((paymentsRes.data as any) || []);
-    setTransportOrders((transportRes?.data as any) || []);
-    setCateringOrders((cateringRes?.data as any) || []);
-    setVisaOrders((visaRes?.data as any) || []);
+    const phone: string | null = (profileRes.data?.phone || (user as any)?.phone || "").toString().trim() || null;
+
+    const dedupeById = (rows: any[]) => {
+      const map = new Map<string, any>();
+      for (const r of rows || []) if (r && r.id && !map.has(r.id)) map.set(r.id, r);
+      return Array.from(map.values());
+    };
+
+    // Run all queries in parallel — by user_id and (when available) by phone fallback.
+    const [
+      bookingsByUser, bookingsByPhone,
+      docsRes,
+      transportByUser, transportByPhone,
+      cateringByUser, cateringByPhone,
+      visaByUser, visaByPhone,
+    ] = await Promise.all([
+      apiClient.from("bookings").select("*, packages(name, type)").eq("user_id", user.id).order("created_at", { ascending: false }),
+      phone ? apiClient.from("bookings").select("*, packages(name, type)").eq("guest_phone", phone).order("created_at", { ascending: false }) : Promise.resolve({ data: [] } as any),
+      apiClient.from("booking_documents").select("*").eq("user_id", user.id),
+      (apiClient as any).from("transport_voucher_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      phone ? (apiClient as any).from("transport_voucher_orders").select("*").eq("contact_phone", phone).order("created_at", { ascending: false }) : Promise.resolve({ data: [] }),
+      (apiClient as any).from("catering_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      phone ? (apiClient as any).from("catering_orders").select("*").eq("guest_phone", phone).order("created_at", { ascending: false }) : Promise.resolve({ data: [] }),
+      (apiClient as any).from("visa_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      phone ? (apiClient as any).from("visa_orders").select("*").eq("contact_phone", phone).order("created_at", { ascending: false }) : Promise.resolve({ data: [] }),
+    ]);
+
+    const mergedBookings = dedupeById([...(bookingsByUser.data || []), ...((bookingsByPhone as any).data || [])]);
+    setBookings(mergedBookings as any);
+    setTransportOrders(dedupeById([...((transportByUser as any)?.data || []), ...((transportByPhone as any)?.data || [])]) as any);
+    setCateringOrders(dedupeById([...((cateringByUser as any)?.data || []), ...((cateringByPhone as any)?.data || [])]) as any);
+    setVisaOrders(dedupeById([...((visaByUser as any)?.data || []), ...((visaByPhone as any)?.data || [])]) as any);
+
+    // Payments: by user_id, plus by booking_id for any matched-by-phone bookings.
+    const bookingIds = mergedBookings.map((b: any) => b.id);
+    const [paymentsByUser, ...paymentsByBookings] = await Promise.all([
+      apiClient.from("payments").select("*").eq("user_id", user.id).order("due_date", { ascending: true }),
+      ...bookingIds.map((bid: string) =>
+        apiClient.from("payments").select("*").eq("booking_id", bid).order("due_date", { ascending: true })
+      ),
+    ]);
+    const allPayments = dedupeById([
+      ...((paymentsByUser as any).data || []),
+      ...paymentsByBookings.flatMap((r: any) => r?.data || []),
+    ]);
+    setPayments(allPayments as any);
+
     const grouped: Record<string, any[]> = {};
     (docsRes.data || []).forEach((d: any) => {
       if (!grouped[d.booking_id]) grouped[d.booking_id] = [];
