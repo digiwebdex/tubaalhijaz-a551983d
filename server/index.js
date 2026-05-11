@@ -16,8 +16,14 @@ const requestLogger = require('./middleware/requestLogger');
 const authRoutes = require('./routes/auth');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = Number(process.env.PORT || 4002);
+const HOST = process.env.HOST || '0.0.0.0';
 const startedAt = Date.now();
+
+if (!Number.isInteger(PORT) || PORT <= 0) {
+  console.error(`[startup] Invalid PORT value: ${process.env.PORT}`);
+  process.exit(1);
+}
 
 // Trust reverse proxy (Nginx) for accurate client IPs in rate-limit + audit logs.
 app.set('trust proxy', 1);
