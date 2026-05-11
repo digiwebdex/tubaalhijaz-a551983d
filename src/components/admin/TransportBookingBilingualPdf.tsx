@@ -97,12 +97,14 @@ export function TransportBookingBilingualPdf({ data: d }: { data: TransportBooki
     <>
       <style>{`
         @media print {
+          html, body { height: auto !important; }
           body * { visibility: hidden !important; }
           .voucher-print, .voucher-print * { visibility: visible !important; }
-          .voucher-print { position: absolute !important; left: 0; top: 0; width: 100% !important; margin: 0 !important; padding: 6mm !important; min-height: 0 !important; }
+          .voucher-print { position: absolute !important; left: 0; top: 0; width: 100% !important; margin: 0 !important; padding: 4mm !important; min-height: 0 !important; page-break-after: avoid !important; overflow: hidden !important; }
           .voucher-print table, .voucher-print tr, .voucher-print td, .voucher-print th { page-break-inside: avoid !important; }
+          .voucher-print > *:last-child { margin-bottom: 0 !important; padding-bottom: 0 !important; page-break-after: avoid !important; }
           .print-hide { display: none !important; }
-          @page { size: A4; margin: 6mm; }
+          @page { size: A4; margin: 5mm; }
         }
       `}</style>
 
