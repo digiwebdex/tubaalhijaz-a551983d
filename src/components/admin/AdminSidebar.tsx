@@ -20,6 +20,7 @@ import type { AppRole } from "@/hooks/useUserRole";
 // Grouped per operational workflow (not generic ERP).
 
 const operationsMenu = [
+  { title: "Pending Bookings",     url: "/admin/pending-bookings",      icon: AlertTriangle,   roles: ["admin", "accountant", "booking", "viewer"] },
   { title: "Dashboard",            url: "/admin",                       icon: LayoutDashboard, roles: ["admin", "accountant", "viewer"] },
   { title: "Operations Center",    url: "/admin/operations",            icon: LayoutDashboard, roles: ["admin", "accountant", "booking", "viewer"] },
   { title: "Live Operations Map",  url: "/admin/live-map",              icon: Map,             roles: ["admin", "accountant", "booking", "viewer"] },
