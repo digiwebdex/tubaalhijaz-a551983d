@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CheckCircle2, XCircle, Eye, RefreshCw, Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import TransportVoucherDetailView from "@/components/admin/TransportVoucherDetailView";
 
 type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
 
