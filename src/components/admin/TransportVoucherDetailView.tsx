@@ -91,7 +91,7 @@ export default function TransportVoucherDetailView({ row }: Props) {
               <Field en="Check-in" ar="تاريخ الدخول" value={h.check_in} />
               <Field en="Check-out" ar="تاريخ الخروج" value={h.check_out} />
               <div className="grid grid-cols-2 gap-2">
-                <Field en="Nights" ar="الليالي" value={h.nights ?? nightsBetween(h.check_in, h.check_out) || ""} />
+                <Field en="Nights" ar="الليالي" value={h.nights ?? (nightsBetween(h.check_in, h.check_out) || "")} />
                 <Field en="Rooms" ar="الغرف" value={h.rooms} />
               </div>
             </div>
