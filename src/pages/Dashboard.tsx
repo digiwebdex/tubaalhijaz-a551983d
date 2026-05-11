@@ -92,11 +92,14 @@ const Dashboard = () => {
   const fetchData = async () => {
     if (!user) return;
     setLoading(true);
-    const [profileRes, bookingsRes, paymentsRes, docsRes] = await Promise.all([
+    const [profileRes, bookingsRes, paymentsRes, docsRes, transportRes, cateringRes, visaRes] = await Promise.all([
       apiClient.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
       apiClient.from("bookings").select("*, packages(name, type)").eq("user_id", user.id).order("created_at", { ascending: false }),
       apiClient.from("payments").select("*").eq("user_id", user.id).order("due_date", { ascending: true }),
       apiClient.from("booking_documents").select("*").eq("user_id", user.id),
+      (apiClient as any).from("transport_voucher_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      (apiClient as any).from("catering_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      (apiClient as any).from("visa_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
     ]);
     setProfile(profileRes.data);
     if (profileRes.data) {
@@ -109,6 +112,9 @@ const Dashboard = () => {
     }
     setBookings((bookingsRes.data as any) || []);
     setPayments((paymentsRes.data as any) || []);
+    setTransportOrders((transportRes?.data as any) || []);
+    setCateringOrders((cateringRes?.data as any) || []);
+    setVisaOrders((visaRes?.data as any) || []);
     const grouped: Record<string, any[]> = {};
     (docsRes.data || []).forEach((d: any) => {
       if (!grouped[d.booking_id]) grouped[d.booking_id] = [];
