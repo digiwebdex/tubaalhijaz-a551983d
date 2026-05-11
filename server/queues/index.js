@@ -108,4 +108,5 @@ module.exports = {
   enqueueOrRun,
   listQueueStats,
   shutdown,
+  isQueueEnabled,
 };
