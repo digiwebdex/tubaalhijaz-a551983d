@@ -74,7 +74,7 @@ export default function AdminTransportBookingInvoicePage() {
   if (!data) return <div className="p-12 text-center text-muted-foreground">Voucher not found.</div>;
 
   return (
-    <div className="bg-gray-100 min-h-screen py-6">
+    <div className="transport-invoice-print-shell bg-gray-100 min-h-screen py-6">
       <div className="max-w-4xl mx-auto mb-4 flex justify-between items-center px-4 print-hide">
         <Button asChild variant="outline" size="sm">
           <Link to="/admin/transport-booking"><ArrowLeft className="h-4 w-4 mr-2" />Back</Link>
@@ -83,7 +83,7 @@ export default function AdminTransportBookingInvoicePage() {
           <Printer className="h-4 w-4 mr-2" /> Print / Save PDF
         </Button>
       </div>
-      <div className="shadow-2xl">
+      <div className="transport-invoice-print-frame shadow-2xl">
         <TransportBookingBilingualPdf data={data} />
       </div>
     </div>
