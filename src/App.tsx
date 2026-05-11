@@ -197,6 +197,7 @@ const App = () => (
                     <Route path="catering" element={<AdminCateringPage />} />
                     <Route path="umrah-orders" element={<AdminUmrahOrdersPage />} />
                     <Route path="transport-vouchers" element={<AdminTransportVouchersPage />} />
+                    <Route path="pending-bookings" element={<AdminPendingBookingsPage />} />
                     <Route path="movements" element={<AdminInternalMovementsPage />} />
                     <Route path="pilgrims" element={<AdminComingSoonPage title="Pilgrim Management" description="Centralized pilgrim profiles: passport, visa, photo, booking history, payment history, travel history." />} />
                     <Route path="flights" element={<AdminComingSoonPage title="Flights" description="Arrival/departure flight schedule, airline coordination, airport transfer linking." />} />
