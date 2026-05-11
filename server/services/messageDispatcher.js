@@ -217,7 +217,29 @@ async function enqueue({
      event_key, related_type, related_id, JSON.stringify(payload || {}),
      JSON.stringify(attachments || []), created_by]
   );
-  return r.rows[0];
+  const row = r.rows[0];
+  // BullMQ path — push a job referencing the row id. Inline polling stays
+  // disabled (see start()) so this row will only be dispatched once.
+  if (isQueueEnabled()) {
+    try {
+      const job = await queueEnqueue(QUEUE_NAMES.MESSAGING, 'dispatch', { messageQueueId: row.id });
+      console.log(`[messageDispatcher] enqueued bullmq job=${job?.id} row=${row.id} channel=${row.channel}`);
+    } catch (err) {
+      console.error('[messageDispatcher] failed to enqueue bullmq job:', err.message);
+    }
+  }
+  return row;
+}
+
+function start() {
+  if (started) return;
+  started = true;
+  if (isQueueEnabled()) {
+    console.log('[messageDispatcher] BullMQ mode active — SQL polling loop disabled.');
+    return;
+  }
+  setInterval(tick, POLL_INTERVAL_MS).unref();
+  console.log(`[messageDispatcher] inline polling started (poll=${POLL_INTERVAL_MS}ms, batch=${BATCH_SIZE})`);
 }
 
 // Look up template by (event_key, channel, language) and enqueue rendered message.
