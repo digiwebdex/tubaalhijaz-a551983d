@@ -1926,3 +1926,75 @@ CREATE TABLE IF NOT EXISTS public.transport_voucher_orders (
 );
 CREATE INDEX IF NOT EXISTS idx_transport_voucher_orders_created ON public.transport_voucher_orders (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_transport_voucher_orders_status ON public.transport_voucher_orders (status);
+
+-- =============================================
+-- Customer Booking Workflow: Catering & Visa Orders
+-- =============================================
+
+-- Catering order submissions from customers
+CREATE TABLE IF NOT EXISTS public.catering_orders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tracking_id TEXT UNIQUE DEFAULT ('TT-' || upper(substr(gen_random_uuid()::text, 1, 8))),
+  user_id UUID,
+  customer_id UUID,
+  package_id UUID,
+  persons INTEGER NOT NULL DEFAULT 1,
+  days INTEGER NOT NULL DEFAULT 1,
+  start_date DATE,
+  total_price NUMERIC NOT NULL DEFAULT 0,
+  currency TEXT NOT NULL DEFAULT 'SAR',
+  delivery_address TEXT,
+  guest_name TEXT,
+  guest_email TEXT,
+  guest_phone TEXT,
+  notes TEXT,
+  status TEXT NOT NULL DEFAULT 'pending',
+  confirmed_by UUID,
+  confirmed_at TIMESTAMPTZ,
+  cancelled_reason TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_catering_orders_user ON public.catering_orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_catering_orders_status ON public.catering_orders(status);
+CREATE INDEX IF NOT EXISTS idx_catering_orders_created ON public.catering_orders(created_at DESC);
+
+-- Visa order submissions from customers
+CREATE TABLE IF NOT EXISTS public.visa_orders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tracking_id TEXT UNIQUE DEFAULT ('TT-' || upper(substr(gen_random_uuid()::text, 1, 8))),
+  user_id UUID,
+  contact_name TEXT NOT NULL,
+  contact_phone TEXT NOT NULL,
+  contact_email TEXT,
+  visa_type TEXT NOT NULL,
+  destination_country TEXT,
+  num_applicants INTEGER NOT NULL DEFAULT 1,
+  passport_number TEXT,
+  passport_expiry DATE,
+  travel_date DATE,
+  return_date DATE,
+  notes TEXT,
+  status TEXT NOT NULL DEFAULT 'pending',
+  confirmed_by UUID,
+  confirmed_at TIMESTAMPTZ,
+  cancelled_reason TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_visa_orders_user ON public.visa_orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_visa_orders_status ON public.visa_orders(status);
+CREATE INDEX IF NOT EXISTS idx_visa_orders_created ON public.visa_orders(created_at DESC);
+
+-- Add user_id + confirm tracking columns to transport_voucher_orders
+ALTER TABLE public.transport_voucher_orders
+  ADD COLUMN IF NOT EXISTS user_id UUID,
+  ADD COLUMN IF NOT EXISTS tracking_id TEXT UNIQUE DEFAULT ('TT-' || upper(substr(gen_random_uuid()::text, 1, 8))),
+  ADD COLUMN IF NOT EXISTS confirmed_by UUID,
+  ADD COLUMN IF NOT EXISTS confirmed_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS cancelled_reason TEXT;
+
+-- Add confirm tracking on bookings
+ALTER TABLE public.bookings
+  ADD COLUMN IF NOT EXISTS confirmed_by UUID,
+  ADD COLUMN IF NOT EXISTS confirmed_at TIMESTAMPTZ;

@@ -493,6 +493,8 @@ export type Database = {
           commission_due: number
           commission_paid: number
           commission_per_person: number
+          confirmed_at: string | null
+          confirmed_by: string | null
           cost_price_per_person: number | null
           created_at: string
           discount: number
@@ -536,6 +538,8 @@ export type Database = {
           commission_due?: number
           commission_paid?: number
           commission_per_person?: number
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           cost_price_per_person?: number | null
           created_at?: string
           discount?: number
@@ -579,6 +583,8 @@ export type Database = {
           commission_due?: number
           commission_paid?: number
           commission_per_person?: number
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           cost_price_per_person?: number | null
           created_at?: string
           discount?: number
@@ -696,6 +702,9 @@ export type Database = {
       }
       catering_orders: {
         Row: {
+          cancelled_reason: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
           created_at: string
           currency: string
           customer_id: string | null
@@ -711,10 +720,14 @@ export type Database = {
           start_date: string | null
           status: string
           total_price: number
+          tracking_id: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          cancelled_reason?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           created_at?: string
           currency?: string
           customer_id?: string | null
@@ -730,10 +743,14 @@ export type Database = {
           start_date?: string | null
           status?: string
           total_price?: number
+          tracking_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          cancelled_reason?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           created_at?: string
           currency?: string
           customer_id?: string | null
@@ -749,6 +766,7 @@ export type Database = {
           start_date?: string | null
           status?: string
           total_price?: number
+          tracking_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -3389,6 +3407,9 @@ export type Database = {
         Row: {
           agent_country: string | null
           agent_name: string | null
+          cancelled_reason: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
           contact_email: string | null
           contact_name: string
           contact_phone: string
@@ -3405,14 +3426,19 @@ export type Database = {
           status: string
           supervisor_madinah_phone: string | null
           supervisor_makkah_phone: string | null
+          tracking_id: string | null
           transport_type: string | null
           travel_date: string | null
           umrah_company: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           agent_country?: string | null
           agent_name?: string | null
+          cancelled_reason?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           contact_email?: string | null
           contact_name: string
           contact_phone: string
@@ -3429,14 +3455,19 @@ export type Database = {
           status?: string
           supervisor_madinah_phone?: string | null
           supervisor_makkah_phone?: string | null
+          tracking_id?: string | null
           transport_type?: string | null
           travel_date?: string | null
           umrah_company?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           agent_country?: string | null
           agent_name?: string | null
+          cancelled_reason?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           contact_email?: string | null
           contact_name?: string
           contact_phone?: string
@@ -3453,10 +3484,12 @@ export type Database = {
           status?: string
           supervisor_madinah_phone?: string | null
           supervisor_makkah_phone?: string | null
+          tracking_id?: string | null
           transport_type?: string | null
           travel_date?: string | null
           umrah_company?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -3676,6 +3709,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      visa_orders: {
+        Row: {
+          cancelled_reason: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
+          contact_email: string | null
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          destination_country: string | null
+          id: string
+          notes: string | null
+          num_applicants: number
+          passport_expiry: string | null
+          passport_number: string | null
+          return_date: string | null
+          status: string
+          tracking_id: string | null
+          travel_date: string | null
+          updated_at: string
+          user_id: string | null
+          visa_type: string
+        }
+        Insert: {
+          cancelled_reason?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          contact_email?: string | null
+          contact_name: string
+          contact_phone: string
+          created_at?: string
+          destination_country?: string | null
+          id?: string
+          notes?: string | null
+          num_applicants?: number
+          passport_expiry?: string | null
+          passport_number?: string | null
+          return_date?: string | null
+          status?: string
+          tracking_id?: string | null
+          travel_date?: string | null
+          updated_at?: string
+          user_id?: string | null
+          visa_type: string
+        }
+        Update: {
+          cancelled_reason?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          contact_email?: string | null
+          contact_name?: string
+          contact_phone?: string
+          created_at?: string
+          destination_country?: string | null
+          id?: string
+          notes?: string | null
+          num_applicants?: number
+          passport_expiry?: string | null
+          passport_number?: string | null
+          return_date?: string | null
+          status?: string
+          tracking_id?: string | null
+          travel_date?: string | null
+          updated_at?: string
+          user_id?: string | null
+          visa_type?: string
+        }
+        Relationships: []
       }
     }
     Views: {

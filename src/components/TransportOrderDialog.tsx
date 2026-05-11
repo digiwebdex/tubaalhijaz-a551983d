@@ -167,9 +167,17 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
         nights: nightsBetween(h.check_in, h.check_out),
       }));
 
+      // Get logged-in user (if any) so the order shows in their portal
+      let uid: string | null = null;
+      try {
+        const { data: userData } = await (apiClient as any).auth.getUser();
+        uid = userData?.user?.id || null;
+      } catch {}
+
       const { data, error } = await (apiClient as any)
         .from("transport_voucher_orders")
         .insert({
+          user_id: uid,
           agent_name: agentName || null,
           agent_country: agentCountry || null,
           umrah_company: umrahCompany || null,
@@ -188,33 +196,12 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
           contact_phone: contactPhone,
           contact_email: contactEmail || null,
           notes: notes || null,
+          status: "pending",
         })
         .select()
         .single();
 
       if (error) throw error;
-
-      // If user is logged in, also create a booking record so it shows in their portal
-      try {
-        const { data: userData } = await (apiClient as any).auth.getUser();
-        const uid = userData?.user?.id;
-        if (uid && data?.id) {
-          await (apiClient as any)
-            .from("bookings")
-            .insert({
-              user_id: uid,
-              package_id: null,
-              booking_type: "transport_voucher",
-              num_travelers: pilgrimCount ? Number(pilgrimCount) : 1,
-              total_amount: 0,
-              guest_name: contactName,
-              guest_phone: contactPhone,
-              guest_email: contactEmail || null,
-              notes: `Transport Voucher Order #${String(data.id).slice(0, 8).toUpperCase()} — ${transportType || ""} · Groups: ${cleanGroups.join(", ")}${packageName ? ` · ${packageName}` : ""}`,
-              status: "pending",
-            });
-        }
-      } catch (e) { /* non-fatal */ }
 
       // Fire-and-forget admin notification
       try {
@@ -227,6 +214,7 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
           },
         });
       } catch { /* non-fatal */ }
+
 
       const ref = (data?.id as string)?.slice(0, 8).toUpperCase() || "OK";
       setSuccess(ref);

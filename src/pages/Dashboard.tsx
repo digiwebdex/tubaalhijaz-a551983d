@@ -48,7 +48,7 @@ interface Payment {
   booking_id: string;
 }
 
-type TabKey = "overview" | "bookings" | "payments" | "due" | "history" | "profile";
+type TabKey = "overview" | "bookings" | "services" | "payments" | "due" | "history" | "profile";
 
 const Dashboard = () => {
   useSessionTimeout();
@@ -58,6 +58,9 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [transportOrders, setTransportOrders] = useState<any[]>([]);
+  const [cateringOrders, setCateringOrders] = useState<any[]>([]);
+  const [visaOrders, setVisaOrders] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [loading, setLoading] = useState(true);
   const [bookingDocs, setBookingDocs] = useState<Record<string, any[]>>({});
@@ -89,11 +92,14 @@ const Dashboard = () => {
   const fetchData = async () => {
     if (!user) return;
     setLoading(true);
-    const [profileRes, bookingsRes, paymentsRes, docsRes] = await Promise.all([
+    const [profileRes, bookingsRes, paymentsRes, docsRes, transportRes, cateringRes, visaRes] = await Promise.all([
       apiClient.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
       apiClient.from("bookings").select("*, packages(name, type)").eq("user_id", user.id).order("created_at", { ascending: false }),
       apiClient.from("payments").select("*").eq("user_id", user.id).order("due_date", { ascending: true }),
       apiClient.from("booking_documents").select("*").eq("user_id", user.id),
+      (apiClient as any).from("transport_voucher_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      (apiClient as any).from("catering_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      (apiClient as any).from("visa_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
     ]);
     setProfile(profileRes.data);
     if (profileRes.data) {
@@ -106,6 +112,9 @@ const Dashboard = () => {
     }
     setBookings((bookingsRes.data as any) || []);
     setPayments((paymentsRes.data as any) || []);
+    setTransportOrders((transportRes?.data as any) || []);
+    setCateringOrders((cateringRes?.data as any) || []);
+    setVisaOrders((visaRes?.data as any) || []);
     const grouped: Record<string, any[]> = {};
     (docsRes.data || []).forEach((d: any) => {
       if (!grouped[d.booking_id]) grouped[d.booking_id] = [];
@@ -227,6 +236,7 @@ const Dashboard = () => {
   const tabs: { key: TabKey; label: string; icon: any }[] = [
     { key: "overview", label: t("dashboard.overview"), icon: FileText },
     { key: "bookings", label: t("dashboard.myBookings"), icon: Package },
+    { key: "services", label: "My Services", icon: Package },
     { key: "payments", label: t("dashboard.payments"), icon: CreditCard },
     { key: "due", label: t("dashboard.dueAlerts"), icon: AlertTriangle },
     { key: "history", label: "History", icon: History },
@@ -659,7 +669,53 @@ const Dashboard = () => {
           </div>
         )}
 
+        {/* ──── My Services Tab (Transport / Catering / Visa orders) ──── */}
+        {activeTab === "services" && (
+          <div className="space-y-6">
+            {[
+              { title: "Transport Voucher Orders", rows: transportOrders, render: (o: any) => (
+                <>
+                  <div className="font-medium">{o.transport_type || "Transport"} · {o.package_name || "—"}</div>
+                  <div className="text-xs text-muted-foreground">Travel: {o.travel_date || "—"} · Pilgrims: {o.pilgrim_count || "—"}</div>
+                </>
+              )},
+              { title: "Catering Orders", rows: cateringOrders, render: (o: any) => (
+                <>
+                  <div className="font-medium">{o.persons} persons × {o.days} days</div>
+                  <div className="text-xs text-muted-foreground">Start: {o.start_date || "—"} · {o.currency} {Number(o.total_price || 0).toLocaleString()}</div>
+                </>
+              )},
+              { title: "Visa Applications", rows: visaOrders, render: (o: any) => (
+                <>
+                  <div className="font-medium">{o.visa_type} → {o.destination_country || "—"}</div>
+                  <div className="text-xs text-muted-foreground">Applicants: {o.num_applicants} · Travel: {o.travel_date || "—"}</div>
+                </>
+              )},
+            ].map(section => (
+              <div key={section.title}>
+                <h3 className="font-heading font-semibold mb-2">{section.title}</h3>
+                {section.rows.length === 0 ? (
+                  <div className="text-sm text-muted-foreground border rounded p-4 text-center">No orders yet.</div>
+                ) : (
+                  <div className="space-y-2">
+                    {section.rows.map((o: any) => (
+                      <div key={o.id} className="border rounded p-3 flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <div className="text-xs font-mono text-muted-foreground mb-0.5">{o.tracking_id || o.id.slice(0, 8).toUpperCase()}</div>
+                          {section.render(o)}
+                        </div>
+                        <StatusBadge kind={(o.status as any) || "pending"} size="sm" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* ──── Payments Tab ──── */}
+
         {activeTab === "payments" && (
           <div className="space-y-3">
             {payments.length === 0 ? (

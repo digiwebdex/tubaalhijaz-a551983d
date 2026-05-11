@@ -700,8 +700,18 @@ app.use('/api/public-tracking-logs', createCrudRoutes('public_tracking_logs', { 
 app.use('/api/verify', require('./routes/verify'));
 app.use('/api/ops', require('./routes/ops'));
 
-// Public transport voucher booking submissions
+// Public booking submissions (transport / catering / visa)
 app.use('/api/transport_voucher_orders', createCrudRoutes('transport_voucher_orders', {
+  readAuth: true,
+  writeAuth: false,
+  orderBy: 'created_at DESC',
+}));
+app.use('/api/catering_orders', createCrudRoutes('catering_orders', {
+  readAuth: true,
+  writeAuth: false,
+  orderBy: 'created_at DESC',
+}));
+app.use('/api/visa_orders', createCrudRoutes('visa_orders', {
   readAuth: true,
   writeAuth: false,
   orderBy: 'created_at DESC',
