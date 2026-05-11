@@ -194,6 +194,28 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
 
       if (error) throw error;
 
+      // If user is logged in, also create a booking record so it shows in their portal
+      try {
+        const { data: userData } = await (apiClient as any).auth.getUser();
+        const uid = userData?.user?.id;
+        if (uid && data?.id) {
+          await (apiClient as any)
+            .from("bookings")
+            .insert({
+              user_id: uid,
+              package_id: null,
+              booking_type: "transport_voucher",
+              num_travelers: pilgrimCount ? Number(pilgrimCount) : 1,
+              total_amount: 0,
+              guest_name: contactName,
+              guest_phone: contactPhone,
+              guest_email: contactEmail || null,
+              notes: `Transport Voucher Order #${String(data.id).slice(0, 8).toUpperCase()} — ${transportType || ""} · Groups: ${cleanGroups.join(", ")}${packageName ? ` · ${packageName}` : ""}`,
+              status: "pending",
+            });
+        }
+      } catch (e) { /* non-fatal */ }
+
       // Fire-and-forget admin notification
       try {
         await (apiClient as any).functions.invoke("send-notification", {
