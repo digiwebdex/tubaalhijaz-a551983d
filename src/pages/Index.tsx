@@ -36,6 +36,7 @@ const Index = () => {
         {show("why-us") && <WhyChooseUsSection />}
         {show("transport") && <TransportSection />}
         {show("catering") && <CateringSection />}
+        {show("visa") && <VisaSection />}
         {show("about") && <AboutSection />}
         {show("gallery") && <GallerySection />}
         {show("contact") && <ContactSection />}
