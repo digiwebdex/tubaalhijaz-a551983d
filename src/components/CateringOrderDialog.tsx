@@ -56,7 +56,14 @@ export default function CateringOrderDialog({ open, onOpenChange, plan }: Props)
     }
     setSubmitting(true);
     try {
+      let uid: string | null = null;
+      try {
+        const { data: userData } = await (apiClient as any).auth.getUser();
+        uid = userData?.user?.id || null;
+      } catch {}
+
       const payload: any = {
+        user_id: uid,
         package_id: plan?.id || null,
         persons,
         days,
