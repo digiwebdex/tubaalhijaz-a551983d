@@ -163,7 +163,8 @@ cp server/.env.tubaalhijaz.example server/.env
 nano server/.env
 # Fill in: DATABASE_URL (URL-encode the password),
 # JWT_SECRET + JWT_REFRESH_SECRET (paste the values generated above),
-# ADMIN_EMAIL, ADMIN_PASSWORD, BULKSMSBD_*, RESEND_API_KEY, SSLCZ_*
+# ADMIN_EMAIL, ADMIN_PASSWORD, BULKSMSBD_*, RESEND_API_KEY, SSLCZ_*,
+# REDIS_URL=redis://127.0.0.1:6379  (REQUIRED for tubaalhijaz-worker / BullMQ)
 ```
 
 ## Step 8 — Frontend `.env` + build (Bun)
