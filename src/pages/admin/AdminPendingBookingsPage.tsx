@@ -332,7 +332,11 @@ export default function AdminPendingBookingsPage() {
           </DialogHeader>
           {detail && (
             <div className="space-y-3 text-sm">
-              <pre className="bg-muted p-3 rounded text-xs overflow-x-auto whitespace-pre-wrap">{JSON.stringify(detail.row, null, 2)}</pre>
+              {detail.type === "transport_voucher_orders" ? (
+                <TransportVoucherDetailView row={detail.row} />
+              ) : (
+                <pre className="bg-muted p-3 rounded text-xs overflow-x-auto whitespace-pre-wrap">{JSON.stringify(detail.row, null, 2)}</pre>
+              )}
               {detail.row.status === "pending" && (
                 <div className="flex gap-2 justify-end">
                   <Button variant="outline" className="text-rose-700 border-rose-300" onClick={() => updateStatus(detail.type, detail.row.id, "cancelled")}>
