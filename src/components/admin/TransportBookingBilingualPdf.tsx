@@ -64,28 +64,28 @@ const fmtDate = (d?: string) => (d ? new Date(d).toLocaleDateString("en-GB") : "
 
 const SectionHeader = ({ en, ar }: { en: string; ar: string }) => (
   <div
-    className="flex items-center justify-between mt-4 mb-2 px-3 py-2 rounded"
+    className="flex items-center justify-between mt-2 mb-1 px-2 py-1 rounded"
     style={{ background: "#0F4C3A", color: "#fff" }}
   >
-    <span className="font-bold uppercase tracking-wide text-[12px]">{en}</span>
-    <span dir="rtl" className="text-[12px] font-bold">{ar}</span>
+    <span className="font-bold uppercase tracking-wide text-[10px]">{en}</span>
+    <span dir="rtl" className="text-[10px] font-bold">{ar}</span>
   </div>
 );
 
 const Th = ({ en, ar, w }: { en: string; ar: string; w?: string }) => (
   <th
-    className="border border-[#C9A96E] px-2 py-1.5 text-[10px] font-semibold align-middle"
+    className="border border-[#C9A96E] px-1.5 py-0.5 text-[9px] font-semibold align-middle"
     style={{ background: "#FBF3E2", color: "#0F4C3A", width: w }}
   >
-    <div className="flex items-center justify-between gap-2">
+    <div className="flex items-center justify-between gap-1">
       <span className="uppercase">{en}</span>
-      <span dir="rtl" className="text-[9px] text-[#7a6a3e]">{ar}</span>
+      <span dir="rtl" className="text-[8px] text-[#7a6a3e]">{ar}</span>
     </div>
   </th>
 );
 
 const Td = ({ children }: { children?: any }) => (
-  <td className="border border-[#C9A96E]/60 px-2 py-1.5 text-[11px] align-middle">{children}</td>
+  <td className="border border-[#C9A96E]/60 px-1.5 py-0.5 text-[10px] align-middle">{children}</td>
 );
 
 export function TransportBookingBilingualPdf({ data: d }: { data: TransportBookingPdfData }) {
@@ -99,39 +99,39 @@ export function TransportBookingBilingualPdf({ data: d }: { data: TransportBooki
         @media print {
           body * { visibility: hidden !important; }
           .voucher-print, .voucher-print * { visibility: visible !important; }
-          .voucher-print { position: absolute !important; left: 0; top: 0; width: 100% !important; margin: 0 !important; }
+          .voucher-print { position: absolute !important; left: 0; top: 0; width: 100% !important; margin: 0 !important; padding: 6mm !important; min-height: 0 !important; }
+          .voucher-print table, .voucher-print tr, .voucher-print td, .voucher-print th { page-break-inside: avoid !important; }
           .print-hide { display: none !important; }
-          @page { size: A4; margin: 10mm; }
+          @page { size: A4; margin: 6mm; }
         }
       `}</style>
 
       <div
-        className="voucher-print bg-white text-[#1a1a1a] mx-auto p-8"
+        className="voucher-print bg-white text-[#1a1a1a] mx-auto p-4"
         style={{
           width: "210mm",
-          minHeight: "297mm",
           fontFamily: "'Manrope','Noto Naskh Arabic',sans-serif",
         }}
       >
         {/* Header */}
-        <div className="flex items-start justify-between border-b-4 border-[#C9A96E] pb-3 mb-4">
-          <div className="flex items-center gap-3">
-            <img src={logo} alt="Tuba Al Hijaz" className="h-14 w-14 object-contain" />
+        <div className="flex items-start justify-between border-b-2 border-[#C9A96E] pb-2 mb-2">
+          <div className="flex items-center gap-2">
+            <img src={logo} alt="Tuba Al Hijaz" className="h-10 w-10 object-contain" />
             <div>
-              <div className="font-bold text-[18px] text-[#0F4C3A] leading-tight">Tuba Al Hijaz</div>
-              <div className="text-[10px] text-gray-600">Umrah & Hajj Operations</div>
-              <div className="text-[10px] text-gray-600">tubaalhijaz.com · +880 1XXX-XXXXXX</div>
+              <div className="font-bold text-[15px] text-[#0F4C3A] leading-tight">Tuba Al Hijaz</div>
+              <div className="text-[9px] text-gray-600">Umrah & Hajj Operations</div>
+              <div className="text-[9px] text-gray-600">tubaalhijaz.com · +880 1XXX-XXXXXX</div>
             </div>
           </div>
           <div className="text-right">
-            <div className="font-bold text-[16px] text-[#0F4C3A]">Transport Booking Voucher</div>
-            <div dir="rtl" className="font-bold text-[14px] text-[#0F4C3A]">إيصال حجز النقل</div>
-            <div className="text-[10px] text-gray-600 mt-1">
+            <div className="font-bold text-[13px] text-[#0F4C3A]">Transport Booking Voucher</div>
+            <div dir="rtl" className="font-bold text-[12px] text-[#0F4C3A]">إيصال حجز النقل</div>
+            <div className="text-[9px] text-gray-600 mt-0.5">
               <span className="font-mono">{d.tracking_id}</span> · {fmtDate(d.issued_at)}
             </div>
             {d.status && (
               <div
-                className="inline-block mt-1 px-2 py-0.5 rounded text-[9px] uppercase font-bold"
+                className="inline-block mt-0.5 px-1.5 py-0.5 rounded text-[8px] uppercase font-bold"
                 style={{
                   background: d.status === "confirmed" ? "#d1fae5" : d.status === "cancelled" ? "#fee2e2" : "#fef3c7",
                   color: d.status === "confirmed" ? "#065f46" : d.status === "cancelled" ? "#991b1b" : "#92400e",
@@ -322,12 +322,12 @@ export function TransportBookingBilingualPdf({ data: d }: { data: TransportBooki
         )}
 
         {/* Footer / Signature */}
-        <div className="mt-8 pt-4 border-t-2 border-[#C9A96E] flex justify-between items-end">
-          <div className="text-[9px] text-gray-600 max-w-[60%]">
+        <div className="mt-3 pt-2 border-t border-[#C9A96E] flex justify-between items-end">
+          <div className="text-[8px] text-gray-600 max-w-[60%]">
             This voucher is generated by Tuba Al Hijaz operations system. هذا الإيصال صادر من نظام عمليات طوبى الحجاز.
           </div>
           <div className="text-center">
-            <div className="border-t border-gray-400 w-48 pt-1 text-[10px] text-gray-700">
+            <div className="border-t border-gray-400 w-40 pt-0.5 text-[9px] text-gray-700">
               Authorised Signature · التوقيع المعتمد
             </div>
           </div>
