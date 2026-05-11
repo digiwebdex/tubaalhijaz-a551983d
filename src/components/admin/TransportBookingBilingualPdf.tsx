@@ -99,39 +99,39 @@ export function TransportBookingBilingualPdf({ data: d }: { data: TransportBooki
         @media print {
           body * { visibility: hidden !important; }
           .voucher-print, .voucher-print * { visibility: visible !important; }
-          .voucher-print { position: absolute !important; left: 0; top: 0; width: 100% !important; margin: 0 !important; }
+          .voucher-print { position: absolute !important; left: 0; top: 0; width: 100% !important; margin: 0 !important; padding: 6mm !important; min-height: 0 !important; }
+          .voucher-print table, .voucher-print tr, .voucher-print td, .voucher-print th { page-break-inside: avoid !important; }
           .print-hide { display: none !important; }
-          @page { size: A4; margin: 10mm; }
+          @page { size: A4; margin: 6mm; }
         }
       `}</style>
 
       <div
-        className="voucher-print bg-white text-[#1a1a1a] mx-auto p-8"
+        className="voucher-print bg-white text-[#1a1a1a] mx-auto p-4"
         style={{
           width: "210mm",
-          minHeight: "297mm",
           fontFamily: "'Manrope','Noto Naskh Arabic',sans-serif",
         }}
       >
         {/* Header */}
-        <div className="flex items-start justify-between border-b-4 border-[#C9A96E] pb-3 mb-4">
-          <div className="flex items-center gap-3">
-            <img src={logo} alt="Tuba Al Hijaz" className="h-14 w-14 object-contain" />
+        <div className="flex items-start justify-between border-b-2 border-[#C9A96E] pb-2 mb-2">
+          <div className="flex items-center gap-2">
+            <img src={logo} alt="Tuba Al Hijaz" className="h-10 w-10 object-contain" />
             <div>
-              <div className="font-bold text-[18px] text-[#0F4C3A] leading-tight">Tuba Al Hijaz</div>
-              <div className="text-[10px] text-gray-600">Umrah & Hajj Operations</div>
-              <div className="text-[10px] text-gray-600">tubaalhijaz.com · +880 1XXX-XXXXXX</div>
+              <div className="font-bold text-[15px] text-[#0F4C3A] leading-tight">Tuba Al Hijaz</div>
+              <div className="text-[9px] text-gray-600">Umrah & Hajj Operations</div>
+              <div className="text-[9px] text-gray-600">tubaalhijaz.com · +880 1XXX-XXXXXX</div>
             </div>
           </div>
           <div className="text-right">
-            <div className="font-bold text-[16px] text-[#0F4C3A]">Transport Booking Voucher</div>
-            <div dir="rtl" className="font-bold text-[14px] text-[#0F4C3A]">إيصال حجز النقل</div>
-            <div className="text-[10px] text-gray-600 mt-1">
+            <div className="font-bold text-[13px] text-[#0F4C3A]">Transport Booking Voucher</div>
+            <div dir="rtl" className="font-bold text-[12px] text-[#0F4C3A]">إيصال حجز النقل</div>
+            <div className="text-[9px] text-gray-600 mt-0.5">
               <span className="font-mono">{d.tracking_id}</span> · {fmtDate(d.issued_at)}
             </div>
             {d.status && (
               <div
-                className="inline-block mt-1 px-2 py-0.5 rounded text-[9px] uppercase font-bold"
+                className="inline-block mt-0.5 px-1.5 py-0.5 rounded text-[8px] uppercase font-bold"
                 style={{
                   background: d.status === "confirmed" ? "#d1fae5" : d.status === "cancelled" ? "#fee2e2" : "#fef3c7",
                   color: d.status === "confirmed" ? "#065f46" : d.status === "cancelled" ? "#991b1b" : "#92400e",
