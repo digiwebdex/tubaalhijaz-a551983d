@@ -624,42 +624,14 @@ const Dashboard = () => {
         {/* ──── Bookings Tab ──── */}
         {activeTab === "bookings" && (
           <div className="space-y-4">
-            {bookings.length === 0 && serviceOrderCount === 0 ? (
+            {bookings.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p className="mb-4">{t("dashboard.noBookings")}</p>
                 <Link to="/packages" className="text-primary hover:underline">{t("dashboard.browsePackages")}</Link>
               </div>
             ) : (
-              <>
-                {bookings.length === 0 && serviceOrderCount > 0 && (
-                  <div className="bg-card border border-border rounded-xl p-5">
-                    <div className="flex items-center justify-between gap-3 mb-4">
-                      <div>
-                        <h2 className="font-heading font-semibold">Recent Service Orders</h2>
-                        <p className="text-sm text-muted-foreground">Transport, catering and visa requests submitted from your account.</p>
-                      </div>
-                      <button onClick={() => setActiveTab("services")} className="text-sm text-primary hover:underline">View all</button>
-                    </div>
-                    <div className="space-y-2">
-                      {[
-                        ...transportOrders.map((o) => ({ ...o, _type: "Transport", _title: o.package_name || o.transport_type || "Transport Booking", _meta: `Travel: ${o.travel_date || "—"} · Pilgrims: ${o.pilgrim_count || "—"}` })),
-                        ...cateringOrders.map((o) => ({ ...o, _type: "Catering", _title: `${o.persons || 0} persons × ${o.days || 0} days`, _meta: `Start: ${o.start_date || "—"} · ${o.currency || "SAR"} ${Number(o.total_price || 0).toLocaleString()}` })),
-                        ...visaOrders.map((o) => ({ ...o, _type: "Visa", _title: `${o.visa_type || "Visa"} → ${o.destination_country || "—"}`, _meta: `Applicants: ${o.num_applicants || "—"} · Travel: ${o.travel_date || "—"}` })),
-                      ].slice(0, 4).map((o: any) => (
-                        <div key={`${o._type}-${o.id}`} className="border border-border rounded-lg p-3 flex items-start justify-between gap-3">
-                          <div>
-                            <div className="text-xs font-mono text-muted-foreground">{o.tracking_id || o.id.slice(0, 8).toUpperCase()}</div>
-                            <div className="font-medium">{o._type}: {o._title}</div>
-                            <div className="text-xs text-muted-foreground">{o._meta}</div>
-                          </div>
-                          <StatusBadge kind={(o.status as any) || "pending"} size="sm" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {bookings.map((b) => {
+              bookings.map((b) => {
                 const bPayments = getBookingPayments(b.id);
                 const currentStepIdx = statusTimeline.indexOf(b.status);
                 return (
@@ -812,8 +784,7 @@ const Dashboard = () => {
                     </button>
                   </motion.div>
                 );
-                })}
-              </>
+              })
             )}
           </div>
         )}
