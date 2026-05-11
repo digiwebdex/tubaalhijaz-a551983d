@@ -44,21 +44,43 @@ const initialForm = {
 
 export default function AdminTransportVouchersPage() {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(initialForm);
   const [saving, setSaving] = useState(false);
   const [previewVoucher, setPreviewVoucher] = useState<Voucher | null>(null);
+  const [orderDetail, setOrderDetail] = useState<any | null>(null);
 
   useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
     setLoading(true);
-    const { data, error } = await apiClient.from("transport_vouchers").select("*").order("issued_at", { ascending: false });
-    if (error) toast.error("Failed to load vouchers");
-    setVouchers((data as any) || []);
+    const [vRes, oRes] = await Promise.all([
+      apiClient.from("transport_vouchers").select("*").order("issued_at", { ascending: false }),
+      apiClient.from("transport_voucher_orders").select("*").order("created_at", { ascending: false }),
+    ]);
+    if (vRes.error) toast.error("Failed to load vouchers");
+    if (oRes.error) toast.error("Failed to load voucher orders");
+    setVouchers((vRes.data as any) || []);
+    setOrders((oRes.data as any) || []);
     setLoading(false);
+  };
+
+  const updateOrderStatus = async (id: string, status: string) => {
+    const { error } = await apiClient.from("transport_voucher_orders").update({ status }).eq("id", id);
+    if (error) { toast.error("Failed to update"); return; }
+    toast.success("Order updated");
+    fetchData();
+  };
+
+  const deleteOrder = async (id: string) => {
+    if (!confirm("Delete this voucher order?")) return;
+    const { error } = await apiClient.from("transport_voucher_orders").delete().eq("id", id);
+    if (error) { toast.error("Failed to delete"); return; }
+    toast.success("Order deleted");
+    fetchData();
   };
 
   const generateVoucherNo = () => {
@@ -148,6 +170,64 @@ export default function AdminTransportVouchersPage() {
         </Dialog>
       </div>
 
+      {/* Submitted voucher orders (from public/customer dialog) */}
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold">Submitted Voucher Orders</h2>
+          <Badge variant="outline">{orders.length} orders</Badge>
+        </div>
+        {orders.length === 0 ? (
+          <div className="py-6 text-center text-sm text-muted-foreground">No customer-submitted voucher orders yet.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-secondary/40">
+                  <th className="text-left p-3 font-semibold">Submitted</th>
+                  <th className="text-left p-3 font-semibold">Contact</th>
+                  <th className="text-left p-3 font-semibold">Agent / Company</th>
+                  <th className="text-left p-3 font-semibold">Package</th>
+                  <th className="text-left p-3 font-semibold">Travel Date</th>
+                  <th className="text-right p-3 font-semibold">Pilgrims</th>
+                  <th className="text-left p-3 font-semibold">Status</th>
+                  <th className="text-right p-3 font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((o) => (
+                  <tr key={o.id} className="border-b border-border/50 hover:bg-secondary/20">
+                    <td className="p-3 text-xs text-muted-foreground">{new Date(o.created_at).toLocaleString()}</td>
+                    <td className="p-3">
+                      <div className="font-medium">{o.contact_name}</div>
+                      <div className="text-xs text-muted-foreground">{o.contact_phone}</div>
+                    </td>
+                    <td className="p-3">
+                      <div>{o.agent_name || "—"}</div>
+                      <div className="text-xs text-muted-foreground">{o.umrah_company || ""}</div>
+                    </td>
+                    <td className="p-3 text-xs">{o.package_name || "—"}</td>
+                    <td className="p-3 text-xs">{o.travel_date ? new Date(o.travel_date).toLocaleDateString() : "—"}</td>
+                    <td className="p-3 text-right tabular-nums">{o.pilgrim_count || 0}</td>
+                    <td className="p-3">
+                      <Badge variant={o.status === "pending" ? "secondary" : "outline"}>{o.status}</Badge>
+                    </td>
+                    <td className="p-3 text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button size="sm" variant="ghost" onClick={() => setOrderDetail(o)} title="View"><Eye className="h-4 w-4" /></Button>
+                        {o.status === "pending" && (
+                          <Button size="sm" variant="ghost" onClick={() => updateOrderStatus(o.id, "processed")} title="Mark processed">✓</Button>
+                        )}
+                        <Button size="sm" variant="ghost" onClick={() => deleteOrder(o.id)} className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
       <Card className="p-4">
         <div className="flex items-center gap-2 mb-4">
           <Search className="h-4 w-4 text-muted-foreground" />
@@ -221,6 +301,46 @@ export default function AdminTransportVouchersPage() {
           </div>
         )}
       </Card>
+
+      {/* Order detail modal */}
+      <Dialog open={!!orderDetail} onOpenChange={() => setOrderDetail(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Voucher Order Details</DialogTitle>
+          </DialogHeader>
+          {orderDetail && (
+            <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <div><b>Contact:</b> {orderDetail.contact_name} ({orderDetail.contact_phone})</div>
+                <div><b>Email:</b> {orderDetail.contact_email || "—"}</div>
+                <div><b>Agent:</b> {orderDetail.agent_name || "—"} ({orderDetail.agent_country || "—"})</div>
+                <div><b>Umrah Company:</b> {orderDetail.umrah_company || "—"}</div>
+                <div><b>Package:</b> {orderDetail.package_name || "—"}</div>
+                <div><b>Travel Date:</b> {orderDetail.travel_date || "—"}</div>
+                <div><b>Transport:</b> {orderDetail.transport_type || "—"}</div>
+                <div><b>Pilgrims:</b> {orderDetail.pilgrim_count || 0}</div>
+                <div><b>Makkah Sup. Phone:</b> {orderDetail.supervisor_makkah_phone || "—"}</div>
+                <div><b>Madinah Sup. Phone:</b> {orderDetail.supervisor_madinah_phone || "—"}</div>
+                <div><b>Ops 24h:</b> {orderDetail.ops_24h_phone || "—"}</div>
+                <div><b>Status:</b> {orderDetail.status}</div>
+              </div>
+              {orderDetail.group_numbers?.length > 0 && (
+                <div><b>Group Numbers:</b> {Array.isArray(orderDetail.group_numbers) ? orderDetail.group_numbers.join(", ") : JSON.stringify(orderDetail.group_numbers)}</div>
+              )}
+              {orderDetail.hotels && (
+                <div><b>Hotels:</b><pre className="bg-secondary/40 p-2 rounded text-xs overflow-x-auto">{JSON.stringify(orderDetail.hotels, null, 2)}</pre></div>
+              )}
+              {orderDetail.flights && (
+                <div><b>Flights:</b><pre className="bg-secondary/40 p-2 rounded text-xs overflow-x-auto">{JSON.stringify(orderDetail.flights, null, 2)}</pre></div>
+              )}
+              {orderDetail.internal_movements && (
+                <div><b>Internal Movements:</b><pre className="bg-secondary/40 p-2 rounded text-xs overflow-x-auto">{JSON.stringify(orderDetail.internal_movements, null, 2)}</pre></div>
+              )}
+              {orderDetail.notes && <div><b>Notes:</b> {orderDetail.notes}</div>}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Preview/Print modal */}
       <Dialog open={!!previewVoucher} onOpenChange={() => setPreviewVoucher(null)}>
