@@ -21,6 +21,34 @@ const generateTokens = (user) => {
   return { accessToken, refreshToken };
 };
 
+const insertSession = async (userId, refreshToken, req = null) => {
+  const insertBasicSession = () => query(
+    'INSERT INTO sessions (user_id, refresh_token, expires_at) VALUES ($1, $2, now() + interval \'7 days\')',
+    [userId, refreshToken]
+  );
+
+  if (!req) return insertBasicSession();
+
+  const rawIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || null;
+  const ip = rawIp ? String(rawIp).slice(0, 255) : null;
+  const ua = req.headers['user-agent'] || null;
+  const deviceLabel = ua ? ua.slice(0, 80) : null;
+
+  try {
+    return await query(
+      `INSERT INTO sessions (user_id, refresh_token, expires_at, ip_address, user_agent, device_label, last_seen_at)
+       VALUES ($1, $2, now() + interval '7 days', $3, $4, $5, now())`,
+      [userId, refreshToken, ip, ua, deviceLabel]
+    );
+  } catch (err) {
+    if (err.code === '42703') {
+      console.warn('Session metadata columns are missing; using legacy session insert:', err.message);
+      return insertBasicSession();
+    }
+    throw err;
+  }
+};
+
 // Login
 router.post('/login', async (req, res) => {
   try {
@@ -37,15 +65,7 @@ router.post('/login', async (req, res) => {
 
     const tokens = generateTokens(user);
 
-    // Store refresh token + device metadata
-    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || null;
-    const ua = req.headers['user-agent'] || null;
-    const deviceLabel = ua ? ua.slice(0, 80) : null;
-    await query(
-      `INSERT INTO sessions (user_id, refresh_token, expires_at, ip_address, user_agent, device_label, last_seen_at)
-       VALUES ($1, $2, now() + interval '7 days', $3, $4, $5, now())`,
-      [user.id, tokens.refreshToken, ip, ua, deviceLabel]
-    );
+    await insertSession(user.id, tokens.refreshToken, req);
 
     // Get roles
     const roleResult = await query('SELECT role FROM user_roles WHERE user_id = $1', [user.id]);
@@ -104,10 +124,7 @@ router.post('/customer-register', async (req, res) => {
 
     const user = { id: userId, email: cleanEmail, full_name };
     const tokens = generateTokens(user);
-    await query(
-      'INSERT INTO sessions (user_id, refresh_token, expires_at) VALUES ($1, $2, now() + interval \'7 days\')',
-      [userId, tokens.refreshToken]
-    );
+    await insertSession(userId, tokens.refreshToken, req);
 
     res.status(201).json({
       user,
@@ -142,10 +159,7 @@ router.post('/refresh', async (req, res) => {
     // Delete old session and create new
     await query('DELETE FROM sessions WHERE id = $1', [sessionResult.rows[0].id]);
     const tokens = generateTokens(userResult.rows[0]);
-    await query(
-      'INSERT INTO sessions (user_id, refresh_token, expires_at) VALUES ($1, $2, now() + interval \'7 days\')',
-      [decoded.userId, tokens.refreshToken]
-    );
+    await insertSession(decoded.userId, tokens.refreshToken, req);
 
     res.json({ access_token: tokens.accessToken, refresh_token: tokens.refreshToken });
   } catch (err) {
