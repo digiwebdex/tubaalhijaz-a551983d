@@ -16,6 +16,7 @@ const QUEUE_NAMES = Object.freeze({
   GPS: 'gps',
   AUDIT_EXPORT: 'audit-export',
   REMINDERS: 'reminders',
+  MESSAGING: 'messaging',
 });
 
 const DEFAULT_JOB_OPTS = {
