@@ -669,7 +669,53 @@ const Dashboard = () => {
           </div>
         )}
 
+        {/* ──── My Services Tab (Transport / Catering / Visa orders) ──── */}
+        {activeTab === "services" && (
+          <div className="space-y-6">
+            {[
+              { title: "Transport Voucher Orders", rows: transportOrders, render: (o: any) => (
+                <>
+                  <div className="font-medium">{o.transport_type || "Transport"} · {o.package_name || "—"}</div>
+                  <div className="text-xs text-muted-foreground">Travel: {o.travel_date || "—"} · Pilgrims: {o.pilgrim_count || "—"}</div>
+                </>
+              )},
+              { title: "Catering Orders", rows: cateringOrders, render: (o: any) => (
+                <>
+                  <div className="font-medium">{o.persons} persons × {o.days} days</div>
+                  <div className="text-xs text-muted-foreground">Start: {o.start_date || "—"} · {o.currency} {Number(o.total_price || 0).toLocaleString()}</div>
+                </>
+              )},
+              { title: "Visa Applications", rows: visaOrders, render: (o: any) => (
+                <>
+                  <div className="font-medium">{o.visa_type} → {o.destination_country || "—"}</div>
+                  <div className="text-xs text-muted-foreground">Applicants: {o.num_applicants} · Travel: {o.travel_date || "—"}</div>
+                </>
+              )},
+            ].map(section => (
+              <div key={section.title}>
+                <h3 className="font-heading font-semibold mb-2">{section.title}</h3>
+                {section.rows.length === 0 ? (
+                  <div className="text-sm text-muted-foreground border rounded p-4 text-center">No orders yet.</div>
+                ) : (
+                  <div className="space-y-2">
+                    {section.rows.map((o: any) => (
+                      <div key={o.id} className="border rounded p-3 flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <div className="text-xs font-mono text-muted-foreground mb-0.5">{o.tracking_id || o.id.slice(0, 8).toUpperCase()}</div>
+                          {section.render(o)}
+                        </div>
+                        <StatusBadge status={o.status} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* ──── Payments Tab ──── */}
+
         {activeTab === "payments" && (
           <div className="space-y-3">
             {payments.length === 0 ? (
