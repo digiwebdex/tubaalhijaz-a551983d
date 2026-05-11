@@ -64,28 +64,28 @@ const fmtDate = (d?: string) => (d ? new Date(d).toLocaleDateString("en-GB") : "
 
 const SectionHeader = ({ en, ar }: { en: string; ar: string }) => (
   <div
-    className="flex items-center justify-between mt-4 mb-2 px-3 py-2 rounded"
+    className="flex items-center justify-between mt-2 mb-1 px-2 py-1 rounded"
     style={{ background: "#0F4C3A", color: "#fff" }}
   >
-    <span className="font-bold uppercase tracking-wide text-[12px]">{en}</span>
-    <span dir="rtl" className="text-[12px] font-bold">{ar}</span>
+    <span className="font-bold uppercase tracking-wide text-[10px]">{en}</span>
+    <span dir="rtl" className="text-[10px] font-bold">{ar}</span>
   </div>
 );
 
 const Th = ({ en, ar, w }: { en: string; ar: string; w?: string }) => (
   <th
-    className="border border-[#C9A96E] px-2 py-1.5 text-[10px] font-semibold align-middle"
+    className="border border-[#C9A96E] px-1.5 py-0.5 text-[9px] font-semibold align-middle"
     style={{ background: "#FBF3E2", color: "#0F4C3A", width: w }}
   >
-    <div className="flex items-center justify-between gap-2">
+    <div className="flex items-center justify-between gap-1">
       <span className="uppercase">{en}</span>
-      <span dir="rtl" className="text-[9px] text-[#7a6a3e]">{ar}</span>
+      <span dir="rtl" className="text-[8px] text-[#7a6a3e]">{ar}</span>
     </div>
   </th>
 );
 
 const Td = ({ children }: { children?: any }) => (
-  <td className="border border-[#C9A96E]/60 px-2 py-1.5 text-[11px] align-middle">{children}</td>
+  <td className="border border-[#C9A96E]/60 px-1.5 py-0.5 text-[10px] align-middle">{children}</td>
 );
 
 export function TransportBookingBilingualPdf({ data: d }: { data: TransportBookingPdfData }) {
