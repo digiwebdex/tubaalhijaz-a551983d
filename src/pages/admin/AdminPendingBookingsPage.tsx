@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CheckCircle2, XCircle, Eye, RefreshCw, Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import TransportVoucherDetailView from "@/components/admin/TransportVoucherDetailView";
 
 type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
 
@@ -331,7 +332,11 @@ export default function AdminPendingBookingsPage() {
           </DialogHeader>
           {detail && (
             <div className="space-y-3 text-sm">
-              <pre className="bg-muted p-3 rounded text-xs overflow-x-auto whitespace-pre-wrap">{JSON.stringify(detail.row, null, 2)}</pre>
+              {detail.type === "transport_voucher_orders" ? (
+                <TransportVoucherDetailView row={detail.row} />
+              ) : (
+                <pre className="bg-muted p-3 rounded text-xs overflow-x-auto whitespace-pre-wrap">{JSON.stringify(detail.row, null, 2)}</pre>
+              )}
               {detail.row.status === "pending" && (
                 <div className="flex gap-2 justify-end">
                   <Button variant="outline" className="text-rose-700 border-rose-300" onClick={() => updateStatus(detail.type, detail.row.id, "cancelled")}>
