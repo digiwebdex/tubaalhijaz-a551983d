@@ -7,6 +7,7 @@ import UmrahProgramsSection from "@/components/UmrahProgramsSection";
 import WhyChooseUsSection from "@/components/WhyChooseUsSection";
 import TransportSection from "@/components/TransportSection";
 import CateringSection from "@/components/CateringSection";
+import VisaSection from "@/components/VisaSection";
 import GallerySection from "@/components/GallerySection";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
