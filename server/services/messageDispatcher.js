@@ -273,11 +273,5 @@ async function enqueueFromTemplate({
   });
 }
 
-function start() {
-  if (started) return;
-  started = true;
-  setInterval(tick, POLL_INTERVAL_MS).unref();
-  console.log(`[messageDispatcher] started (poll=${POLL_INTERVAL_MS}ms, batch=${BATCH_SIZE})`);
-}
 
 module.exports = { start, enqueue, enqueueFromTemplate, renderTemplate, processOne, loadConfig };
