@@ -812,7 +812,8 @@ const Dashboard = () => {
                     </button>
                   </motion.div>
                 );
-              })
+                })}
+              </>
             )}
           </div>
         )}
