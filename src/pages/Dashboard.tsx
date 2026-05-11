@@ -93,71 +93,124 @@ const Dashboard = () => {
     if (!user) return;
     setLoading(true);
 
-    // Load profile first to obtain phone for guest-booking fallback matching.
-    const profileRes = await apiClient.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
-    setProfile(profileRes.data);
-    if (profileRes.data) {
-      setProfileForm({
-        full_name: profileRes.data.full_name || "",
-        phone: profileRes.data.phone || "",
-        passport_number: profileRes.data.passport_number || "",
-        address: profileRes.data.address || "",
-      });
-    }
-    const phone: string | null = (profileRes.data?.phone || (user as any)?.phone || "").toString().trim() || null;
-
     const dedupeById = (rows: any[]) => {
       const map = new Map<string, any>();
       for (const r of rows || []) if (r && r.id && !map.has(r.id)) map.set(r.id, r);
       return Array.from(map.values());
     };
 
-    // Run all queries in parallel — by user_id and (when available) by phone fallback.
-    const [
-      bookingsByUser, bookingsByPhone,
-      docsRes,
-      transportByUser, transportByPhone,
-      cateringByUser, cateringByPhone,
-      visaByUser, visaByPhone,
-    ] = await Promise.all([
-      apiClient.from("bookings").select("*, packages(name, type)").eq("user_id", user.id).order("created_at", { ascending: false }),
-      phone ? apiClient.from("bookings").select("*, packages(name, type)").eq("guest_phone", phone).order("created_at", { ascending: false }) : Promise.resolve({ data: [] } as any),
-      apiClient.from("booking_documents").select("*").eq("user_id", user.id),
-      (apiClient as any).from("transport_voucher_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      phone ? (apiClient as any).from("transport_voucher_orders").select("*").eq("contact_phone", phone).order("created_at", { ascending: false }) : Promise.resolve({ data: [] }),
-      (apiClient as any).from("catering_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      phone ? (apiClient as any).from("catering_orders").select("*").eq("guest_phone", phone).order("created_at", { ascending: false }) : Promise.resolve({ data: [] }),
-      (apiClient as any).from("visa_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      phone ? (apiClient as any).from("visa_orders").select("*").eq("contact_phone", phone).order("created_at", { ascending: false }) : Promise.resolve({ data: [] }),
-    ]);
+    const phoneCandidates = (...values: any[]) => {
+      const candidates = new Set<string>();
+      values.forEach((value) => {
+        const raw = String(value || "").trim();
+        if (!raw) return;
+        const digits = raw.replace(/\D/g, "");
+        if (!digits) return;
+        candidates.add(raw);
+        candidates.add(digits);
+        if (digits.startsWith("880") && digits.length >= 12) candidates.add(`0${digits.slice(3)}`);
+        if (digits.startsWith("0")) candidates.add(`88${digits}`);
+        if (digits.startsWith("1") && digits.length === 10) {
+          candidates.add(`0${digits}`);
+          candidates.add(`880${digits}`);
+          candidates.add(`+880${digits}`);
+        }
+        if (digits.startsWith("880")) candidates.add(`+${digits}`);
+      });
+      return Array.from(candidates);
+    };
 
-    const mergedBookings = dedupeById([...(bookingsByUser.data || []), ...((bookingsByPhone as any).data || [])]);
-    setBookings(mergedBookings as any);
-    setTransportOrders(dedupeById([...((transportByUser as any)?.data || []), ...((transportByPhone as any)?.data || [])]) as any);
-    setCateringOrders(dedupeById([...((cateringByUser as any)?.data || []), ...((cateringByPhone as any)?.data || [])]) as any);
-    setVisaOrders(dedupeById([...((visaByUser as any)?.data || []), ...((visaByPhone as any)?.data || [])]) as any);
+    const queryMany = async (table: string, column: string, values: string[], select = "*") => {
+      if (!values.length) return [];
+      const results = await Promise.all(
+        values.map((value) =>
+          (apiClient as any).from(table).select(select).eq(column, value).order("created_at", { ascending: false })
+        )
+      );
+      return results.flatMap((r: any) => r?.data || []);
+    };
 
-    // Payments: by user_id, plus by booking_id for any matched-by-phone bookings.
-    const bookingIds = mergedBookings.map((b: any) => b.id);
-    const [paymentsByUser, ...paymentsByBookings] = await Promise.all([
-      apiClient.from("payments").select("*").eq("user_id", user.id).order("due_date", { ascending: true }),
-      ...bookingIds.map((bid: string) =>
-        apiClient.from("payments").select("*").eq("booking_id", bid).order("due_date", { ascending: true })
-      ),
-    ]);
-    const allPayments = dedupeById([
-      ...((paymentsByUser as any).data || []),
-      ...paymentsByBookings.flatMap((r: any) => r?.data || []),
-    ]);
-    setPayments(allPayments as any);
+    try {
+      // Load profile first to obtain phone/email fallback matching for guest orders.
+      const profileRes = await apiClient.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
+      setProfile(profileRes.data);
+      if (profileRes.data) {
+        setProfileForm({
+          full_name: profileRes.data.full_name || "",
+          phone: profileRes.data.phone || "",
+          passport_number: profileRes.data.passport_number || "",
+          address: profileRes.data.address || "",
+        });
+      }
 
-    const grouped: Record<string, any[]> = {};
-    (docsRes.data || []).forEach((d: any) => {
-      if (!grouped[d.booking_id]) grouped[d.booking_id] = [];
-      grouped[d.booking_id].push(d);
-    });
-    setBookingDocs(grouped);
-    setLoading(false);
+      const phones = phoneCandidates(profileRes.data?.phone, (user as any)?.phone);
+      const emails = Array.from(new Set([profileRes.data?.email, (user as any)?.email].map((v) => String(v || "").trim().toLowerCase()).filter(Boolean)));
+
+      const [
+        bookingsByUser,
+        bookingsByPhone,
+        bookingsByEmail,
+        docsRes,
+        transportByUser,
+        transportByPhone,
+        transportByEmail,
+        cateringByUser,
+        cateringByPhone,
+        cateringByEmail,
+        visaByUser,
+        visaByPhone,
+        visaByEmail,
+      ] = await Promise.all([
+        apiClient.from("bookings").select("*, packages(name, type)").eq("user_id", user.id).order("created_at", { ascending: false }),
+        queryMany("bookings", "guest_phone", phones, "*, packages(name, type)"),
+        queryMany("bookings", "guest_email", emails, "*, packages(name, type)"),
+        apiClient.from("booking_documents").select("*").eq("user_id", user.id),
+        (apiClient as any).from("transport_voucher_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        queryMany("transport_voucher_orders", "contact_phone", phones),
+        queryMany("transport_voucher_orders", "contact_email", emails),
+        (apiClient as any).from("catering_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        queryMany("catering_orders", "guest_phone", phones),
+        queryMany("catering_orders", "guest_email", emails),
+        (apiClient as any).from("visa_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        queryMany("visa_orders", "contact_phone", phones),
+        queryMany("visa_orders", "contact_email", emails),
+      ]);
+
+      const mergedBookings = dedupeById([
+        ...(bookingsByUser.data || []),
+        ...((bookingsByPhone as any) || []),
+        ...((bookingsByEmail as any) || []),
+      ]);
+      setBookings(mergedBookings as any);
+      setTransportOrders(dedupeById([...((transportByUser as any)?.data || []), ...((transportByPhone as any) || []), ...((transportByEmail as any) || [])]) as any);
+      setCateringOrders(dedupeById([...((cateringByUser as any)?.data || []), ...((cateringByPhone as any) || []), ...((cateringByEmail as any) || [])]) as any);
+      setVisaOrders(dedupeById([...((visaByUser as any)?.data || []), ...((visaByPhone as any) || []), ...((visaByEmail as any) || [])]) as any);
+
+      // Payments: by user_id, plus by booking_id for any matched-by-phone/email bookings.
+      const bookingIds = mergedBookings.map((b: any) => b.id);
+      const [paymentsByUser, ...paymentsByBookings] = await Promise.all([
+        apiClient.from("payments").select("*").eq("user_id", user.id).order("due_date", { ascending: true }),
+        ...bookingIds.map((bid: string) =>
+          apiClient.from("payments").select("*").eq("booking_id", bid).order("due_date", { ascending: true })
+        ),
+      ]);
+      const allPayments = dedupeById([
+        ...((paymentsByUser as any).data || []),
+        ...paymentsByBookings.flatMap((r: any) => r?.data || []),
+      ]);
+      setPayments(allPayments as any);
+
+      const grouped: Record<string, any[]> = {};
+      (docsRes.data || []).forEach((d: any) => {
+        if (!grouped[d.booking_id]) grouped[d.booking_id] = [];
+        grouped[d.booking_id].push(d);
+      });
+      setBookingDocs(grouped);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchData(); }, [user]);
@@ -187,6 +240,8 @@ const Dashboard = () => {
 
   const [generatingPdf, setGeneratingPdf] = useState<string | null>(null);
 
+  const serviceOrderCount = transportOrders.length + cateringOrders.length + visaOrders.length;
+  const totalOrderCount = bookings.length + serviceOrderCount;
   const totalDue = bookings.reduce((sum, b) => sum + Number(b.due_amount || 0), 0);
   const totalPaid = bookings.reduce((sum, b) => sum + Number(b.paid_amount || 0), 0);
   const totalAmount = bookings.reduce((sum, b) => sum + Number(b.total_amount || 0), 0);
@@ -316,7 +371,7 @@ const Dashboard = () => {
               <Package className="h-5 w-5 text-primary" />
               <span className="text-xs text-muted-foreground">{t("dashboard.bookings")}</span>
             </div>
-            <p className="text-2xl font-heading font-bold">{bookings.length}</p>
+            <p className="text-2xl font-heading font-bold">{totalOrderCount}</p>
           </div>
           <div className="bg-card border border-border rounded-xl p-5">
             <div className="flex items-center gap-3 mb-2">
@@ -368,14 +423,42 @@ const Dashboard = () => {
         {activeTab === "overview" && (
           <div className="space-y-6">
             {/* Recent Bookings with inline payments */}
-            {bookings.length === 0 ? (
+            {bookings.length === 0 && serviceOrderCount === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p className="mb-4">{t("dashboard.noBookings")}</p>
                 <Link to="/packages" className="text-primary hover:underline">{t("dashboard.browsePackages")}</Link>
               </div>
             ) : (
-              bookings.map((b) => {
+              <>
+                {bookings.length === 0 && serviceOrderCount > 0 && (
+                  <div className="bg-card border border-border rounded-xl p-5">
+                    <div className="flex items-center justify-between gap-3 mb-4">
+                      <div>
+                        <h2 className="font-heading font-semibold">Recent Service Orders</h2>
+                        <p className="text-sm text-muted-foreground">Transport, catering and visa requests submitted from your account.</p>
+                      </div>
+                      <button onClick={() => setActiveTab("services")} className="text-sm text-primary hover:underline">View all</button>
+                    </div>
+                    <div className="space-y-2">
+                      {[
+                        ...transportOrders.map((o) => ({ ...o, _type: "Transport", _title: o.package_name || o.transport_type || "Transport Booking", _meta: `Travel: ${o.travel_date || "—"} · Pilgrims: ${o.pilgrim_count || "—"}` })),
+                        ...cateringOrders.map((o) => ({ ...o, _type: "Catering", _title: `${o.persons || 0} persons × ${o.days || 0} days`, _meta: `Start: ${o.start_date || "—"} · ${o.currency || "SAR"} ${Number(o.total_price || 0).toLocaleString()}` })),
+                        ...visaOrders.map((o) => ({ ...o, _type: "Visa", _title: `${o.visa_type || "Visa"} → ${o.destination_country || "—"}`, _meta: `Applicants: ${o.num_applicants || "—"} · Travel: ${o.travel_date || "—"}` })),
+                      ].slice(0, 4).map((o: any) => (
+                        <div key={`${o._type}-${o.id}`} className="border border-border rounded-lg p-3 flex items-start justify-between gap-3">
+                          <div>
+                            <div className="text-xs font-mono text-muted-foreground">{o.tracking_id || o.id.slice(0, 8).toUpperCase()}</div>
+                            <div className="font-medium">{o._type}: {o._title}</div>
+                            <div className="text-xs text-muted-foreground">{o._meta}</div>
+                          </div>
+                          <StatusBadge kind={(o.status as any) || "pending"} size="sm" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {bookings.map((b) => {
                 const bPayments = getBookingPayments(b.id);
                 const paidCount = bPayments.filter((p) => p.status === "completed").length;
                 const overdueCount = bPayments.filter((p) => p.status === "pending" && p.due_date && new Date(p.due_date) < new Date()).length;
@@ -532,7 +615,8 @@ const Dashboard = () => {
                     )}
                   </motion.div>
                 );
-              })
+                })}
+              </>
             )}
           </div>
         )}
@@ -540,14 +624,42 @@ const Dashboard = () => {
         {/* ──── Bookings Tab ──── */}
         {activeTab === "bookings" && (
           <div className="space-y-4">
-            {bookings.length === 0 ? (
+            {bookings.length === 0 && serviceOrderCount === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p className="mb-4">{t("dashboard.noBookings")}</p>
                 <Link to="/packages" className="text-primary hover:underline">{t("dashboard.browsePackages")}</Link>
               </div>
             ) : (
-              bookings.map((b) => {
+              <>
+                {bookings.length === 0 && serviceOrderCount > 0 && (
+                  <div className="bg-card border border-border rounded-xl p-5">
+                    <div className="flex items-center justify-between gap-3 mb-4">
+                      <div>
+                        <h2 className="font-heading font-semibold">Recent Service Orders</h2>
+                        <p className="text-sm text-muted-foreground">Transport, catering and visa requests submitted from your account.</p>
+                      </div>
+                      <button onClick={() => setActiveTab("services")} className="text-sm text-primary hover:underline">View all</button>
+                    </div>
+                    <div className="space-y-2">
+                      {[
+                        ...transportOrders.map((o) => ({ ...o, _type: "Transport", _title: o.package_name || o.transport_type || "Transport Booking", _meta: `Travel: ${o.travel_date || "—"} · Pilgrims: ${o.pilgrim_count || "—"}` })),
+                        ...cateringOrders.map((o) => ({ ...o, _type: "Catering", _title: `${o.persons || 0} persons × ${o.days || 0} days`, _meta: `Start: ${o.start_date || "—"} · ${o.currency || "SAR"} ${Number(o.total_price || 0).toLocaleString()}` })),
+                        ...visaOrders.map((o) => ({ ...o, _type: "Visa", _title: `${o.visa_type || "Visa"} → ${o.destination_country || "—"}`, _meta: `Applicants: ${o.num_applicants || "—"} · Travel: ${o.travel_date || "—"}` })),
+                      ].slice(0, 4).map((o: any) => (
+                        <div key={`${o._type}-${o.id}`} className="border border-border rounded-lg p-3 flex items-start justify-between gap-3">
+                          <div>
+                            <div className="text-xs font-mono text-muted-foreground">{o.tracking_id || o.id.slice(0, 8).toUpperCase()}</div>
+                            <div className="font-medium">{o._type}: {o._title}</div>
+                            <div className="text-xs text-muted-foreground">{o._meta}</div>
+                          </div>
+                          <StatusBadge kind={(o.status as any) || "pending"} size="sm" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {bookings.map((b) => {
                 const bPayments = getBookingPayments(b.id);
                 const currentStepIdx = statusTimeline.indexOf(b.status);
                 return (
