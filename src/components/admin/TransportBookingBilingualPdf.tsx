@@ -97,15 +97,16 @@ export function TransportBookingBilingualPdf({ data: d }: { data: TransportBooki
     <>
       <style>{`
         @media print {
-          html, body { height: auto !important; }
+          html, body, #root { width: 210mm !important; height: 297mm !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; }
           body * { visibility: hidden !important; }
           .voucher-print, .voucher-print * { visibility: visible !important; }
-          .voucher-print { position: absolute !important; left: 0; top: 0; width: 210mm !important; max-height: 297mm !important; margin: 0 !important; padding: 3mm 4mm !important; min-height: 0 !important; page-break-after: avoid !important; page-break-inside: avoid !important; overflow: hidden !important; box-sizing: border-box !important; }
+          .transport-invoice-print-shell { min-height: 0 !important; height: 297mm !important; padding: 0 !important; margin: 0 !important; background: white !important; overflow: hidden !important; }
+          .transport-invoice-print-frame { box-shadow: none !important; width: 210mm !important; height: 297mm !important; overflow: hidden !important; }
+          .voucher-print { position: fixed !important; left: 0 !important; top: 0 !important; width: 210mm !important; height: 296.5mm !important; max-height: 296.5mm !important; margin: 0 !important; padding: 3mm 4mm 2mm !important; min-height: 0 !important; page-break-before: avoid !important; page-break-after: avoid !important; page-break-inside: avoid !important; break-before: avoid !important; break-after: avoid !important; break-inside: avoid !important; overflow: hidden !important; box-sizing: border-box !important; }
           .voucher-print table, .voucher-print tr, .voucher-print td, .voucher-print th { page-break-inside: avoid !important; page-break-after: avoid !important; }
           .voucher-print > *:last-child { margin-bottom: 0 !important; padding-bottom: 0 !important; page-break-after: avoid !important; }
           .print-hide { display: none !important; }
           @page { size: A4 portrait; margin: 0; }
-          html, body { margin: 0 !important; padding: 0 !important; }
         }
       `}</style>
 
