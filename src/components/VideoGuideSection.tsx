@@ -128,6 +128,15 @@ export default function VideoGuideSection() {
   const bn = language === "bn";
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const [expandedGuide, setExpandedGuide] = useState<number | null>(null);
+  const { data: content } = useBulkSiteContent("video_guide");
+  const lc = content?.[language];
+
+  const sectionLabel = lc?.section_label || (bn ? "শিখুন" : "Learn");
+  const heading = lc?.heading || (bn ? "ভিডিও টিউটোরিয়াল ও " : "Video Tutorials & ");
+  const headingHighlight = lc?.heading_highlight || (bn ? "গাইড" : "Guides");
+  const description = lc?.description || (bn
+    ? "আমাদের শিক্ষামূলক ভিডিও কন্টেন্ট দিয়ে আপনার যাত্রার জন্য প্রস্তুত হোন।"
+    : "Prepare for your journey with our educational video content.");
 
   return (
     <section id="videos" className="py-20 bg-secondary/30">
@@ -138,18 +147,11 @@ export default function VideoGuideSection() {
           viewport={{ once: true }}
           className="text-center mb-14"
         >
-          <span className="text-primary text-sm font-medium tracking-[0.3em] uppercase">
-            {bn ? "শিখুন" : "Learn"}
-          </span>
+          <span className="text-primary text-sm font-medium tracking-[0.3em] uppercase">{sectionLabel}</span>
           <h2 className="font-heading text-3xl md:text-4xl font-bold mt-3 mb-4">
-            {bn ? "ভিডিও টিউটোরিয়াল ও " : "Video Tutorials & "}
-            <span className="text-gradient-gold">{bn ? "গাইড" : "Guides"}</span>
+            {heading}<span className="text-gradient-gold">{headingHighlight}</span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            {bn
-              ? "আমাদের শিক্ষামূলক ভিডিও কন্টেন্ট দিয়ে আপনার যাত্রার জন্য প্রস্তুত হোন।"
-              : "Prepare for your journey with our educational video content."}
-          </p>
+          <p className="text-muted-foreground max-w-xl mx-auto">{description}</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
