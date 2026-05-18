@@ -249,11 +249,11 @@ const HeroSection = () => {
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </button>
                 <a
-                  href="tel:+966534919814"
+                  href={`tel:${heroPhone.replace(/\s+/g, "")}`}
                   className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/40 text-white font-semibold px-8 py-4 rounded-full hover:bg-white/20 transition-all"
                 >
                   <Phone className="h-4 w-4" />
-                  +966 53 491 9814
+                  {heroPhone}
                 </a>
               </div>
             </motion.div>
