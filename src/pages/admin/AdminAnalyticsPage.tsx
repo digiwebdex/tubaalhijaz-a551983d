@@ -12,7 +12,7 @@ import { format, parseISO, getMonth, getYear, startOfMonth, subMonths } from "da
 import { formatBDT } from "@/lib/utils";
 
 const COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316"];
-const MONTHS_BN = ["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"];
+const MONTHS_BN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 export default function AdminAnalyticsPage() {
   const canSeeProfit = useCanSeeProfit();
@@ -134,8 +134,8 @@ export default function AdminAnalyticsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">অ্যাডভান্সড অ্যানালিটিক্স</h1>
-          <p className="text-sm text-muted-foreground">ব্যবসায়িক কর্মক্ষমতা বিশ্লেষণ</p>
+          <h1 className="text-2xl font-bold text-foreground">Advanced Analytics</h1>
+          <p className="text-sm text-muted-foreground">Business performance insights</p>
         </div>
         <select className="bg-secondary border border-border rounded-md px-3 py-2 text-sm" value={selectedYear} onChange={e => setSelectedYear(e.target.value)}>
           {years.map(y => <option key={y} value={y}>{y}</option>)}
@@ -145,35 +145,35 @@ export default function AdminAnalyticsPage() {
       {/* KPI Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Card><CardContent className="p-4">
-          <div className="flex items-center gap-2 text-muted-foreground mb-1"><TrendingUp className="h-4 w-4" /><span className="text-xs">মোট আয়</span></div>
+          <div className="flex items-center gap-2 text-muted-foreground mb-1"><TrendingUp className="h-4 w-4" /><span className="text-xs">Total Revenue</span></div>
           <p className="text-xl font-bold text-emerald-600">{formatBDT(totalRevenue)}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <div className="flex items-center gap-2 text-muted-foreground mb-1"><TrendingDown className="h-4 w-4" /><span className="text-xs">মোট ব্যয়</span></div>
+          <div className="flex items-center gap-2 text-muted-foreground mb-1"><TrendingDown className="h-4 w-4" /><span className="text-xs">Total Expenses</span></div>
           <p className="text-xl font-bold text-destructive">{formatBDT(totalExpenses)}</p>
         </CardContent></Card>
         {canSeeProfit && <Card><CardContent className="p-4">
-          <div className="flex items-center gap-2 text-muted-foreground mb-1"><BarChart3 className="h-4 w-4" /><span className="text-xs">নেট প্রফিট</span></div>
+          <div className="flex items-center gap-2 text-muted-foreground mb-1"><BarChart3 className="h-4 w-4" /><span className="text-xs">Net Profit</span></div>
           <p className={`text-xl font-bold ${totalRevenue - totalExpenses >= 0 ? "text-emerald-600" : "text-destructive"}`}>{formatBDT(totalRevenue - totalExpenses)}</p>
         </CardContent></Card>}
         <Card><CardContent className="p-4">
-          <div className="flex items-center gap-2 text-muted-foreground mb-1"><Users className="h-4 w-4" /><span className="text-xs">মোট বুকিং</span></div>
+          <div className="flex items-center gap-2 text-muted-foreground mb-1"><Users className="h-4 w-4" /><span className="text-xs">Total Bookings</span></div>
           <p className="text-xl font-bold text-foreground">{bookings.length}</p>
         </CardContent></Card>
       </div>
 
       <Tabs defaultValue="revenue" className="space-y-4">
         <TabsList className="flex flex-wrap gap-1">
-          <TabsTrigger value="revenue">আয়ের ট্রেন্ড</TabsTrigger>
-          <TabsTrigger value="packages">প্যাকেজ বিশ্লেষণ</TabsTrigger>
-          <TabsTrigger value="moallems">মোয়াল্লেম পারফরম্যান্স</TabsTrigger>
-          <TabsTrigger value="seasonal">সিজনাল প্যাটার্ন</TabsTrigger>
+          <TabsTrigger value="revenue">Revenue Trends</TabsTrigger>
+          <TabsTrigger value="packages">Package Analysis</TabsTrigger>
+          <TabsTrigger value="moallems">Moallem Performance</TabsTrigger>
+          <TabsTrigger value="seasonal">Seasonal Pattern</TabsTrigger>
         </TabsList>
 
         {/* Revenue Trends */}
         <TabsContent value="revenue" className="space-y-4">
           <Card>
-            <CardHeader><CardTitle className="text-base">মাসিক আয় ও ব্যয় ({selectedYear})</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">Monthly Revenue & Expenses ({selectedYear})</CardTitle></CardHeader>
             <CardContent>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
@@ -183,9 +183,9 @@ export default function AdminAnalyticsPage() {
                     <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip formatter={(v: number) => formatBDT(v)} />
                     <Legend />
-                    <Area type="monotone" dataKey="revenue" name="আয়" fill="#10b981" fillOpacity={0.3} stroke="#10b981" />
-                    <Area type="monotone" dataKey="expenses" name="ব্যয়" fill="#ef4444" fillOpacity={0.2} stroke="#ef4444" />
-                    {canSeeProfit && <Area type="monotone" dataKey="profit" name="প্রফিট" fill="#3b82f6" fillOpacity={0.2} stroke="#3b82f6" />}
+                    <Area type="monotone" dataKey="revenue" name="Revenue" fill="#10b981" fillOpacity={0.3} stroke="#10b981" />
+                    <Area type="monotone" dataKey="expenses" name="Expenses" fill="#ef4444" fillOpacity={0.2} stroke="#ef4444" />
+                    {canSeeProfit && <Area type="monotone" dataKey="profit" name="Profit" fill="#3b82f6" fillOpacity={0.2} stroke="#3b82f6" />}
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -193,7 +193,7 @@ export default function AdminAnalyticsPage() {
           </Card>
 
           <Card>
-            <CardHeader><CardTitle className="text-base">মাসিক বুকিং সংখ্যা ({selectedYear})</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">Monthly Booking Count ({selectedYear})</CardTitle></CardHeader>
             <CardContent>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
@@ -202,7 +202,7 @@ export default function AdminAnalyticsPage() {
                     <XAxis dataKey="month" tick={{ fontSize: 11 }} angle={-45} textAnchor="end" height={60} />
                     <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip />
-                    <Bar dataKey="bookings" name="বুকিং" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="bookings" name="Bookings" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -214,7 +214,7 @@ export default function AdminAnalyticsPage() {
         <TabsContent value="packages" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
-              <CardHeader><CardTitle className="text-base">প্যাকেজ টাইপ বিতরণ</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-base">Package Type Distribution</CardTitle></CardHeader>
               <CardContent>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
@@ -230,7 +230,7 @@ export default function AdminAnalyticsPage() {
             </Card>
 
             <Card>
-              <CardHeader><CardTitle className="text-base">প্যাকেজ-ভিত্তিক আয়</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-base">Revenue by Package</CardTitle></CardHeader>
               <CardContent>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
@@ -239,8 +239,8 @@ export default function AdminAnalyticsPage() {
                       <XAxis type="number" tick={{ fontSize: 10 }} />
                       <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={100} />
                       <Tooltip formatter={(v: number) => formatBDT(v)} />
-                      <Bar dataKey="revenue" name="আয়" fill="#10b981" radius={[0, 4, 4, 0]} />
-                      {canSeeProfit && <Bar dataKey="profit" name="প্রফিট" fill="#3b82f6" radius={[0, 4, 4, 0]} />}
+                      <Bar dataKey="revenue" name="Revenue" fill="#10b981" radius={[0, 4, 4, 0]} />
+                      {canSeeProfit && <Bar dataKey="profit" name="Profit" fill="#3b82f6" radius={[0, 4, 4, 0]} />}
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -254,11 +254,11 @@ export default function AdminAnalyticsPage() {
               <table className="w-full text-sm">
                 <thead className="bg-muted/50">
                   <tr>
-                    <th className="text-left px-4 py-3 font-medium">প্যাকেজ</th>
-                    <th className="text-center px-4 py-3 font-medium">টাইপ</th>
-                    <th className="text-center px-4 py-3 font-medium">বুকিং</th>
-                    <th className="text-right px-4 py-3 font-medium">আয়</th>
-                    {canSeeProfit && <th className="text-right px-4 py-3 font-medium">প্রফিট</th>}
+                    <th className="text-left px-4 py-3 font-medium">Package</th>
+                    <th className="text-center px-4 py-3 font-medium">Type</th>
+                    <th className="text-center px-4 py-3 font-medium">Bookings</th>
+                    <th className="text-right px-4 py-3 font-medium">Revenue</th>
+                    {canSeeProfit && <th className="text-right px-4 py-3 font-medium">Profit</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -280,7 +280,7 @@ export default function AdminAnalyticsPage() {
         {/* Moallem Performance */}
         <TabsContent value="moallems" className="space-y-4">
           <Card>
-            <CardHeader><CardTitle className="text-base">মোয়াল্লেম পারফরম্যান্স র‍্যাংকিং</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">Moallem Performance র‍্যাংকিং</CardTitle></CardHeader>
             <CardContent>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
@@ -290,8 +290,8 @@ export default function AdminAnalyticsPage() {
                     <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={120} />
                     <Tooltip formatter={(v: number) => formatBDT(v)} />
                     <Legend />
-                    <Bar dataKey="revenue" name="মোট আয়" fill="#10b981" radius={[0, 4, 4, 0]} />
-                    <Bar dataKey="deposits" name="জমা" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                    <Bar dataKey="revenue" name="Total Revenue" fill="#10b981" radius={[0, 4, 4, 0]} />
+                    <Bar dataKey="deposits" name="Deposits" fill="#3b82f6" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -304,10 +304,10 @@ export default function AdminAnalyticsPage() {
                 <thead className="bg-muted/50">
                   <tr>
                     <th className="text-left px-4 py-3 font-medium">#</th>
-                    <th className="text-left px-4 py-3 font-medium">মোয়াল্লেম</th>
-                    <th className="text-center px-4 py-3 font-medium">বুকিং</th>
-                    <th className="text-right px-4 py-3 font-medium">মোট আয়</th>
-                    <th className="text-right px-4 py-3 font-medium">জমা</th>
+                    <th className="text-left px-4 py-3 font-medium">Moallem</th>
+                    <th className="text-center px-4 py-3 font-medium">Bookings</th>
+                    <th className="text-right px-4 py-3 font-medium">Total Revenue</th>
+                    <th className="text-right px-4 py-3 font-medium">Deposits</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -329,7 +329,7 @@ export default function AdminAnalyticsPage() {
         {/* Seasonal Pattern */}
         <TabsContent value="seasonal">
           <Card>
-            <CardHeader><CardTitle className="text-base">সিজনাল বুকিং প্যাটার্ন (সকল বছর)</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">Seasonal Booking Pattern (All Years)</CardTitle></CardHeader>
             <CardContent>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
@@ -338,12 +338,12 @@ export default function AdminAnalyticsPage() {
                     <XAxis dataKey="month" tick={{ fontSize: 11 }} angle={-45} textAnchor="end" height={60} />
                     <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip />
-                    <Line type="monotone" dataKey="count" name="বুকিং সংখ্যা" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 4 }} />
+                    <Line type="monotone" dataKey="count" name="Bookings" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 4 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
               <p className="text-xs text-muted-foreground mt-3 text-center">
-                সকল বছরের বুকিং ডেটা একত্রিত করে সিজনাল ট্রেন্ড দেখানো হচ্ছে
+                সকল বছরের Bookings ডেটা একত্রিত করে সিজনাল ট্রেন্ড দেখানো হচ্ছে
               </p>
             </CardContent>
           </Card>
