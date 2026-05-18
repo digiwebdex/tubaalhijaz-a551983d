@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { useNavigate } from "react-router-dom";
 import { requireCustomerLogin } from "@/lib/bookingAuth";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 const collage = [
   { key: "bus", img: busImg, label: { en: "Bus", bn: "বাস" } },
@@ -34,6 +35,16 @@ const TransportSection = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const isBn = language === "bn";
+  const { data: cms } = useBulkSiteContent("transport_section");
+  const lc = cms?.[language];
+  const sectionLabel = lc?.section_label || (isBn ? "ট্রান্সপোর্ট" : "Transport Service");
+  const headingMain = lc?.heading || (isBn ? "আরামদায়ক যাতায়াত " : "Comfortable rides ");
+  const headingHighlight = lc?.heading_highlight || (isBn ? "সর্বত্র" : "across Hijaz");
+  const description = lc?.description || (isBn
+    ? "জেদ্দা এয়ারপোর্ট থেকে হোটেল, মক্কা–মদিনা ট্রান্সফার ও জিয়ারাহ ট্যুর — আধুনিক সেডান, এসইউভি, হায়েস ও কোস্টার।"
+    : "Airport pickups, intercity Makkah–Madinah transfers and full Ziyarah tours in modern Sedans, SUVs, Hiace vans and Coasters.");
+  const availabilityText = lc?.availability_text || (isBn ? "যেকোনো সময়" : "Available anytime");
+  const bookNowText = lc?.book_now_text || (isBn ? "বুকিং করুন" : "Book Now");
 
   const { data } = useQuery({
     queryKey: ["transport_services_public"],
@@ -157,7 +168,7 @@ const TransportSection = () => {
                 </div>
                 <div>
                   <div className="font-heading text-2xl font-bold">24/7</div>
-                  <div className="text-xs text-muted-foreground">{isBn ? "যেকোনো সময়" : "Available anytime"}</div>
+                  <div className="text-xs text-muted-foreground">{availabilityText}</div>
                 </div>
               </div>
             </div>
@@ -169,18 +180,16 @@ const TransportSection = () => {
             viewport={{ once: true }}
           >
             <span className="inline-block text-primary text-xs font-bold tracking-[0.3em] uppercase mb-3">
-              {isBn ? "ট্রান্সপোর্ট" : "Transport Service"}
+              {sectionLabel}
             </span>
             <h2 className="font-heading text-4xl md:text-5xl font-bold mb-5 leading-tight">
-              {isBn ? "আরামদায়ক যাতায়াত " : "Comfortable rides "}
+              {headingMain}
               <span className="italic text-gradient-sunset">
-                {isBn ? "সর্বত্র" : "across Hijaz"}
+                {headingHighlight}
               </span>
             </h2>
             <p className="text-muted-foreground mb-8 leading-relaxed">
-              {isBn
-                ? "জেদ্দা এয়ারপোর্ট থেকে হোটেল, মক্কা–মদিনা ট্রান্সফার ও জিয়ারাহ ট্যুর — আধুনিক সেডান, এসইউভি, হায়েস ও কোস্টার।"
-                : "Airport pickups, intercity Makkah–Madinah transfers and full Ziyarah tours in modern Sedans, SUVs, Hiace vans and Coasters."}
+              {description}
             </p>
 
             <div className="space-y-3 mb-8">
@@ -237,7 +246,7 @@ const TransportSection = () => {
                                 openService(s);
                               }}
                             >
-                              {isBn ? "বুকিং করুন" : "Book Now"}
+                              {bookNowText}
                             </Button>
                           </div>
                         </motion.div>
