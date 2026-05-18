@@ -23,6 +23,8 @@ const PackagesSection = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { data: packages = [], isLoading: loading } = useActivePackages();
+  const { data: content } = useBulkSiteContent("packages");
+  const lc = content?.[language];
 
   if (loading || packages.length === 0) return null;
 
