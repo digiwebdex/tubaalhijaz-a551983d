@@ -280,7 +280,7 @@ export default function AdminAnalyticsPage() {
         {/* Moallem Performance */}
         <TabsContent value="moallems" className="space-y-4">
           <Card>
-            <CardHeader><CardTitle className="text-base">Moallem Performance র‍্যাংকিং</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">Moallem Performance Ranking</CardTitle></CardHeader>
             <CardContent>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
