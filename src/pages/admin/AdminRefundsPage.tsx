@@ -107,8 +107,8 @@ export default function AdminRefundsPage() {
   }, [selectedPolicyId, policies, refundForm.original_amount]);
 
   const handleCreateRefund = async () => {
-    if (!selectedBookingId) { toast.error("বুকিং নির্বাচন করুন"); return; }
-    if (refundForm.refund_amount <= 0) { toast.error("রিফান্ড পরিমাণ ০ এর বেশি হতে হবে"); return; }
+    if (!selectedBookingId) { toast.error("Please select a booking"); return; }
+    if (refundForm.refund_amount <= 0) { toast.error("Refund amount must be greater than 0"); return; }
 
     const { error } = await apiClient.from("refunds").insert({
       booking_id: selectedBookingId,
@@ -123,7 +123,7 @@ export default function AdminRefundsPage() {
     });
 
     if (error) { toast.error(error.message); return; }
-    toast.success("রিফান্ড রিকুয়েস্ট তৈরি হয়েছে");
+    toast.success("Refund request created");
     setShowAddRefund(false);
     resetForm();
     fetchAll();
@@ -135,15 +135,15 @@ export default function AdminRefundsPage() {
       ...(newStatus === "processed" ? { processed_at: new Date().toISOString() } : {}),
     }).eq("id", id);
     if (error) { toast.error(error.message); return; }
-    toast.success(`রিফান্ড ${newStatus === "processed" ? "প্রসেস" : newStatus === "approved" ? "অনুমোদিত" : "বাতিল"} হয়েছে`);
+    toast.success(`Refund ${newStatus}`);
     fetchAll();
   };
 
   const handleSavePolicy = async () => {
-    if (!policyForm.name) { toast.error("নাম দিন"); return; }
+    if (!policyForm.name) { toast.error("Please enter name"); return; }
     const { error } = await apiClient.from("cancellation_policies").insert(policyForm);
     if (error) { toast.error(error.message); return; }
-    toast.success("পলিসি তৈরি হয়েছে");
+    toast.success("Policy created");
     setPolicyForm({ name: "", description: "", refund_type: "percentage", refund_value: 0, min_days_before_departure: 0, is_default: false });
     fetchAll();
   };
@@ -182,16 +182,16 @@ export default function AdminRefundsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">রিফান্ড ও ক্যান্সেলেশন</h1>
-          <p className="text-sm text-muted-foreground">বুকিং ক্যান্সেল ও রিফান্ড ম্যানেজমেন্ট</p>
+          <h1 className="text-2xl font-bold text-foreground">Refunds & Cancellations</h1>
+          <p className="text-sm text-muted-foreground">Manage booking cancellations and refunds</p>
         </div>
         {!isViewer && (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setShowPolicyModal(true)}>
-              <FileText className="h-4 w-4 mr-1" /> পলিসি ম্যানেজ
+              <FileText className="h-4 w-4 mr-1" /> Manage Policy
             </Button>
             <Button size="sm" onClick={() => { resetForm(); setShowAddRefund(true); }}>
-              <Plus className="h-4 w-4 mr-1" /> নতুন রিফান্ড
+              <Plus className="h-4 w-4 mr-1" /> New Refund
             </Button>
           </div>
         )}
@@ -200,19 +200,19 @@ export default function AdminRefundsPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Card><CardContent className="p-4">
-          <p className="text-xs text-muted-foreground">মোট রিফান্ড</p>
+          <p className="text-xs text-muted-foreground">Total Refunds</p>
           <p className="text-2xl font-bold text-foreground">{stats.total}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs text-muted-foreground">পেন্ডিং</p>
+          <p className="text-xs text-muted-foreground">Pending</p>
           <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs text-muted-foreground">প্রসেসড</p>
+          <p className="text-xs text-muted-foreground">Processed</p>
           <p className="text-2xl font-bold text-emerald-600">{stats.processed}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs text-muted-foreground">মোট রিফান্ডকৃত</p>
+          <p className="text-xs text-muted-foreground">Total Refunded</p>
           <p className="text-2xl font-bold text-destructive">{formatBDT(stats.totalRefunded)}</p>
         </CardContent></Card>
       </div>
@@ -221,14 +221,14 @@ export default function AdminRefundsPage() {
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input className={inputClass + " pl-9"} placeholder="ট্র্যাকিং আইডি, নাম দিয়ে খুঁজুন..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+          <input className={inputClass + " pl-9"} placeholder="Search by tracking ID, name..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
         </div>
         <select className={inputClass + " w-auto"} value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
-          <option value="all">সকল স্ট্যাটাস</option>
-          <option value="pending">পেন্ডিং</option>
-          <option value="approved">অনুমোদিত</option>
-          <option value="processed">প্রসেসড</option>
-          <option value="rejected">বাতিল</option>
+          <option value="all">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="processed">Processed</option>
+          <option value="rejected">Rejected</option>
         </select>
       </div>
 
@@ -237,20 +237,20 @@ export default function AdminRefundsPage() {
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground">ট্র্যাকিং</th>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground">কাস্টমার</th>
-              <th className="text-right px-4 py-3 font-medium text-muted-foreground">মূল পরিমাণ</th>
-              <th className="text-right px-4 py-3 font-medium text-muted-foreground">কর্তন</th>
-              <th className="text-right px-4 py-3 font-medium text-muted-foreground">রিফান্ড</th>
-              <th className="text-center px-4 py-3 font-medium text-muted-foreground">মাধ্যম</th>
-              <th className="text-center px-4 py-3 font-medium text-muted-foreground">স্ট্যাটাস</th>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground">তারিখ</th>
-              {!isViewer && <th className="text-center px-4 py-3 font-medium text-muted-foreground">অ্যাকশন</th>}
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Tracking</th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Customer</th>
+              <th className="text-right px-4 py-3 font-medium text-muted-foreground">Original Amount</th>
+              <th className="text-right px-4 py-3 font-medium text-muted-foreground">Deduction</th>
+              <th className="text-right px-4 py-3 font-medium text-muted-foreground">Refund</th>
+              <th className="text-center px-4 py-3 font-medium text-muted-foreground">Method</th>
+              <th className="text-center px-4 py-3 font-medium text-muted-foreground">Status</th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Date</th>
+              {!isViewer && <th className="text-center px-4 py-3 font-medium text-muted-foreground">Actions</th>}
             </tr>
           </thead>
           <tbody>
             {filteredRefunds.length === 0 ? (
-              <tr><td colSpan={9} className="text-center py-8 text-muted-foreground">কোনো রিফান্ড পাওয়া যায়নি</td></tr>
+              <tr><td colSpan={9} className="text-center py-8 text-muted-foreground">No refunds found</td></tr>
             ) : filteredRefunds.map((r: any) => (
               <tr key={r.id} className="border-t border-border hover:bg-muted/30">
                 <td className="px-4 py-3 font-mono text-xs">{r.bookings?.tracking_id || "—"}</td>
@@ -278,7 +278,7 @@ export default function AdminRefundsPage() {
                       )}
                       {r.status === "approved" && canModify && (
                         <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => handleUpdateStatus(r.id, "processed")}>
-                          <DollarSign className="h-3.5 w-3.5 mr-1" /> প্রসেস
+                          <DollarSign className="h-3.5 w-3.5 mr-1" /> Process
                         </Button>
                       )}
                     </div>
@@ -293,12 +293,12 @@ export default function AdminRefundsPage() {
       {/* Add Refund Modal */}
       <Dialog open={showAddRefund} onOpenChange={setShowAddRefund}>
         <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>নতুন রিফান্ড রিকুয়েস্ট</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>New Refund Request</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">বুকিং নির্বাচন করুন *</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Select Booking *</label>
               <select className={inputClass} value={selectedBookingId} onChange={e => setSelectedBookingId(e.target.value)}>
-                <option value="">-- বুকিং নির্বাচন --</option>
+                <option value="">-- Select booking --</option>
                 {bookings.map((b: any) => (
                   <option key={b.id} value={b.id}>{b.tracking_id} — {b.guest_name} ({formatBDT(b.paid_amount)} paid)</option>
                 ))}
@@ -306,9 +306,9 @@ export default function AdminRefundsPage() {
             </div>
 
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">ক্যান্সেলেশন পলিসি</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Cancellation Policy</label>
               <select className={inputClass} value={selectedPolicyId} onChange={e => setSelectedPolicyId(e.target.value)}>
-                <option value="">-- কাস্টম রিফান্ড --</option>
+                <option value="">-- Custom refund --</option>
                 {policies.map((p: any) => (
                   <option key={p.id} value={p.id}>{p.name} ({p.refund_type === "percentage" ? `${p.refund_value}%` : formatBDT(p.refund_value)})</option>
                 ))}
@@ -317,49 +317,49 @@ export default function AdminRefundsPage() {
 
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">মূল পরিমাণ</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Original Amount</label>
                 <input className={inputClass} type="number" value={refundForm.original_amount} onChange={e => {
                   const v = Number(e.target.value);
                   setRefundForm(prev => ({ ...prev, original_amount: v, refund_amount: v - prev.deduction_amount }));
                 }} />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">কর্তন</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Deduction</label>
                 <input className={inputClass} type="number" value={refundForm.deduction_amount} onChange={e => {
                   const v = Number(e.target.value);
                   setRefundForm(prev => ({ ...prev, deduction_amount: v, refund_amount: prev.original_amount - v }));
                 }} />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">রিফান্ড পরিমাণ</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Refund Amount</label>
                 <input className={inputClass + " font-bold"} type="number" value={refundForm.refund_amount} readOnly />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">রিফান্ড মাধ্যম</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Refund Method</label>
                 <select className={inputClass} value={refundForm.refund_method} onChange={e => setRefundForm(prev => ({ ...prev, refund_method: e.target.value }))}>
                   {REFUND_METHODS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">ওয়ালেট একাউন্ট</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Wallet Account</label>
                 <select className={inputClass} value={refundForm.wallet_account_id} onChange={e => setRefundForm(prev => ({ ...prev, wallet_account_id: e.target.value }))}>
-                  <option value="">-- নির্বাচন করুন --</option>
+                  <option value="">-- Select --</option>
                   {walletAccounts.map((w: any) => <option key={w.id} value={w.id}>{w.name} ({formatBDT(w.balance)})</option>)}
                 </select>
               </div>
             </div>
 
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">কারণ</label>
-              <textarea className={inputClass} rows={2} value={refundForm.reason} onChange={e => setRefundForm(prev => ({ ...prev, reason: e.target.value }))} placeholder="ক্যান্সেলেশনের কারণ লিখুন..." />
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Reason</label>
+              <textarea className={inputClass} rows={2} value={refundForm.reason} onChange={e => setRefundForm(prev => ({ ...prev, reason: e.target.value }))} placeholder="Enter cancellation reason..." />
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowAddRefund(false)}>বাতিল</Button>
-              <Button onClick={handleCreateRefund}><RotateCcw className="h-4 w-4 mr-1" /> রিফান্ড তৈরি</Button>
+              <Button variant="outline" onClick={() => setShowAddRefund(false)}>Rejected</Button>
+              <Button onClick={handleCreateRefund}><RotateCcw className="h-4 w-4 mr-1" /> Create Refund</Button>
             </div>
           </div>
         </DialogContent>
@@ -368,7 +368,7 @@ export default function AdminRefundsPage() {
       {/* Policy Modal */}
       <Dialog open={showPolicyModal} onOpenChange={setShowPolicyModal}>
         <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>ক্যান্সেলেশন পলিসি</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Cancellation Policy</DialogTitle></DialogHeader>
           <div className="space-y-4">
             {/* Existing policies */}
             {policies.length > 0 && (
@@ -378,29 +378,29 @@ export default function AdminRefundsPage() {
                     <div>
                       <p className="font-medium text-sm">{p.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {p.refund_type === "percentage" ? `${p.refund_value}% রিফান্ড` : `${formatBDT(p.refund_value)} ফ্ল্যাট কর্তন`}
-                        {p.min_days_before_departure > 0 && ` • ন্যূনতম ${p.min_days_before_departure} দিন আগে`}
+                        {p.refund_type === "percentage" ? `${p.refund_value}% Refund` : `${formatBDT(p.refund_value)} flat deduction`}
+                        {p.min_days_before_departure > 0 && ` • min ${p.min_days_before_departure} days before`}
                       </p>
                     </div>
-                    {p.is_default && <Badge variant="secondary">ডিফল্ট</Badge>}
+                    {p.is_default && <Badge variant="secondary">Default</Badge>}
                   </div>
                 ))}
               </div>
             )}
 
             <div className="border-t pt-4 space-y-3">
-              <p className="text-sm font-semibold">নতুন পলিসি যোগ করুন</p>
-              <input className={inputClass} placeholder="পলিসির নাম" value={policyForm.name} onChange={e => setPolicyForm(prev => ({ ...prev, name: e.target.value }))} />
-              <input className={inputClass} placeholder="বিবরণ (ঐচ্ছিক)" value={policyForm.description} onChange={e => setPolicyForm(prev => ({ ...prev, description: e.target.value }))} />
+              <p className="text-sm font-semibold">Add New Policy</p>
+              <input className={inputClass} placeholder="Policy name" value={policyForm.name} onChange={e => setPolicyForm(prev => ({ ...prev, name: e.target.value }))} />
+              <input className={inputClass} placeholder="Description (optional)" value={policyForm.description} onChange={e => setPolicyForm(prev => ({ ...prev, description: e.target.value }))} />
               <div className="grid grid-cols-2 gap-3">
                 <select className={inputClass} value={policyForm.refund_type} onChange={e => setPolicyForm(prev => ({ ...prev, refund_type: e.target.value }))}>
-                  <option value="percentage">শতাংশ (%)</option>
-                  <option value="flat">ফ্ল্যাট পরিমাণ</option>
+                  <option value="percentage">Percentage (%)</option>
+                  <option value="flat">Flat Amount</option>
                 </select>
-                <input className={inputClass} type="number" placeholder={policyForm.refund_type === "percentage" ? "রিফান্ড %" : "কর্তন পরিমাণ"} value={policyForm.refund_value} onChange={e => setPolicyForm(prev => ({ ...prev, refund_value: Number(e.target.value) }))} />
+                <input className={inputClass} type="number" placeholder={policyForm.refund_type === "percentage" ? "Refund %" : "Deduction Amount"} value={policyForm.refund_value} onChange={e => setPolicyForm(prev => ({ ...prev, refund_value: Number(e.target.value) }))} />
               </div>
               <div className="flex justify-end">
-                <Button size="sm" onClick={handleSavePolicy}><Plus className="h-4 w-4 mr-1" /> পলিসি সেভ</Button>
+                <Button size="sm" onClick={handleSavePolicy}><Plus className="h-4 w-4 mr-1" /> Save Policy</Button>
               </div>
             </div>
           </div>

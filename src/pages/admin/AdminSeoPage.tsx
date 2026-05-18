@@ -74,11 +74,11 @@ const DEFAULT_FB_CONFIG: FBPixelConfig = {
 };
 
 const DEFAULT_SEO: SeoSettings = {
-  site_title: "TUBA ALHIJAZ",
-  site_description: "তুবা আলহিজাজ - হজ্জ, উমরাহ ও ভিসা সেবায় বাংলাদেশের বিশ্বস্ত প্রতিষ্ঠান।",
-  site_keywords: "হজ্জ, উমরাহ, ভিসা, ট্যুর, বাংলাদেশ, তুবা আলহিজাজ, hajj, umrah, visa, tour, tangail",
+  site_title: "TUBA ALHIJAZ — Hajj, Umrah & Visa Services in Bangladesh",
+  site_description: "TUBA ALHIJAZ — Bangladesh's trusted partner for Hajj, Umrah, visa processing and tour services. Government-licensed agency with end-to-end pilgrim care.",
+  site_keywords: "hajj, umrah, visa, hajj package bangladesh, umrah package, tuba alhijaz, pilgrim services, saudi visa, হজ্জ, উমরাহ, ভিসা",
   og_image: "/assets/logo.png",
-  base_url: "https://triptastic.com.bd",
+  base_url: "https://tubaalhijaz.com",
   google_analytics_id: "",
   google_search_console: "",
   facebook_pixel_id: "",
