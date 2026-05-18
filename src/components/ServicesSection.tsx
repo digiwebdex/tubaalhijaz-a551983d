@@ -56,6 +56,31 @@ const ServicesSection = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const isBn = language === "bn";
+  const { data: content } = useBulkSiteContent("services");
+  const lc = content?.[language];
+
+  const sectionLabel = lc?.section_label || (isBn ? "আমাদের সার্ভিস" : "What We Offer");
+  const heading = lc?.heading || (isBn ? "মক্কা থেকে " : "Complete Umrah care, ");
+  const headingHighlight = lc?.heading_highlight || (isBn ? "পূর্ণাঙ্গ উমরাহ সেবা" : "from Makkah");
+  const description = lc?.description ||
+    (isBn
+      ? "ভিসা থেকে শুরু করে থাকা, যাতায়াত ও খাবার — আপনার পবিত্র সফরের সব আয়োজন এক জায়গায়।"
+      : "From visa to stay, transport and meals — every detail of your sacred trip handled with care.");
+
+  // Map CMS items to component shape if admin set them
+  const cmsItems = lc?.items;
+  const itemList = Array.isArray(cmsItems) && cmsItems.length
+    ? cmsItems.map((it: any, i: number) => ({
+        Icon: ICONS[it.icon] || services[i % services.length].Icon,
+        badge: it.icon || services[i % services.length].badge,
+        gradient: i % 2 === 0 ? ACCENT_OLIVE : ACCENT_GOLD,
+        titleEn: it.title,
+        titleBn: it.title,
+        descEn: it.desc,
+        descBn: it.desc,
+        href: services[i % services.length].href,
+      }))
+    : services;
 
   const handleClick = (href: string) => {
     if (href.startsWith("#")) {
@@ -78,23 +103,17 @@ const ServicesSection = () => {
           className="text-center max-w-2xl mx-auto mb-14"
         >
           <span className="inline-block text-primary text-xs font-bold tracking-[0.3em] uppercase mb-3">
-            {isBn ? "আমাদের সার্ভিস" : "What We Offer"}
+            {sectionLabel}
           </span>
           <h2 className="font-heading text-4xl md:text-6xl font-bold mb-4 leading-tight">
-            {isBn ? "মক্কা থেকে " : "Complete Umrah care, "}
-            <span className="italic text-gradient-sunset">
-              {isBn ? "পূর্ণাঙ্গ উমরাহ সেবা" : "from Makkah"}
-            </span>
+            {heading}
+            <span className="italic text-gradient-sunset">{headingHighlight}</span>
           </h2>
-          <p className="text-muted-foreground text-base md:text-lg">
-            {isBn
-              ? "ভিসা থেকে শুরু করে থাকা, যাতায়াত ও খাবার — আপনার পবিত্র সফরের সব আয়োজন এক জায়গায়।"
-              : "From visa to stay, transport and meals — every detail of your sacred trip handled with care."}
-          </p>
+          <p className="text-muted-foreground text-base md:text-lg">{description}</p>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
-          {services.map((s, i) => {
+          {itemList.map((s: any, i: number) => {
             const Icon = s.Icon;
             return (
               <motion.article
