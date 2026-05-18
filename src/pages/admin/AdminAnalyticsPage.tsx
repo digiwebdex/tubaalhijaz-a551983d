@@ -343,7 +343,7 @@ export default function AdminAnalyticsPage() {
                 </ResponsiveContainer>
               </div>
               <p className="text-xs text-muted-foreground mt-3 text-center">
-                সকল বছরের Bookings ডেটা একত্রিত করে সিজনাল ট্রেন্ড দেখানো হচ্ছে
+                Aggregated booking data across all years to reveal seasonal trends
               </p>
             </CardContent>
           </Card>

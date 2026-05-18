@@ -108,7 +108,7 @@ export default function AdminRefundsPage() {
 
   const handleCreateRefund = async () => {
     if (!selectedBookingId) { toast.error("Please select a booking"); return; }
-    if (refundForm.refund_amount <= 0) { toast.error("Refund পরিমাণ ০ এর বেশি হতে হবে"); return; }
+    if (refundForm.refund_amount <= 0) { toast.error("Refund amount must be greater than 0"); return; }
 
     const { error } = await apiClient.from("refunds").insert({
       booking_id: selectedBookingId,
@@ -123,7 +123,7 @@ export default function AdminRefundsPage() {
     });
 
     if (error) { toast.error(error.message); return; }
-    toast.success("Refund রিকুয়েস্ট তৈরি হয়েছে");
+    toast.success("Refund request created");
     setShowAddRefund(false);
     resetForm();
     fetchAll();
@@ -135,7 +135,7 @@ export default function AdminRefundsPage() {
       ...(newStatus === "processed" ? { processed_at: new Date().toISOString() } : {}),
     }).eq("id", id);
     if (error) { toast.error(error.message); return; }
-    toast.success(`Refund ${newStatus === "processed" ? "Process" : newStatus === "approved" ? "Approved" : "Rejected"} হয়েছে`);
+    toast.success(`Refund ${newStatus}`);
     fetchAll();
   };
 
@@ -212,7 +212,7 @@ export default function AdminRefundsPage() {
           <p className="text-2xl font-bold text-emerald-600">{stats.processed}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs text-muted-foreground">Total Refundsকৃত</p>
+          <p className="text-xs text-muted-foreground">Total Refunded</p>
           <p className="text-2xl font-bold text-destructive">{formatBDT(stats.totalRefunded)}</p>
         </CardContent></Card>
       </div>
@@ -250,7 +250,7 @@ export default function AdminRefundsPage() {
           </thead>
           <tbody>
             {filteredRefunds.length === 0 ? (
-              <tr><td colSpan={9} className="text-center py-8 text-muted-foreground">কোনো Refund পাওয়া যায়নি</td></tr>
+              <tr><td colSpan={9} className="text-center py-8 text-muted-foreground">No refunds found</td></tr>
             ) : filteredRefunds.map((r: any) => (
               <tr key={r.id} className="border-t border-border hover:bg-muted/30">
                 <td className="px-4 py-3 font-mono text-xs">{r.bookings?.tracking_id || "—"}</td>
@@ -293,7 +293,7 @@ export default function AdminRefundsPage() {
       {/* Add Refund Modal */}
       <Dialog open={showAddRefund} onOpenChange={setShowAddRefund}>
         <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>New Refund রিকুয়েস্ট</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>New Refund Request</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Select Booking *</label>
@@ -308,7 +308,7 @@ export default function AdminRefundsPage() {
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Cancellation Policy</label>
               <select className={inputClass} value={selectedPolicyId} onChange={e => setSelectedPolicyId(e.target.value)}>
-                <option value="">-- কাস্টম Refund --</option>
+                <option value="">-- Custom refund --</option>
                 {policies.map((p: any) => (
                   <option key={p.id} value={p.id}>{p.name} ({p.refund_type === "percentage" ? `${p.refund_value}%` : formatBDT(p.refund_value)})</option>
                 ))}
@@ -331,7 +331,7 @@ export default function AdminRefundsPage() {
                 }} />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Refund পরিমাণ</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Refund Amount</label>
                 <input className={inputClass + " font-bold"} type="number" value={refundForm.refund_amount} readOnly />
               </div>
             </div>
@@ -354,12 +354,12 @@ export default function AdminRefundsPage() {
 
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Reason</label>
-              <textarea className={inputClass} rows={2} value={refundForm.reason} onChange={e => setRefundForm(prev => ({ ...prev, reason: e.target.value }))} placeholder="ক্যান্সেলেশনের Reason লিখুন..." />
+              <textarea className={inputClass} rows={2} value={refundForm.reason} onChange={e => setRefundForm(prev => ({ ...prev, reason: e.target.value }))} placeholder="Enter cancellation reason..." />
             </div>
 
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowAddRefund(false)}>Rejected</Button>
-              <Button onClick={handleCreateRefund}><RotateCcw className="h-4 w-4 mr-1" /> Refund তৈরি</Button>
+              <Button onClick={handleCreateRefund}><RotateCcw className="h-4 w-4 mr-1" /> Create Refund</Button>
             </div>
           </div>
         </DialogContent>
@@ -378,7 +378,7 @@ export default function AdminRefundsPage() {
                     <div>
                       <p className="font-medium text-sm">{p.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {p.refund_type === "percentage" ? `${p.refund_value}% Refund` : `${formatBDT(p.refund_value)} ফ্ল্যাট Deduction`}
+                        {p.refund_type === "percentage" ? `${p.refund_value}% Refund` : `${formatBDT(p.refund_value)} flat deduction`}
                         {p.min_days_before_departure > 0 && ` • min ${p.min_days_before_departure} days before`}
                       </p>
                     </div>
@@ -397,7 +397,7 @@ export default function AdminRefundsPage() {
                   <option value="percentage">Percentage (%)</option>
                   <option value="flat">Flat Amount</option>
                 </select>
-                <input className={inputClass} type="number" placeholder={policyForm.refund_type === "percentage" ? "Refund %" : "Deduction পরিমাণ"} value={policyForm.refund_value} onChange={e => setPolicyForm(prev => ({ ...prev, refund_value: Number(e.target.value) }))} />
+                <input className={inputClass} type="number" placeholder={policyForm.refund_type === "percentage" ? "Refund %" : "Deduction Amount"} value={policyForm.refund_value} onChange={e => setPolicyForm(prev => ({ ...prev, refund_value: Number(e.target.value) }))} />
               </div>
               <div className="flex justify-end">
                 <Button size="sm" onClick={handleSavePolicy}><Plus className="h-4 w-4 mr-1" /> Save Policy</Button>
