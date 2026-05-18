@@ -5,6 +5,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { useActivePackages } from "@/hooks/usePackagesData";
 import PackageCard from "@/components/PackageCard";
 import { requireCustomerLogin } from "@/lib/bookingAuth";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 const TYPE_ORDER = ["hajj", "umrah", "tour", "visa", "air_ticket", "hotel", "transport", "ziyara"];
 const TYPE_LABELS: Record<string, { en: string; bn: string }> = {
