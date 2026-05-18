@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { BookOpen, CheckCircle2, XCircle, Phone, ChevronDown, ChevronUp } from "lucide-react";
 import { forwardRef, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 const steps = [
   {
