@@ -100,7 +100,7 @@ const PackagesSection = () => {
             onClick={() => navigate("/packages")}
             className="text-primary hover:underline text-sm font-medium inline-flex items-center gap-1"
           >
-            {t("common.viewAll")} <ArrowRight className="h-4 w-4" />
+            {lc?.view_all_text || t("common.viewAll")} <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       </div>
