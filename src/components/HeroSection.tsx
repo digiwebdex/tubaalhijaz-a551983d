@@ -123,9 +123,13 @@ const slides: Slide[] = [
 const HeroSection = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
+  const { data: content } = useBulkSiteContent("hero");
   const isBn = language === "bn";
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+
+  // CMS overrides for the hero phone (footer/contact CTA)
+  const heroPhone = content?.phone || "+966 53 491 9814";
 
   useEffect(() => {
     if (paused) return;
