@@ -69,6 +69,11 @@ const buildArc = (
 const AdventureCTA = () => {
   const { language } = useLanguage();
   const isBn = language === "bn";
+  const { data: cms } = useBulkSiteContent("adventure_cta");
+  const lc = cms?.[language];
+  const badgeText = lc?.badge_text || (isBn ? "লাইভ ফ্লাইট নেটওয়ার্ক" : "Live Flight Network");
+  const originText = lc?.origin_text || (isBn ? "ঢাকা থেকে" : "From Dhaka, BD");
+  const originLabel = lc?.origin_label || (isBn ? "ঢাকা" : "DHAKA");
 
   const origin = useMemo(() => project(ORIGIN.lon, ORIGIN.lat), []);
   const routes = useMemo(
