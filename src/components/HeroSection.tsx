@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Phone, ChevronLeft, ChevronRight, BedDouble, Bus, UtensilsCrossed, FileCheck2, Check } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useNavigate } from "react-router-dom";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 import heroHotel from "@/assets/tuba-hotel.jpg";
 import heroTransport from "@/assets/tuba-transport.jpg";
