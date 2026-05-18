@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Plane, Globe2, Heart, Star, Compass } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useMemo } from "react";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 /**
  * Live Global Flight Map
