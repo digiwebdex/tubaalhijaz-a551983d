@@ -276,6 +276,108 @@ const SECTION_CONFIG: Record<string, { label: string; labelBn: string; icon: any
       ]},
     ],
   },
+  programs: {
+    label: "Umrah Programs Section",
+    labelBn: "উমরাহ প্রোগ্রাম সেকশন",
+    icon: Layout,
+    fields: [
+      { key: "section_label", label: "Section Label", type: "text", bilingual: true },
+      { key: "heading", label: "Heading", type: "text", bilingual: true },
+      { key: "heading_highlight", label: "Heading Highlight", type: "text", bilingual: true },
+      { key: "description", label: "Description", type: "textarea", bilingual: true },
+      { key: "cta", label: "Card CTA Button Text", type: "text", bilingual: true },
+      { key: "per_person", label: "'Per Person' Label", type: "text", bilingual: true },
+      { key: "from_label", label: "'From' Price Label", type: "text", bilingual: true },
+    ],
+  },
+  why_us: {
+    label: "Why Choose Us Section",
+    labelBn: "কেন আমাদের বেছে নিবেন",
+    icon: Shield,
+    fields: [
+      { key: "section_label", label: "Section Label", type: "text", bilingual: true },
+      { key: "heading", label: "Heading", type: "text", bilingual: true },
+      { key: "heading_highlight", label: "Heading Highlight", type: "text", bilingual: true },
+      { key: "description", label: "Description", type: "textarea", bilingual: true },
+      { key: "items", label: "Reasons / Promises", type: "array", bilingual: true, arrayFields: [
+        { key: "icon", label: "Icon (ShieldCheck/MapPin/Headphones/Hotel/BadgeDollarSign/Globe2)", type: "text" },
+        { key: "title", label: "Title", type: "text" },
+        { key: "desc", label: "Description", type: "text" },
+      ]},
+    ],
+  },
+  transport_section: {
+    label: "Transport Section (Home)",
+    labelBn: "ট্রান্সপোর্ট সেকশন",
+    icon: Navigation,
+    fields: [
+      { key: "section_label", label: "Section Label", type: "text", bilingual: true },
+      { key: "heading", label: "Heading", type: "text", bilingual: true },
+      { key: "heading_highlight", label: "Heading Highlight", type: "text", bilingual: true },
+      { key: "description", label: "Description", type: "textarea", bilingual: true },
+      { key: "availability_text", label: "Availability Badge Text", type: "text", bilingual: true },
+      { key: "book_now_text", label: "Book Now Button", type: "text", bilingual: true },
+    ],
+  },
+  catering: {
+    label: "Catering Section",
+    labelBn: "ক্যাটারিং সেকশন",
+    icon: Globe,
+    fields: [
+      { key: "section_label", label: "Section Label", type: "text", bilingual: true },
+      { key: "heading", label: "Heading", type: "text", bilingual: true },
+      { key: "heading_highlight", label: "Heading Highlight", type: "text", bilingual: true },
+      { key: "description", label: "Description", type: "textarea", bilingual: true },
+      { key: "tap_to_order_text", label: "Tap-to-order Hint", type: "text", bilingual: true },
+      { key: "order_button_text", label: "Order Button Text", type: "text", bilingual: true },
+    ],
+  },
+  visa: {
+    label: "Visa Section",
+    labelBn: "ভিসা সেকশন",
+    icon: FileText,
+    fields: [
+      { key: "heading", label: "Heading", type: "text", bilingual: true },
+      { key: "description", label: "Description", type: "textarea", bilingual: true },
+      { key: "apply_button_text", label: "Apply Button Text", type: "text", bilingual: true },
+      { key: "items", label: "Visa Types", type: "array", bilingual: true, arrayFields: [
+        { key: "id", label: "Type ID (Umrah/Hajj/Visit)", type: "text" },
+        { key: "label", label: "Display Label", type: "text" },
+        { key: "desc", label: "Description", type: "text" },
+      ]},
+    ],
+  },
+  reviews: {
+    label: "Reviews Section",
+    labelBn: "রিভিউ সেকশন",
+    icon: Star,
+    fields: [
+      { key: "section_label", label: "Section Label", type: "text", bilingual: true },
+      { key: "heading", label: "Heading", type: "text", bilingual: true },
+      { key: "verified_text", label: "'Verified Reviews' Text", type: "text", bilingual: true },
+    ],
+  },
+  live_transport: {
+    label: "Live Transport Map Section",
+    labelBn: "লাইভ ট্রান্সপোর্ট ম্যাপ",
+    icon: Navigation,
+    fields: [
+      { key: "badge_text", label: "Live Badge Text", type: "text", bilingual: true },
+      { key: "heading", label: "Heading", type: "text", bilingual: true },
+      { key: "description", label: "Description", type: "textarea", bilingual: true },
+      { key: "cta_text", label: "CTA Button Text", type: "text", bilingual: true },
+    ],
+  },
+  adventure_cta: {
+    label: "Adventure / Flight Map",
+    labelBn: "ফ্লাইট ম্যাপ সেকশন",
+    icon: Globe,
+    fields: [
+      { key: "badge_text", label: "Live Badge Text", type: "text", bilingual: true },
+      { key: "origin_text", label: "Origin Chip Text", type: "text", bilingual: true },
+      { key: "origin_label", label: "Origin City Label", type: "text", bilingual: true },
+    ],
+  },
 };
 
 const AdminCmsEditor = () => {
