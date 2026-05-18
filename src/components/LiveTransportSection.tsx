@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Car, MapPin, Navigation, Clock, Users, Shield, Star, Phone } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useEffect, useState } from "react";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 /**
  * LiveTransportSection
@@ -38,6 +39,14 @@ const LiveTransportSection = () => {
   const { language } = useLanguage();
   const isBn = language === "bn";
   const [tick, setTick] = useState(0);
+  const { data: cms } = useBulkSiteContent("live_transport");
+  const lc = cms?.[language];
+  const badgeText = lc?.badge_text || (isBn ? "লাইভ ট্রান্সপোর্ট নেটওয়ার্ক" : "Live Transport Network");
+  const heading = lc?.heading || (isBn ? "রিয়েল-টাইম গাড়ি সেবা" : "Real-Time Car Services");
+  const description = lc?.description || (isBn
+    ? "মক্কা, মদিনা, জেদ্দা, তায়েফ ও মিনার মধ্যে আমাদের লাইসেন্সড গাড়ি সর্বদা চলমান।"
+    : "Our licensed fleet runs around the clock between Makkah, Madinah, Jeddah, Taif and Mina.");
+  const ctaText = lc?.cta_text || (isBn ? "এখনই গাড়ি বুক করুন" : "Book a Car Now");
 
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 3500);
@@ -72,16 +81,14 @@ const LiveTransportSection = () => {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
             </span>
             <span className="text-white text-xs font-semibold tracking-wide">
-              {isBn ? "লাইভ ট্রান্সপোর্ট নেটওয়ার্ক" : "Live Transport Network"}
+              {badgeText}
             </span>
           </motion.div>
           <h3 className="text-white font-heading text-3xl md:text-5xl font-bold mb-3">
-            {isBn ? "রিয়েল-টাইম গাড়ি সেবা" : "Real-Time Car Services"}
+            {heading}
           </h3>
           <p className="text-white/85 text-base md:text-lg max-w-2xl mx-auto">
-            {isBn
-              ? "মক্কা, মদিনা, জেদ্দা, তায়েফ ও মিনার মধ্যে আমাদের লাইসেন্সড গাড়ি সর্বদা চলমান।"
-              : "Our licensed fleet runs around the clock between Makkah, Madinah, Jeddah, Taif and Mina."}
+            {description}
           </p>
         </div>
 
@@ -238,7 +245,7 @@ const LiveTransportSection = () => {
             className="inline-flex items-center gap-2 bg-white text-accent font-bold px-7 py-3.5 rounded-full shadow-elevated hover:scale-105 transition-transform"
           >
             <Car className="h-4 w-4" />
-            {isBn ? "এখনই গাড়ি বুক করুন" : "Book a Car Now"}
+            {ctaText}
           </a>
         </div>
       </div>

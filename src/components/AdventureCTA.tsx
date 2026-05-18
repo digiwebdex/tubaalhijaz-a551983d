@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Plane, Globe2, Heart, Star, Compass } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useMemo } from "react";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 /**
  * Live Global Flight Map
@@ -68,6 +69,11 @@ const buildArc = (
 const AdventureCTA = () => {
   const { language } = useLanguage();
   const isBn = language === "bn";
+  const { data: cms } = useBulkSiteContent("adventure_cta");
+  const lc = cms?.[language];
+  const badgeText = lc?.badge_text || (isBn ? "লাইভ ফ্লাইট নেটওয়ার্ক" : "Live Flight Network");
+  const originText = lc?.origin_text || (isBn ? "ঢাকা থেকে" : "From Dhaka, BD");
+  const originLabel = lc?.origin_label || (isBn ? "ঢাকা" : "DHAKA");
 
   const origin = useMemo(() => project(ORIGIN.lon, ORIGIN.lat), []);
   const routes = useMemo(
@@ -104,7 +110,7 @@ const AdventureCTA = () => {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
           </span>
           <span className="text-white text-[11px] md:text-xs font-semibold tracking-wide">
-            {isBn ? "লাইভ ফ্লাইট নেটওয়ার্ক" : "Live Flight Network"}
+            {badgeText}
           </span>
         </div>
 
@@ -112,7 +118,7 @@ const AdventureCTA = () => {
         <div className="absolute top-4 right-4 z-20 flex items-center gap-2 bg-[hsl(var(--gold))]/90 backdrop-blur-md rounded-full px-3 py-1.5 shadow-gold">
           <Plane className="h-3.5 w-3.5 text-white" />
           <span className="text-white text-[11px] md:text-xs font-bold">
-            {isBn ? "ঢাকা থেকে" : "From Dhaka, BD"}
+            {originText}
           </span>
         </div>
 
@@ -297,7 +303,7 @@ const AdventureCTA = () => {
               fill="white"
               style={{ paintOrder: "stroke", stroke: "hsl(var(--teal-dark))", strokeWidth: 2.5 }}
             >
-              {isBn ? "ঢাকা" : "DHAKA"}
+              {originLabel}
             </text>
           </g>
         </svg>
