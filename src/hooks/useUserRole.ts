@@ -1,7 +1,44 @@
 import { useEffect, useState } from "react";
 import { auth as api } from "@/lib/api";
 
-export type AppRole = "admin" | "accountant" | "booking" | "cms" | "viewer" | null;
+export type AppRole =
+  | "super_admin"
+  | "admin"
+  | "operations_manager"
+  | "visa_officer"
+  | "transport_manager"
+  | "catering_manager"
+  | "finance_manager"
+  | "hotel_coordinator"
+  | "airport_coordinator"
+  | "driver"
+  | "accountant"
+  | "booking"
+  | "cms"
+  | "manager"
+  | "staff"
+  | "viewer"
+  | null;
+
+// Priority order — highest privilege first
+const ROLE_PRIORITY: Exclude<AppRole, null>[] = [
+  "super_admin",
+  "admin",
+  "operations_manager",
+  "finance_manager",
+  "visa_officer",
+  "transport_manager",
+  "catering_manager",
+  "hotel_coordinator",
+  "airport_coordinator",
+  "manager",
+  "accountant",
+  "booking",
+  "cms",
+  "driver",
+  "staff",
+  "viewer",
+];
 
 export function useUserRole() {
   const [role, setRole] = useState<AppRole>(null);
@@ -16,11 +53,8 @@ export function useUserRole() {
       const { data: { user } } = await api.getUser();
       const roles: string[] = user?.roles || [];
 
-      if (roles.includes("admin")) setRole("admin");
-      else if (roles.includes("accountant")) setRole("accountant");
-      else if (roles.includes("booking")) setRole("booking");
-      else if (roles.includes("cms")) setRole("cms");
-      else if (roles.includes("viewer")) setRole("viewer");
+      const top = ROLE_PRIORITY.find((r) => roles.includes(r));
+      if (top) setRole(top);
 
       setLoading(false);
     };
