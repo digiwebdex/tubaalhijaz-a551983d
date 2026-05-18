@@ -110,7 +110,7 @@ const AdventureCTA = () => {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
           </span>
           <span className="text-white text-[11px] md:text-xs font-semibold tracking-wide">
-            {isBn ? "লাইভ ফ্লাইট নেটওয়ার্ক" : "Live Flight Network"}
+            {badgeText}
           </span>
         </div>
 
@@ -118,7 +118,7 @@ const AdventureCTA = () => {
         <div className="absolute top-4 right-4 z-20 flex items-center gap-2 bg-[hsl(var(--gold))]/90 backdrop-blur-md rounded-full px-3 py-1.5 shadow-gold">
           <Plane className="h-3.5 w-3.5 text-white" />
           <span className="text-white text-[11px] md:text-xs font-bold">
-            {isBn ? "ঢাকা থেকে" : "From Dhaka, BD"}
+            {originText}
           </span>
         </div>
 
@@ -303,7 +303,7 @@ const AdventureCTA = () => {
               fill="white"
               style={{ paintOrder: "stroke", stroke: "hsl(var(--teal-dark))", strokeWidth: 2.5 }}
             >
-              {isBn ? "ঢাকা" : "DHAKA"}
+              {originLabel}
             </text>
           </g>
         </svg>
