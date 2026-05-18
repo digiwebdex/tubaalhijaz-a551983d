@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, X, BookOpen, ChevronDown, ChevronUp, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 import thumbUmrah from "@/assets/thumb-umrah.jpg";
 import thumbHajj from "@/assets/thumb-hajj.jpg";
