@@ -1,7 +1,10 @@
 import { motion } from "framer-motion";
-import { ArrowUpRight, FileCheck, Hotel, Bus, UtensilsCrossed } from "lucide-react";
+import { ArrowUpRight, FileCheck, Hotel, Bus, UtensilsCrossed, BookOpen, Globe, CreditCard, Plane, Building2, MapPin, Users } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useNavigate } from "react-router-dom";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
+
+const ICONS: Record<string, any> = { FileCheck, Hotel, Bus, UtensilsCrossed, BookOpen, Globe, CreditCard, Plane, Building2, MapPin, Users };
 
 const ACCENT_OLIVE = "from-[hsl(var(--olive))] to-[hsl(var(--olive-dark))]";
 const ACCENT_GOLD = "from-[hsl(var(--gold-light))] to-[hsl(var(--gold-dark))]";
