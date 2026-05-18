@@ -10,6 +10,7 @@ import { apiClient } from "@/lib/apiClient";
 import CateringOrderDialog, { CateringPlan } from "./CateringOrderDialog";
 import { useNavigate } from "react-router-dom";
 import { requireCustomerLogin } from "@/lib/bookingAuth";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 const categoryImages: Record<string, string> = {
   Breakfast: breakfastImg,
@@ -33,6 +34,8 @@ const CateringSection = () => {
   const navigate = useNavigate();
   const isBn = language === "bn";
   const [selected, setSelected] = useState<CateringPlan | null>(null);
+  const { data: cateringContent } = useBulkSiteContent("catering");
+  const cateringLc = cateringContent?.[language];
 
   const { data } = useQuery({
     queryKey: ["catering_packages_public"],
@@ -94,21 +97,21 @@ const CateringSection = () => {
           className="text-center max-w-2xl mx-auto mb-14"
         >
           <span className="inline-block text-primary text-xs font-bold tracking-[0.3em] uppercase mb-3">
-            {isBn ? "ক্যাটারিং" : "Catering Service"}
+            {cateringLc?.section_label || (isBn ? "ক্যাটারিং" : "Catering Service")}
           </span>
           <h2 className="font-heading text-4xl md:text-6xl font-bold mb-4 leading-tight">
-            {isBn ? "ঘরের স্বাদ " : "A taste of home, "}
+            {cateringLc?.heading || (isBn ? "ঘরের স্বাদ " : "A taste of home, ")}
             <span className="italic text-gradient-sunset">
-              {isBn ? "মক্কায়" : "in Makkah"}
+              {cateringLc?.heading_highlight || (isBn ? "মক্কায়" : "in Makkah")}
             </span>
           </h2>
           <p className="text-muted-foreground text-base md:text-lg">
-            {isBn
+            {cateringLc?.description || (isBn
               ? "বিশুদ্ধ হালাল বাংলা ও আরবী খাবার — প্রতিদিন আপনার হোটেলে পৌঁছে দেওয়া হবে।"
-              : "100% Halal Bangladeshi & Arabic meals delivered fresh to your hotel — every single day."}
+              : "100% Halal Bangladeshi & Arabic meals delivered fresh to your hotel — every single day.")}
           </p>
           <p className="mt-3 text-sm text-primary font-semibold">
-            {isBn ? "কোনো প্ল্যানে ক্লিক করে অর্ডার করুন →" : "Tap any plan to order →"}
+            {cateringLc?.tap_to_order_text || (isBn ? "কোনো প্ল্যানে ক্লিক করে অর্ডার করুন →" : "Tap any plan to order →")}
           </p>
         </motion.div>
 

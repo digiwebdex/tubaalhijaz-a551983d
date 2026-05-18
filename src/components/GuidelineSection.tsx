@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { BookOpen, CheckCircle2, XCircle, Phone, ChevronDown, ChevronUp } from "lucide-react";
 import { forwardRef, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 const steps = [
   {
@@ -126,6 +127,15 @@ const GuidelineSection = forwardRef<HTMLElement>(function GuidelineSection(_, re
   const { language } = useLanguage();
   const bn = language === "bn";
   const [expandedStep, setExpandedStep] = useState<number | null>(0);
+  const { data: content } = useBulkSiteContent("guideline");
+  const lc = content?.[language];
+
+  const sectionLabel = lc?.section_label || (bn ? "ওমরাহ গাইডলাইন" : "Umrah Guideline");
+  const heading = lc?.heading || (bn ? "ওমরাহ পালনে " : "Umrah ");
+  const headingHighlight = lc?.heading_highlight || (bn ? "করণীয় ও বর্জনীয়" : "Do's & Don'ts");
+  const description = lc?.description || (bn
+    ? "ওমরাহ একটি আধ্যাত্মিক যাত্রা। এটি এমন একটি সুযোগ যা বিশ্বের ধর্মপ্রাণ মুসলমানদের একত্রিত করে।"
+    : "Umrah is a spiritual journey that brings together devout Muslims from around the world.");
 
   return (
     <section ref={ref} id="guideline" className="py-20 bg-background islamic-pattern">
@@ -137,17 +147,13 @@ const GuidelineSection = forwardRef<HTMLElement>(function GuidelineSection(_, re
           className="text-center mb-14"
         >
           <span className="text-primary text-sm font-medium tracking-[0.3em] uppercase">
-            {bn ? "ওমরাহ গাইডলাইন" : "Umrah Guideline"}
+            {sectionLabel}
           </span>
           <h2 className="font-heading text-3xl md:text-4xl font-bold mt-3 mb-4">
-            {bn ? "ওমরাহ পালনে " : "Umrah "}
-            <span className="text-gradient-gold">{bn ? "করণীয় ও বর্জনীয়" : "Do's & Don'ts"}</span>
+            {heading}
+            <span className="text-gradient-gold">{headingHighlight}</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            {bn
-              ? "ওমরাহ একটি আধ্যাত্মিক যাত্রা। এটি এমন একটি সুযোগ যা বিশ্বের ধর্মপ্রাণ মুসলমানদের একত্রিত করে।"
-              : "Umrah is a spiritual journey that brings together devout Muslims from around the world."}
-          </p>
+          <p className="text-muted-foreground max-w-2xl mx-auto">{description}</p>
         </motion.div>
 
         {/* Step-by-step guide */}

@@ -5,6 +5,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import UmrahOrderDialog from "@/components/UmrahOrderDialog";
 import { useNavigate } from "react-router-dom";
 import { requireCustomerLogin } from "@/lib/bookingAuth";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 export type ProgramTier = "economic" | "silver" | "golden" | "platinum";
 
@@ -56,6 +57,16 @@ const UmrahProgramsSection = () => {
   const navigate = useNavigate();
   const t = COPY[language === "bn" ? "bn" : "en"];
   const [openTier, setOpenTier] = useState<ProgramTier | null>(null);
+  const { data: content } = useBulkSiteContent("programs");
+  const lc = content?.[language];
+
+  const label = lc?.section_label || t.label;
+  const heading = lc?.heading || t.heading;
+  const headingHighlight = lc?.heading_highlight || t.headingHighlight;
+  const sub = lc?.description || t.sub;
+  const ctaText = lc?.cta || t.cta;
+  const perPersonText = lc?.per_person || t.perPerson;
+  const fromLabel = lc?.from_label || (language === "bn" ? "শুরু" : "From");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -81,12 +92,12 @@ const UmrahProgramsSection = () => {
           className="text-center max-w-2xl mx-auto mb-14"
         >
           <span className="inline-block text-primary text-xs font-bold tracking-[0.3em] uppercase mb-3">
-            {t.label}
+            {label}
           </span>
           <h2 className="font-heading text-4xl md:text-5xl font-bold leading-tight mb-4">
-            {t.heading} <span className="text-gradient-gold italic">{t.headingHighlight}</span>
+            {heading} <span className="text-gradient-gold italic">{headingHighlight}</span>
           </h2>
-          <p className="text-muted-foreground">{t.sub}</p>
+          <p className="text-muted-foreground">{sub}</p>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -125,13 +136,13 @@ const UmrahProgramsSection = () => {
                 <p className="text-xs text-muted-foreground mb-5">{tier.tagline}</p>
 
                 <div className="mb-5">
-                  <div className="text-xs text-muted-foreground mb-1">{language === "bn" ? "শুরু" : "From"}</div>
+                  <div className="text-xs text-muted-foreground mb-1">{fromLabel}</div>
                   <div className="flex items-baseline gap-1">
                     <span className="font-heading text-3xl font-bold text-gradient-gold tabular-nums">
                       SAR {p.basePriceSAR.toLocaleString()}
                     </span>
                   </div>
-                  <div className="text-[11px] text-muted-foreground">{t.perPerson}</div>
+                  <div className="text-[11px] text-muted-foreground">{perPersonText}</div>
                 </div>
 
                 <ul className="space-y-2 mb-6 flex-1">
@@ -154,7 +165,7 @@ const UmrahProgramsSection = () => {
                       : "border border-border hover:border-primary hover:text-primary"
                   }`}
                 >
-                  {t.cta} <ArrowRight className="h-4 w-4" />
+                  {ctaText} <ArrowRight className="h-4 w-4" />
                 </button>
               </motion.div>
             );

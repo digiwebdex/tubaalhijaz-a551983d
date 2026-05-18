@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Phone, ChevronLeft, ChevronRight, BedDouble, Bus, UtensilsCrossed, FileCheck2, Check } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useNavigate } from "react-router-dom";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 import heroHotel from "@/assets/tuba-hotel.jpg";
 import heroTransport from "@/assets/tuba-transport.jpg";
@@ -122,9 +123,13 @@ const slides: Slide[] = [
 const HeroSection = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
+  const { data: content } = useBulkSiteContent("hero");
   const isBn = language === "bn";
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+
+  // CMS overrides for the hero phone (footer/contact CTA)
+  const heroPhone = content?.phone || "+966 53 491 9814";
 
   useEffect(() => {
     if (paused) return;
@@ -244,11 +249,11 @@ const HeroSection = () => {
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </button>
                 <a
-                  href="tel:+966534919814"
+                  href={`tel:${heroPhone.replace(/\s+/g, "")}`}
                   className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/40 text-white font-semibold px-8 py-4 rounded-full hover:bg-white/20 transition-all"
                 >
                   <Phone className="h-4 w-4" />
-                  +966 53 491 9814
+                  {heroPhone}
                 </a>
               </div>
             </motion.div>

@@ -5,6 +5,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { useActivePackages } from "@/hooks/usePackagesData";
 import PackageCard from "@/components/PackageCard";
 import { requireCustomerLogin } from "@/lib/bookingAuth";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
 
 const TYPE_ORDER = ["hajj", "umrah", "tour", "visa", "air_ticket", "hotel", "transport", "ziyara"];
 const TYPE_LABELS: Record<string, { en: string; bn: string }> = {
@@ -22,6 +23,8 @@ const PackagesSection = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { data: packages = [], isLoading: loading } = useActivePackages();
+  const { data: content } = useBulkSiteContent("packages");
+  const lc = content?.[language];
 
   if (loading || packages.length === 0) return null;
 
@@ -44,16 +47,16 @@ const PackagesSection = () => {
       
       <div className="container mx-auto px-4 relative z-10">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-          <span className="text-primary text-xs font-semibold tracking-[0.3em] uppercase">{t("packages.label")}</span>
+          <span className="text-primary text-xs font-semibold tracking-[0.3em] uppercase">{lc?.section_label || t("packages.label")}</span>
           <h2 className="font-heading text-3xl md:text-5xl font-bold mt-3 mb-4">
-            {t("packages.heading")} <span className="text-gradient-gold">{t("packages.headingHighlight")}</span>
+            {lc?.heading || t("packages.heading")} <span className="text-gradient-gold">{lc?.heading_highlight || t("packages.headingHighlight")}</span>
           </h2>
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="h-px w-12 bg-primary/30" />
             <div className="w-2 h-2 rounded-full bg-primary/50" />
             <div className="h-px w-12 bg-primary/30" />
           </div>
-          <p className="text-muted-foreground max-w-xl mx-auto">{t("packages.description")}</p>
+          <p className="text-muted-foreground max-w-xl mx-auto">{lc?.description || t("packages.description")}</p>
         </motion.div>
 
         {sortedTypes.map((type) => {
@@ -97,7 +100,7 @@ const PackagesSection = () => {
             onClick={() => navigate("/packages")}
             className="text-primary hover:underline text-sm font-medium inline-flex items-center gap-1"
           >
-            {t("common.viewAll")} <ArrowRight className="h-4 w-4" />
+            {lc?.view_all_text || t("common.viewAll")} <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       </div>

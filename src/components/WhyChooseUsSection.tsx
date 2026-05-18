@@ -1,6 +1,9 @@
 import { motion } from "framer-motion";
 import { ShieldCheck, MapPin, Headphones, Hotel, BadgeDollarSign, Globe2 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useBulkSiteContent } from "@/hooks/useSiteContentProvider";
+
+const ICONS: Record<string, any> = { ShieldCheck, MapPin, Headphones, Hotel, BadgeDollarSign, Globe2 };
 
 const COPY = {
   en: {
@@ -36,6 +39,21 @@ const COPY = {
 const WhyChooseUsSection = () => {
   const { language } = useLanguage();
   const t = COPY[language === "bn" ? "bn" : "en"];
+  const { data: content } = useBulkSiteContent("why_us");
+  const lc = content?.[language];
+
+  const label = lc?.section_label || t.label;
+  const heading = lc?.heading || t.heading;
+  const headingHighlight = lc?.heading_highlight || t.headingHighlight;
+  const sub = lc?.description || t.sub;
+  const cmsItems = lc?.items;
+  const items = Array.isArray(cmsItems) && cmsItems.length
+    ? cmsItems.map((it: any, i: number) => ({
+        icon: ICONS[it.icon] || t.items[i % t.items.length].icon,
+        title: it.title,
+        desc: it.desc,
+      }))
+    : t.items;
 
   return (
     <section id="why-us" className="py-24 bg-secondary/40 relative overflow-hidden">
@@ -46,15 +64,15 @@ const WhyChooseUsSection = () => {
           viewport={{ once: true }}
           className="text-center max-w-2xl mx-auto mb-12"
         >
-          <span className="inline-block text-primary text-xs font-bold tracking-[0.3em] uppercase mb-3">{t.label}</span>
+          <span className="inline-block text-primary text-xs font-bold tracking-[0.3em] uppercase mb-3">{label}</span>
           <h2 className="font-heading text-4xl md:text-5xl font-bold leading-tight mb-4">
-            {t.heading} <span className="text-gradient-gold italic">{t.headingHighlight}</span>
+            {heading} <span className="text-gradient-gold italic">{headingHighlight}</span>
           </h2>
-          <p className="text-muted-foreground">{t.sub}</p>
+          <p className="text-muted-foreground">{sub}</p>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
-          {t.items.map((item, i) => (
+          {items.map((item: any, i: number) => (
             <motion.div
               key={item.title}
               initial={{ opacity: 0, y: 20 }}
