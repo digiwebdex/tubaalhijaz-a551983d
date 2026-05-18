@@ -34,6 +34,8 @@ const CateringSection = () => {
   const navigate = useNavigate();
   const isBn = language === "bn";
   const [selected, setSelected] = useState<CateringPlan | null>(null);
+  const { data: cateringContent } = useBulkSiteContent("catering");
+  const cateringLc = cateringContent?.[language];
 
   const { data } = useQuery({
     queryKey: ["catering_packages_public"],
