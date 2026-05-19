@@ -907,11 +907,22 @@ export default function AdminPaymentsPage() {
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-muted-foreground block mb-1">Amount (BDT) *</label>
-                <input className={inputClass} type="number" min={1} value={addForm.amount} onChange={(e) => setAddForm({ ...addForm, amount: e.target.value })} placeholder="0" />
+            {/* Amount section: BDT + SAR */}
+            <div className="rounded-lg border border-border bg-secondary/30 p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">Amount</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Amount (BDT) *</label>
+                  <input className={inputClass} type="number" min={0} step="0.01" value={addForm.amount} onChange={(e) => setAddForm({ ...addForm, amount: e.target.value })} placeholder="0" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Amount (SAR)</label>
+                  <input className={inputClass} type="number" min={0} step="0.01" value={addForm.amount_sar} onChange={(e) => setAddForm({ ...addForm, amount_sar: e.target.value })} placeholder="0" />
+                </div>
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">Method *</label>
                 <select className={inputClass} value={addForm.payment_method} onChange={(e) => {
@@ -924,9 +935,9 @@ export default function AdminPaymentsPage() {
                 </select>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground block mb-1">Wallet Account</label>
+                <label className="text-xs text-muted-foreground block mb-1">Wallet Account *</label>
                 <select className={inputClass} value={addForm.wallet_account_id} onChange={(e) => setAddForm({ ...addForm, wallet_account_id: e.target.value })}>
-                  <option value="">-- Select Wallet * --</option>
+                  <option value="">-- Select Wallet --</option>
                   {walletAccounts.map((w: any) => (
                     <option key={w.id} value={w.id}>{w.name} — {formatBDT(Number(w.balance || 0))}</option>
                   ))}
