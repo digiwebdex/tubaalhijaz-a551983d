@@ -140,13 +140,13 @@ export default function AdminReportsPage() {
     if (showSoftLoading) setRefreshing(true);
     else setLoading(true);
 
-    const safe = async <T,>(p: Promise<T>): Promise<{ data: any } & Partial<T>> => {
+    const safe = async (p: any): Promise<{ data: any }> => {
       try {
-        const r: any = await p;
+        const r = await Promise.resolve(p);
         return r ?? { data: [] };
       } catch (e) {
         console.warn("[Statement] query failed:", e);
-        return { data: [] } as any;
+        return { data: [] };
       }
     };
 
