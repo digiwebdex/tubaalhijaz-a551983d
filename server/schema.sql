@@ -131,6 +131,42 @@ CREATE TABLE IF NOT EXISTS accounts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS category TEXT;
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS account_number TEXT;
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS holder_name TEXT;
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS bank_name TEXT;
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0;
+
+CREATE TABLE IF NOT EXISTS wallet_transfers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  from_account_id UUID NOT NULL REFERENCES accounts(id),
+  to_account_id UUID NOT NULL REFERENCES accounts(id),
+  amount NUMERIC NOT NULL CHECK (amount > 0),
+  reference TEXT,
+  notes TEXT,
+  created_by UUID,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE OR REPLACE FUNCTION apply_wallet_transfer() RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE accounts SET balance = balance - NEW.amount, updated_at = now() WHERE id = NEW.from_account_id;
+    UPDATE accounts SET balance = balance + NEW.amount, updated_at = now() WHERE id = NEW.to_account_id;
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE accounts SET balance = balance + OLD.amount, updated_at = now() WHERE id = OLD.from_account_id;
+    UPDATE accounts SET balance = balance - OLD.amount, updated_at = now() WHERE id = OLD.to_account_id;
+  END IF;
+  RETURN COALESCE(NEW, OLD);
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_apply_wallet_transfer ON wallet_transfers;
+CREATE TRIGGER trg_apply_wallet_transfer
+  AFTER INSERT OR DELETE ON wallet_transfers
+  FOR EACH ROW EXECUTE FUNCTION apply_wallet_transfer();
 
 -- Packages
 CREATE TABLE IF NOT EXISTS packages (
