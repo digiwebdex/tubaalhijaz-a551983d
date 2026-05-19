@@ -1,9 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { FileText } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { FileText, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/apiClient";
+import BookingDialog from "@/components/BookingDialog";
+import VisaOrderDialog from "@/components/VisaOrderDialog";
+import CateringOrderDialog from "@/components/CateringOrderDialog";
+import TransportOrderDialog from "@/components/TransportOrderDialog";
 
 type ServiceKey = "booking" | "visa" | "catering" | "hotel" | "transport";
 
@@ -38,9 +42,11 @@ function deriveDual({
 }
 
 export default function AdminInvoicesPage() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<ServiceKey>("booking");
   const [loading, setLoading] = useState(true);
   const [sarRate, setSarRate] = useState(30);
+  const [createOpen, setCreateOpen] = useState(false);
   const [rows, setRows] = useState<Record<ServiceKey, any[]>>({
     booking: [],
     visa: [],
@@ -48,6 +54,24 @@ export default function AdminInvoicesPage() {
     hotel: [],
     transport: [],
   });
+
+  const createLabel: Record<ServiceKey, string> = {
+    booking: "Add Umrah Booking",
+    visa: "Add Visa Booking",
+    hotel: "Add Hotel Booking",
+    transport: "Add Transport Booking",
+    catering: "Add Catering Order",
+  };
+
+  const handleCreate = () => {
+    if (tab === "hotel") {
+      navigate("/admin/hotels");
+      return;
+    }
+    setCreateOpen(true);
+  };
+
+
 
   useEffect(() => {
     (async () => {
@@ -99,9 +123,14 @@ export default function AdminInvoicesPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="font-heading text-2xl font-bold">Invoices</h1>
-        <p className="text-sm text-muted-foreground">Unified invoice center for booking, visa, hotel, transport, and catering services.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="font-heading text-2xl font-bold">Invoices</h1>
+          <p className="text-sm text-muted-foreground">Unified invoice center for booking, visa, hotel, transport, and catering services.</p>
+        </div>
+        <Button onClick={handleCreate} size="sm" className="bg-[#0F4C3A] hover:bg-[#1a6b50]">
+          <Plus className="h-4 w-4 mr-1" /> {createLabel[tab]}
+        </Button>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -117,6 +146,7 @@ export default function AdminInvoicesPage() {
           </Button>
         ))}
       </div>
+
 
       <Card>
         <CardHeader>
@@ -180,6 +210,19 @@ export default function AdminInvoicesPage() {
           )}
         </CardContent>
       </Card>
+
+      {tab === "booking" && (
+        <BookingDialog open={createOpen} onOpenChange={setCreateOpen} packageId={null as any} />
+      )}
+      {tab === "visa" && (
+        <VisaOrderDialog open={createOpen} onOpenChange={setCreateOpen} />
+      )}
+      {tab === "catering" && (
+        <CateringOrderDialog open={createOpen} onOpenChange={setCreateOpen} plan={null as any} />
+      )}
+      {tab === "transport" && (
+        <TransportOrderDialog open={createOpen} onOpenChange={setCreateOpen} service={null as any} />
+      )}
     </div>
   );
 }
