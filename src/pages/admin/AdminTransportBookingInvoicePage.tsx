@@ -72,6 +72,13 @@ export default function AdminTransportBookingInvoicePage() {
     })();
   }, [id]);
 
+  useEffect(() => {
+    if (!loading && data && autoDownload) {
+      const t = setTimeout(() => window.print(), 600);
+      return () => clearTimeout(t);
+    }
+  }, [loading, data, autoDownload]);
+
   if (loading) return <div className="p-12 text-center text-muted-foreground">Loading voucher…</div>;
   if (!data) return <div className="p-12 text-center text-muted-foreground">Voucher not found.</div>;
 
