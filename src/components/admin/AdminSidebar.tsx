@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   FileText,
@@ -31,6 +32,15 @@ import { apiClient } from "@/lib/apiClient";
 import { useNavigate } from "react-router-dom";
 import type { AppRole } from "@/hooks/useUserRole";
 
+const DEFAULT_MENU_CONFIG = {
+  dashboard: true,
+  services: true,
+  invoices: true,
+  reports: true,
+  transport: true,
+  system: true,
+};
+
 const dashboardMenu = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, roles: ["admin", "accountant", "booking", "viewer"] },
 ];
@@ -63,6 +73,22 @@ const systemMenu = [
 
 export function AdminSidebar({ role }: { role: AppRole }) {
   const navigate = useNavigate();
+  const [menuConfig, setMenuConfig] = useState(DEFAULT_MENU_CONFIG);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await apiClient
+        .from("company_settings")
+        .select("setting_value")
+        .eq("setting_key", "admin_menu_config")
+        .maybeSingle();
+
+      const cfg = (data as any)?.setting_value;
+      if (cfg && typeof cfg === "object") {
+        setMenuConfig({ ...DEFAULT_MENU_CONFIG, ...cfg });
+      }
+    })();
+  }, []);
 
   const handleLogout = async () => {
     await apiClient.auth.signOut();
@@ -119,12 +145,12 @@ export function AdminSidebar({ role }: { role: AppRole }) {
       </SidebarHeader>
 
       <SidebarContent className="py-2">
-        {renderGroup("Dashboard", dashboardMenu)}
-        {renderGroup("Services", servicesMenu)}
-        {renderGroup("Invoices", financeMenu)}
-        {renderGroup("Reports", reportMenu)}
-        {renderGroup("Transport", docsMenu)}
-        {renderGroup("System", systemMenu)}
+        {menuConfig.dashboard && renderGroup("Dashboard", dashboardMenu)}
+        {menuConfig.services && renderGroup("Services", servicesMenu)}
+        {menuConfig.invoices && renderGroup("Invoices", financeMenu)}
+        {menuConfig.reports && renderGroup("Reports", reportMenu)}
+        {menuConfig.transport && renderGroup("Transport", docsMenu)}
+        {menuConfig.system && renderGroup("System", systemMenu)}
       </SidebarContent>
 
       <SidebarFooter className="p-3 border-t border-primary/10">
