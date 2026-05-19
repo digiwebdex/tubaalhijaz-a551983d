@@ -322,25 +322,28 @@ export default function AdminPaymentsPage() {
 
     if (editType === "moallem") {
       const { error } = await apiClient.from("moallem_payments").update({
-        amount: parseFloat(editForm.amount), payment_method: editForm.payment_method,
+        amount: parseFloat(editForm.amount), amount_sar: parseFloat(editForm.amount_sar || "0") || 0,
+        payment_method: editForm.payment_method,
         notes: combinedNotes, date: editForm.date || undefined,
-      }).eq("id", editingId);
+      } as any).eq("id", editingId);
       if (error) { toast.error(error.message); return; }
       toast.success("Moallem payment updated"); setEditingId(null); setShowEditModal(false); fetchPayments();
     } else if (editType === "supplier") {
       const { error } = await apiClient.from("supplier_agent_payments").update({
-        amount: parseFloat(editForm.amount), payment_method: editForm.payment_method,
+        amount: parseFloat(editForm.amount), amount_sar: parseFloat(editForm.amount_sar || "0") || 0,
+        payment_method: editForm.payment_method,
         notes: combinedNotes, date: editForm.date || undefined,
-      }).eq("id", editingId);
+      } as any).eq("id", editingId);
       if (error) { toast.error(error.message); return; }
       toast.success("Supplier payment updated"); setEditingId(null); setShowEditModal(false); fetchPayments();
     } else {
       const { error } = await apiClient.from("payments").update({
-        amount: parseFloat(editForm.amount), due_date: editForm.due_date || null,
+        amount: parseFloat(editForm.amount), amount_sar: parseFloat(editForm.amount_sar || "0") || 0,
+        due_date: editForm.due_date || null,
         status: editForm.status, payment_method: editForm.payment_method,
         notes: combinedNotes, transaction_id: editForm.transaction_id || null,
         ...(editForm.status === "completed" && !payments.find(p => p.id === editingId)?.paid_at ? { paid_at: new Date().toISOString() } : {}),
-      }).eq("id", editingId);
+      } as any).eq("id", editingId);
       if (error) { toast.error(error.message); return; }
       toast.success("Payment updated"); setEditingId(null); fetchPayments();
     }
