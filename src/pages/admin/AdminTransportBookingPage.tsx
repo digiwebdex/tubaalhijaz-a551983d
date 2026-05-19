@@ -107,7 +107,7 @@ export default function AdminTransportBookingPage() {
             ট্রান্সপোর্ট ভাউচার বুকিং — কাস্টমার ফর্ম অনুযায়ী একই টেবিল ও বাইলিঙ্গুয়াল ইনভয়েস
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {STATUS_FILTERS.map(f => (
             <Button key={f.value} variant={filter === f.value ? "default" : "outline"} size="sm" onClick={() => setFilter(f.value)}>
               {f.label} ({(counts as any)[f.value] ?? 0})
@@ -115,6 +115,9 @@ export default function AdminTransportBookingPage() {
           ))}
           <Button variant="outline" size="sm" onClick={fetchAll} disabled={loading}>
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+          </Button>
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            <Plus className="w-4 h-4 mr-1" /> Add Transport Booking
           </Button>
         </div>
       </div>
