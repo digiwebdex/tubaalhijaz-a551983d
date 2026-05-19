@@ -720,7 +720,10 @@ export default function AdminPaymentsPage() {
                         <span className="block text-muted-foreground">{p.supplier_agents.company_name}</span>
                       )}
                     </td>
-                    <td className="py-3 pr-4 font-medium">{formatBDT(p._amount)}</td>
+                    <td className="py-3 pr-4">
+                      <div className="font-medium">{formatBDT(p._amount)}</div>
+                      {Number(p.amount_sar) > 0 && <div className="text-[11px] text-muted-foreground">{formatSAR(p.amount_sar)}</div>}
+                    </td>
                     <td className="py-3 pr-4 capitalize text-xs">{p.payment_method || "—"}{p.transaction_id ? <span className="block text-muted-foreground">TxID: {p.transaction_id}</span> : ""}</td>
                     <td className="py-3 pr-4 text-xs">{pServiceLabel || "—"}</td>
                     <td className="py-3 pr-4 text-xs">
