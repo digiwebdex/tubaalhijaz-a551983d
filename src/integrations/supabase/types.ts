@@ -1619,6 +1619,7 @@ export type Database = {
       moallem_payments: {
         Row: {
           amount: number
+          amount_sar: number
           booking_id: string | null
           created_at: string
           date: string
@@ -1632,6 +1633,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          amount_sar?: number
           booking_id?: string | null
           created_at?: string
           date?: string
@@ -1645,6 +1647,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          amount_sar?: number
           booking_id?: string | null
           created_at?: string
           date?: string
@@ -2091,6 +2094,7 @@ export type Database = {
       payments: {
         Row: {
           amount: number
+          amount_sar: number
           booking_id: string
           created_at: string
           customer_id: string | null
@@ -2108,6 +2112,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          amount_sar?: number
           booking_id: string
           created_at?: string
           customer_id?: string | null
@@ -2125,6 +2130,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          amount_sar?: number
           booking_id?: string
           created_at?: string
           customer_id?: string | null
@@ -2685,6 +2691,7 @@ export type Database = {
       supplier_agent_payments: {
         Row: {
           amount: number
+          amount_sar: number
           booking_id: string | null
           created_at: string
           date: string
@@ -2698,6 +2705,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          amount_sar?: number
           booking_id?: string | null
           created_at?: string
           date?: string
@@ -2711,6 +2719,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          amount_sar?: number
           booking_id?: string | null
           created_at?: string
           date?: string

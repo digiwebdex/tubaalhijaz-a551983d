@@ -9,7 +9,7 @@ import { useIsViewer, useCanModifyFinancials } from "@/components/admin/AdminLay
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import AdminActionMenu from "@/components/admin/AdminActionMenu";
 import CustomerSearchSelect from "@/components/admin/CustomerSearchSelect";
-import { formatBDT, formatTrackingId } from "@/lib/utils";
+import { formatBDT, formatSAR, formatTrackingId } from "@/lib/utils";
 
 const inputClass = "w-full bg-secondary border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40";
 
@@ -78,7 +78,7 @@ export default function AdminPaymentsPage() {
   const [paymentType, setPaymentType] = useState<PaymentType>("customer");
   const [bookingSearch, setBookingSearch] = useState("");
   const [addForm, setAddForm] = useState({
-    customer_id: "", booking_id: "", amount: "",
+    customer_id: "", booking_id: "", amount: "", amount_sar: "",
     payment_method: "cash", transaction_id: "", paid_date: new Date().toISOString().split("T")[0],
     notes: "", wallet_account_id: "", moallem_id: "", supplier_id: "", service_type: "",
   });
@@ -141,7 +141,7 @@ export default function AdminPaymentsPage() {
   };
 
   const resetAddForm = () => {
-    setAddForm({ customer_id: "", booking_id: "", amount: "", payment_method: "cash", transaction_id: "", paid_date: new Date().toISOString().split("T")[0], notes: "", wallet_account_id: "", moallem_id: "", supplier_id: "", service_type: "" });
+    setAddForm({ customer_id: "", booking_id: "", amount: "", amount_sar: "", payment_method: "cash", transaction_id: "", paid_date: new Date().toISOString().split("T")[0], notes: "", wallet_account_id: "", moallem_id: "", supplier_id: "", service_type: "" });
     setSelectedBookingInfo(null);
     setBookingSearch("");
     setReceiptFile(null);
@@ -230,6 +230,7 @@ export default function AdminPaymentsPage() {
         const { error } = await apiClient.from("payments").insert({
           booking_id: addForm.booking_id, user_id: userId,
           customer_id: addForm.customer_id || null, amount: parseFloat(addForm.amount),
+          amount_sar: parseFloat(addForm.amount_sar || "0") || 0,
           payment_method: addForm.payment_method, transaction_id: addForm.transaction_id.trim() || null,
           status: "completed", paid_at: new Date(addForm.paid_date).toISOString(),
           due_date: addForm.paid_date, installment_number: maxInstallment + 1,
@@ -253,13 +254,14 @@ export default function AdminPaymentsPage() {
           moallem_id: addForm.moallem_id,
           booking_id: addForm.booking_id || null,
           amount: parseFloat(addForm.amount),
+          amount_sar: parseFloat(addForm.amount_sar || "0") || 0,
           payment_method: addForm.payment_method,
           date: addForm.paid_date,
           notes: combinedNotes,
           wallet_account_id: addForm.wallet_account_id || null,
           recorded_by: session?.user?.id || null,
           receipt_file_path: receiptPath,
-        });
+        } as any);
         if (error) throw error;
         toast.success("Moallem payment added successfully");
         setShowAddModal(false);
@@ -277,13 +279,14 @@ export default function AdminPaymentsPage() {
           supplier_agent_id: addForm.supplier_id,
           booking_id: addForm.booking_id || null,
           amount: parseFloat(addForm.amount),
+          amount_sar: parseFloat(addForm.amount_sar || "0") || 0,
           payment_method: addForm.payment_method,
           date: addForm.paid_date,
           notes: combinedNotes,
           wallet_account_id: addForm.wallet_account_id || null,
           recorded_by: session?.user?.id || null,
           receipt_file_path: receiptPath,
-        });
+        } as any);
         if (error) throw error;
         toast.success("Supplier payment added successfully");
         setShowAddModal(false);
@@ -305,7 +308,7 @@ export default function AdminPaymentsPage() {
     const { serviceValue, cleanNotes } = extractServiceType(p.notes);
     setEditingId(p.id);
     setEditType(p._type || "customer");
-    setEditForm({ amount: p.amount, due_date: p.due_date || "", status: p.status || "completed", payment_method: p.payment_method || "manual", notes: cleanNotes, transaction_id: p.transaction_id || "", date: p.date || "", service_type: serviceValue });
+    setEditForm({ amount: p.amount, amount_sar: p.amount_sar ?? 0, due_date: p.due_date || "", status: p.status || "completed", payment_method: p.payment_method || "manual", notes: cleanNotes, transaction_id: p.transaction_id || "", date: p.date || "", service_type: serviceValue });
     if (p._type === "moallem" || p._type === "supplier") {
       setShowEditModal(true);
     }
@@ -319,25 +322,28 @@ export default function AdminPaymentsPage() {
 
     if (editType === "moallem") {
       const { error } = await apiClient.from("moallem_payments").update({
-        amount: parseFloat(editForm.amount), payment_method: editForm.payment_method,
+        amount: parseFloat(editForm.amount), amount_sar: parseFloat(editForm.amount_sar || "0") || 0,
+        payment_method: editForm.payment_method,
         notes: combinedNotes, date: editForm.date || undefined,
-      }).eq("id", editingId);
+      } as any).eq("id", editingId);
       if (error) { toast.error(error.message); return; }
       toast.success("Moallem payment updated"); setEditingId(null); setShowEditModal(false); fetchPayments();
     } else if (editType === "supplier") {
       const { error } = await apiClient.from("supplier_agent_payments").update({
-        amount: parseFloat(editForm.amount), payment_method: editForm.payment_method,
+        amount: parseFloat(editForm.amount), amount_sar: parseFloat(editForm.amount_sar || "0") || 0,
+        payment_method: editForm.payment_method,
         notes: combinedNotes, date: editForm.date || undefined,
-      }).eq("id", editingId);
+      } as any).eq("id", editingId);
       if (error) { toast.error(error.message); return; }
       toast.success("Supplier payment updated"); setEditingId(null); setShowEditModal(false); fetchPayments();
     } else {
       const { error } = await apiClient.from("payments").update({
-        amount: parseFloat(editForm.amount), due_date: editForm.due_date || null,
+        amount: parseFloat(editForm.amount), amount_sar: parseFloat(editForm.amount_sar || "0") || 0,
+        due_date: editForm.due_date || null,
         status: editForm.status, payment_method: editForm.payment_method,
         notes: combinedNotes, transaction_id: editForm.transaction_id || null,
         ...(editForm.status === "completed" && !payments.find(p => p.id === editingId)?.paid_at ? { paid_at: new Date().toISOString() } : {}),
-      }).eq("id", editingId);
+      } as any).eq("id", editingId);
       if (error) { toast.error(error.message); return; }
       toast.success("Payment updated"); setEditingId(null); fetchPayments();
     }
@@ -555,7 +561,7 @@ export default function AdminPaymentsPage() {
                         <tr key={p.id} className="border-b border-border/30 hover:bg-secondary/20">
                           <td className="py-2.5 px-4 text-xs text-muted-foreground">{i + 1}</td>
                           <td className="py-2.5 px-4 font-mono text-xs">{formatTrackingId(p.bookings?.tracking_id) || "—"}</td>
-                          <td className="py-2.5 px-4 font-medium">{formatBDT(p.amount)}</td>
+                          <td className="py-2.5 px-4 font-medium">{formatBDT(p.amount)}{Number(p.amount_sar) > 0 && <span className="block text-[11px] text-muted-foreground font-normal">{formatSAR(p.amount_sar)}</span>}</td>
                           <td className="py-2.5 px-4 capitalize text-xs">{p.payment_method || "—"}</td>
                           <td className="py-2.5 px-4 text-xs">{serviceLabel || "—"}</td>
                           <td className="py-2.5 px-4 text-xs">{p.date ? new Date(p.date).toLocaleDateString() : "—"}</td>
@@ -626,7 +632,7 @@ export default function AdminPaymentsPage() {
                         return (
                         <tr key={p.id} className="border-b border-border/30 hover:bg-secondary/20">
                           <td className="py-2.5 px-4 text-xs text-muted-foreground">{i + 1}</td>
-                          <td className="py-2.5 px-4 font-medium">{formatBDT(p.amount)}</td>
+                          <td className="py-2.5 px-4 font-medium">{formatBDT(p.amount)}{Number(p.amount_sar) > 0 && <span className="block text-[11px] text-muted-foreground font-normal">{formatSAR(p.amount_sar)}</span>}</td>
                           <td className="py-2.5 px-4 capitalize text-xs">{p.payment_method || "—"}</td>
                           <td className="py-2.5 px-4 text-xs">{sLabel || "—"}</td>
                           <td className="py-2.5 px-4 text-xs">{p.date ? new Date(p.date).toLocaleDateString() : "—"}</td>
@@ -678,7 +684,12 @@ export default function AdminPaymentsPage() {
                     <td className="py-3 pr-4"><span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${badge.cls}`}>{badge.label}</span></td>
                     <td className="py-3 pr-4 font-mono text-xs">{p._trackingId}</td>
                     <td className="py-3 pr-4 text-xs">{p._displayName}</td>
-                    <td className="py-3 pr-4"><input className={inputClass + " w-24"} type="number" value={editForm.amount} onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })} /></td>
+                    <td className="py-3 pr-4">
+                      <div className="flex flex-col gap-1">
+                        <input className={inputClass + " w-24"} type="number" placeholder="BDT" value={editForm.amount} onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })} />
+                        <input className={inputClass + " w-24"} type="number" placeholder="SAR" value={editForm.amount_sar ?? ""} onChange={(e) => setEditForm({ ...editForm, amount_sar: e.target.value })} />
+                      </div>
+                    </td>
                     <td className="py-3 pr-4">
                       <select className={inputClass + " w-24"} value={editForm.payment_method} onChange={(e) => setEditForm({ ...editForm, payment_method: e.target.value })}>
                         {PAYMENT_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
@@ -714,7 +725,10 @@ export default function AdminPaymentsPage() {
                         <span className="block text-muted-foreground">{p.supplier_agents.company_name}</span>
                       )}
                     </td>
-                    <td className="py-3 pr-4 font-medium">{formatBDT(p._amount)}</td>
+                    <td className="py-3 pr-4">
+                      <div className="font-medium">{formatBDT(p._amount)}</div>
+                      {Number(p.amount_sar) > 0 && <div className="text-[11px] text-muted-foreground">{formatSAR(p.amount_sar)}</div>}
+                    </td>
                     <td className="py-3 pr-4 capitalize text-xs">{p.payment_method || "—"}{p.transaction_id ? <span className="block text-muted-foreground">TxID: {p.transaction_id}</span> : ""}</td>
                     <td className="py-3 pr-4 text-xs">{pServiceLabel || "—"}</td>
                     <td className="py-3 pr-4 text-xs">
@@ -898,11 +912,22 @@ export default function AdminPaymentsPage() {
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-muted-foreground block mb-1">Amount (BDT) *</label>
-                <input className={inputClass} type="number" min={1} value={addForm.amount} onChange={(e) => setAddForm({ ...addForm, amount: e.target.value })} placeholder="0" />
+            {/* Amount section: BDT + SAR */}
+            <div className="rounded-lg border border-border bg-secondary/30 p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">Amount</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Amount (BDT) *</label>
+                  <input className={inputClass} type="number" min={0} step="0.01" value={addForm.amount} onChange={(e) => setAddForm({ ...addForm, amount: e.target.value })} placeholder="0" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Amount (SAR)</label>
+                  <input className={inputClass} type="number" min={0} step="0.01" value={addForm.amount_sar} onChange={(e) => setAddForm({ ...addForm, amount_sar: e.target.value })} placeholder="0" />
+                </div>
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">Method *</label>
                 <select className={inputClass} value={addForm.payment_method} onChange={(e) => {
@@ -915,9 +940,9 @@ export default function AdminPaymentsPage() {
                 </select>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground block mb-1">Wallet Account</label>
+                <label className="text-xs text-muted-foreground block mb-1">Wallet Account *</label>
                 <select className={inputClass} value={addForm.wallet_account_id} onChange={(e) => setAddForm({ ...addForm, wallet_account_id: e.target.value })}>
-                  <option value="">-- Select Wallet * --</option>
+                  <option value="">-- Select Wallet --</option>
                   {walletAccounts.map((w: any) => (
                     <option key={w.id} value={w.id}>{w.name} — {formatBDT(Number(w.balance || 0))}</option>
                   ))}
@@ -991,7 +1016,7 @@ export default function AdminPaymentsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div><span className="text-muted-foreground text-xs block">Booking</span><span className="font-mono font-medium">{viewPayment._trackingId}</span></div>
                 <div><span className="text-muted-foreground text-xs block">Name</span><span className="font-medium">{viewPayment._displayName}</span></div>
-                <div><span className="text-muted-foreground text-xs block">Amount</span><span className="font-bold text-primary">{formatBDT(viewPayment._amount)}</span></div>
+                <div><span className="text-muted-foreground text-xs block">Amount</span><span className="font-bold text-primary">{formatBDT(viewPayment._amount)}</span>{Number(viewPayment.amount_sar) > 0 && <span className="block text-[11px] text-muted-foreground">{formatSAR(viewPayment.amount_sar)}</span>}</div>
                 <div><span className="text-muted-foreground text-xs block">Method</span><span className="font-medium capitalize">{viewPayment.payment_method || "—"}</span></div>
                 {viewPayment._type === "customer" && (
                   <>
@@ -1089,9 +1114,15 @@ export default function AdminPaymentsPage() {
             <DialogTitle className="font-heading">{editType === "moallem" ? "Edit Moallem Payment" : "Edit Supplier Payment"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            <div>
-              <label className="text-xs text-muted-foreground block mb-1">Amount (BDT) *</label>
-              <input className={inputClass} type="number" min={1} value={editForm.amount || ""} onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })} />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1">Amount (BDT) *</label>
+                <input className={inputClass} type="number" min={0} step="0.01" value={editForm.amount || ""} onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1">Amount (SAR)</label>
+                <input className={inputClass} type="number" min={0} step="0.01" value={editForm.amount_sar || ""} onChange={(e) => setEditForm({ ...editForm, amount_sar: e.target.value })} />
+              </div>
             </div>
             <div>
               <label className="text-xs text-muted-foreground block mb-1">Method</label>

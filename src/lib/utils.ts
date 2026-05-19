@@ -15,6 +15,11 @@ export function formatAmount(n: number | null | undefined): string {
   return Number(n || 0).toLocaleString("en-IN");
 }
 
+/** Format SAR amount with prefix */
+export function formatSAR(n: number | null | undefined): string {
+  return `SAR ${Number(n || 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+}
+
 /** Format tracking ID: convert legacy RK- prefix to TT- */
 export function formatTrackingId(value?: string | null): string {
   const normalized = (value || "").trim().toUpperCase();
