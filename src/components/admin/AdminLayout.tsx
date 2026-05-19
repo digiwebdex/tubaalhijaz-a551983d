@@ -118,12 +118,13 @@ export default function AdminLayout() {
 
   useEffect(() => {
     if (loading) return;
+    if (role === "cms") return;
     if (!coreOnlyMode) return;
     if (isCoreAllowedRoute(location.pathname)) return;
 
     toast.info("This module is hidden in Core Admin mode.");
     navigate("/admin", { replace: true });
-  }, [coreOnlyMode, loading, location.pathname, navigate]);
+  }, [coreOnlyMode, loading, location.pathname, navigate, role]);
 
   if (loading) {
     return (
