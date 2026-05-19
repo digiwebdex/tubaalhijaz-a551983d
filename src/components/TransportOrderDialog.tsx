@@ -538,7 +538,9 @@ export default function TransportOrderDialog({ open, onOpenChange, service, exis
               </Button>
               <Button type="submit" disabled={submitting}>
                 {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                {isBn ? "বুকিং সাবমিট করুন" : "Submit Booking"}
+                {isEdit
+                  ? (isBn ? "আপডেট করুন" : "Update Booking")
+                  : (isBn ? "বুকিং সাবমিট করুন" : "Submit Booking")}
               </Button>
             </div>
           </form>
