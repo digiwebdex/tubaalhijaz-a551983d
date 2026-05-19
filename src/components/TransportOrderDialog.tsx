@@ -116,11 +116,39 @@ export default function TransportOrderDialog({ open, onOpenChange, service, exis
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
-    if (service && open) {
+    if (service && open && !isEdit) {
       const t = service.vehicle_type || "";
       setTransportType(t.split("(")[0].trim().toUpperCase());
     }
-  }, [service, open]);
+  }, [service, open, isEdit]);
+
+  useEffect(() => {
+    if (open && existing) {
+      setAgentName(existing.agent_name || "");
+      setAgentCountry(existing.agent_country || "");
+      setUmrahCompany(existing.umrah_company || "");
+      setGroupNumbers(Array.isArray(existing.group_numbers) && existing.group_numbers.length ? existing.group_numbers : [""]);
+      setPackageName(existing.package_name || "");
+      setTravelDate(existing.travel_date || "");
+      if (Array.isArray(existing.hotels) && existing.hotels.length) {
+        setHotels(existing.hotels.map((h: any) => ({
+          city: h.city || "MAKKAH", hotel: h.hotel || "", agreement_no: h.agreement_no || "",
+          check_in: h.check_in || "", check_out: h.check_out || "", rooms: String(h.rooms || ""),
+        })));
+      }
+      setTransportType(existing.transport_type || "");
+      setPilgrimCount(existing.pilgrim_count ? String(existing.pilgrim_count) : "");
+      if (Array.isArray(existing.flights) && existing.flights.length) setFlights(existing.flights);
+      if (Array.isArray(existing.internal_movements) && existing.internal_movements.length) setMovements(existing.internal_movements);
+      setSupMakkah(existing.supervisor_makkah_phone || "");
+      setSupMadinah(existing.supervisor_madinah_phone || "");
+      setOps24(existing.ops_24h_phone || "");
+      setContactName(existing.contact_name || "");
+      setContactPhone(existing.contact_phone || "");
+      setContactEmail(existing.contact_email || "");
+      setNotes(existing.notes || "");
+    }
+  }, [open, existing]);
 
   const reset = () => {
     setAgentName(""); setAgentCountry(""); setUmrahCompany("");
