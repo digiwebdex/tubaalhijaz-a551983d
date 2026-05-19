@@ -254,7 +254,7 @@ export const auth = {
     return { data: { subscription: { unsubscribe: () => window.removeEventListener('storage', handler) } } };
   },
 
-  async setSession(session: { access_token: string; refresh_token: string }) {
+  async setSession(_session: { access_token: string; refresh_token: string }) {
     TokenManager.clear();
 
     return { error: { message: 'Authentication client unavailable' } };
@@ -300,6 +300,228 @@ const tableUrlMap: Record<string, string> = {
   refunds: '/refunds',
   cancellation_policies: '/cancellation-policies',
   audit_logs: '/audit-logs',
+};
+
+// =============================================
+// Financial snapshot helpers
+// =============================================
+const SNAPSHOT_ELIGIBLE_TABLES = new Set([
+  'bookings',
+  'payments',
+  'transactions',
+  'moallem_payments',
+  'supplier_agent_payments',
+  'daily_cashbook',
+  'expenses',
+  'refunds',
+  'settlements',
+]);
+
+const DEFAULT_SAR_TO_BDT = 30;
+const RATE_CACHE_TTL_MS = 5 * 60 * 1000;
+let cachedSarRate = DEFAULT_SAR_TO_BDT;
+let cachedSarRateAt = 0;
+
+const toNumber = (value: any): number => {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const round2 = (value: number): number => Math.round(value * 100) / 100;
+
+const parseErrorMessage = (err: any): string => {
+  if (!err) return 'Request failed';
+  if (typeof err === 'string') return err;
+  return err.error || err.message || 'Request failed';
+};
+
+const shouldRetryWithoutFinancialFields = (message: string): boolean => {
+  const m = (message || '').toLowerCase();
+  return (
+    m.includes('unknown') ||
+    m.includes('column') ||
+    m.includes('field') ||
+    m.includes('invalid input') ||
+    m.includes('does not exist') ||
+    m.includes('not allowed')
+  );
+};
+
+const getIdFromFilters = (filters: string[]): string | null => {
+  const idFilter = filters.find((f) => f.startsWith('id='));
+  if (!idFilter) return null;
+  const raw = idFilter.split('=')[1] || '';
+  return decodeURIComponent(raw);
+};
+
+const inferAmountBdt = (table: string, row: Record<string, any>): number => {
+  if (toNumber(row.amount_bdt) > 0) return toNumber(row.amount_bdt);
+
+  switch (table) {
+    case 'bookings':
+      return toNumber(row.total_amount);
+    case 'payments':
+    case 'transactions':
+    case 'moallem_payments':
+    case 'supplier_agent_payments':
+    case 'daily_cashbook':
+    case 'expenses':
+    case 'refunds':
+    case 'settlements':
+      return toNumber(row.amount);
+    default:
+      return toNumber(row.amount || row.total_amount);
+  }
+};
+
+const inferLedgerMeta = (
+  table: string,
+  row: Record<string, any>,
+  filters: string[]
+): { party_type?: string; party_id?: string | null; source_type?: string; source_id?: string | null; entry_type?: string } => {
+  const fallbackId = getIdFromFilters(filters);
+
+  if (table === 'bookings') {
+    return {
+      party_type: 'customer',
+      party_id: row.user_id || null,
+      source_type: 'booking',
+      source_id: row.id || fallbackId,
+      entry_type: 'bill',
+    };
+  }
+
+  if (table === 'payments') {
+    return {
+      party_type: 'customer',
+      party_id: row.customer_id || row.user_id || null,
+      source_type: 'booking',
+      source_id: row.booking_id || fallbackId,
+      entry_type: 'payment',
+    };
+  }
+
+  if (table === 'moallem_payments') {
+    return {
+      party_type: 'moallem',
+      party_id: row.moallem_id || null,
+      source_type: row.booking_id ? 'booking' : 'moallem',
+      source_id: row.booking_id || row.moallem_id || fallbackId,
+      entry_type: 'payment',
+    };
+  }
+
+  if (table === 'supplier_agent_payments') {
+    return {
+      party_type: 'supplier',
+      party_id: row.supplier_agent_id || null,
+      source_type: row.booking_id ? 'booking' : 'supplier',
+      source_id: row.booking_id || row.supplier_agent_id || fallbackId,
+      entry_type: 'payment',
+    };
+  }
+
+  if (table === 'transactions') {
+    return {
+      party_type: row.party_type || 'customer',
+      party_id: row.party_id || row.customer_id || null,
+      source_type: row.source_type || row.source_type || 'transaction',
+      source_id: row.source_id || row.id || fallbackId,
+      entry_type: row.entry_type || 'adjustment',
+    };
+  }
+
+  return {
+    party_type: row.party_type,
+    party_id: row.party_id,
+    source_type: row.source_type,
+    source_id: row.source_id || row.id || fallbackId,
+    entry_type: row.entry_type,
+  };
+};
+
+async function getSarRate(): Promise<number> {
+  const now = Date.now();
+  if (now - cachedSarRateAt < RATE_CACHE_TTL_MS) return cachedSarRate;
+
+  try {
+    const res = await apiFetch('/company-settings?setting_key=currency_rate', { skipRedirect: true });
+    if (res.ok) {
+      const data = await res.json();
+      const row = Array.isArray(data) ? data[0] : data;
+      const cfg = row?.setting_value || {};
+      const candidate = toNumber(cfg?.sar_to_bdt);
+      cachedSarRate = candidate > 0 ? candidate : DEFAULT_SAR_TO_BDT;
+      cachedSarRateAt = now;
+      return cachedSarRate;
+    }
+  } catch {
+    // fallback to default
+  }
+
+  cachedSarRate = DEFAULT_SAR_TO_BDT;
+  cachedSarRateAt = now;
+  return cachedSarRate;
+}
+
+const enrichRowWithFinancialFields = async (
+  table: string,
+  row: Record<string, any>,
+  filters: string[]
+): Promise<Record<string, any>> => {
+  const out = { ...row };
+  const amountBdt = inferAmountBdt(table, out);
+
+  if (amountBdt > 0) {
+    const rate = await getSarRate();
+    if (out.amount_bdt === undefined || out.amount_bdt === null || out.amount_bdt === '') {
+      out.amount_bdt = round2(amountBdt);
+    }
+    if (out.amount_sar === undefined || out.amount_sar === null || out.amount_sar === '') {
+      out.amount_sar = round2(toNumber(out.amount_bdt) / Math.max(rate, 0.0001));
+    }
+    if (!out.fx_rate_sar_to_bdt) out.fx_rate_sar_to_bdt = rate;
+    if (!out.fx_locked_at) out.fx_locked_at = new Date().toISOString();
+    if (!out.fx_source) out.fx_source = 'company_settings.currency_rate';
+  }
+
+  const meta = inferLedgerMeta(table, out, filters);
+  if (meta.party_type && !out.party_type) out.party_type = meta.party_type;
+  if (meta.party_id !== undefined && (out.party_id === undefined || out.party_id === null)) out.party_id = meta.party_id;
+  if (meta.source_type && !out.source_type) out.source_type = meta.source_type;
+  if (meta.source_id !== undefined && (out.source_id === undefined || out.source_id === null)) out.source_id = meta.source_id;
+  if (meta.entry_type && !out.entry_type) out.entry_type = meta.entry_type;
+
+  return out;
+};
+
+const enrichFinancialPayload = async (
+  table: string,
+  payload: any,
+  filters: string[]
+): Promise<{ payload: any; enriched: boolean }> => {
+  if (!SNAPSHOT_ELIGIBLE_TABLES.has(table)) {
+    return { payload, enriched: false };
+  }
+
+  if (Array.isArray(payload)) {
+    let enriched = false;
+    const rows = await Promise.all(payload.map(async (row) => {
+      if (!row || typeof row !== 'object') return row;
+      enriched = true;
+      return enrichRowWithFinancialFields(table, row, filters);
+    }));
+    return { payload: rows, enriched };
+  }
+
+  if (payload && typeof payload === 'object') {
+    return {
+      payload: await enrichRowWithFinancialFields(table, payload, filters),
+      enriched: true,
+    };
+  }
+
+  return { payload, enriched: false };
 };
 
 // =============================================
@@ -434,15 +656,15 @@ class QueryBuilder {
   async execute(): Promise<{ data: any; error: any }> {
     try {
       let path = this.url;
-      
+
       if (this.method === 'GET') {
         const params = [...this.filters];
         if (this.limitVal) params.push(`limit=${this.limitVal}`);
         if (params.length) path += '?' + params.join('&');
-        
+
         let data: any = null;
         let vpsOk = false;
-        
+
         try {
           const res = await apiFetch(path);
           if (res.ok) {
@@ -450,12 +672,11 @@ class QueryBuilder {
             vpsOk = true;
           }
         } catch {}
-        
-        
+
         if (!vpsOk) {
           return { data: null, error: { message: 'API unavailable' } };
         }
-        
+
         // Handle ordering client-side for now
         if (this.orderByField && Array.isArray(data)) {
           data.sort((a: any, b: any) => {
@@ -466,16 +687,31 @@ class QueryBuilder {
             return 0;
           });
         }
-        
+
         if (this.singleRow) data = Array.isArray(data) ? data[0] || null : data;
         return { data, error: null };
       }
 
       if (this.method === 'POST') {
-        const res = await apiFetch(path, { method: 'POST', body: JSON.stringify(this.body) });
+        const originalBody = this.body;
+        const { payload: enrichedBody, enriched } = await enrichFinancialPayload(this.table, this.body, this.filters);
+
+        let res = await apiFetch(path, { method: 'POST', body: JSON.stringify(enrichedBody) });
         if (!res.ok) {
-          const err = await res.json();
-          return { data: null, error: { message: err.error } };
+          let errPayload = await res.json().catch(() => ({ error: 'Request failed' }));
+          const msg = parseErrorMessage(errPayload);
+
+          if (enriched && shouldRetryWithoutFinancialFields(msg)) {
+            const fallback = await apiFetch(path, { method: 'POST', body: JSON.stringify(originalBody) });
+            if (!fallback.ok) {
+              errPayload = await fallback.json().catch(() => ({ error: 'Request failed' }));
+              return { data: null, error: { message: parseErrorMessage(errPayload) } };
+            }
+            const fallbackData = await fallback.json();
+            return { data: fallbackData, error: null };
+          }
+
+          return { data: null, error: { message: msg } };
         }
         const data = await res.json();
         return { data, error: null };
@@ -483,19 +719,34 @@ class QueryBuilder {
 
       if (this.method === 'PATCH') {
         // Find the ID from filters
-        const idFilter = this.filters.find(f => f.startsWith('id='));
+        const idFilter = this.filters.find((f) => f.startsWith('id='));
         const id = idFilter ? idFilter.split('=')[1] : '';
-        const res = await apiFetch(`${path}/${id}`, { method: 'PATCH', body: JSON.stringify(this.body) });
+        const originalBody = this.body;
+        const { payload: enrichedBody, enriched } = await enrichFinancialPayload(this.table, this.body, this.filters);
+
+        let res = await apiFetch(`${path}/${id}`, { method: 'PATCH', body: JSON.stringify(enrichedBody) });
         if (!res.ok) {
-          const err = await res.json();
-          return { data: null, error: { message: err.error } };
+          let errPayload = await res.json().catch(() => ({ error: 'Request failed' }));
+          const msg = parseErrorMessage(errPayload);
+
+          if (enriched && shouldRetryWithoutFinancialFields(msg)) {
+            const fallback = await apiFetch(`${path}/${id}`, { method: 'PATCH', body: JSON.stringify(originalBody) });
+            if (!fallback.ok) {
+              errPayload = await fallback.json().catch(() => ({ error: 'Request failed' }));
+              return { data: null, error: { message: parseErrorMessage(errPayload) } };
+            }
+            const fallbackData = await fallback.json();
+            return { data: fallbackData, error: null };
+          }
+
+          return { data: null, error: { message: msg } };
         }
         const data = await res.json();
         return { data, error: null };
       }
 
       if (this.method === 'DELETE') {
-        const idFilter = this.filters.find(f => f.startsWith('id='));
+        const idFilter = this.filters.find((f) => f.startsWith('id='));
         const id = idFilter ? idFilter.split('=')[1] : '';
         let deletePath: string;
         if (id) {
@@ -527,7 +778,7 @@ class QueryBuilder {
 // =============================================
 const storage = {
   from(bucket: string) {
-    const normalizePath = (p: string) => p.replace(/^\/+/, "");
+    const normalizePath = (p: string) => p.replace(/^\/+/, '');
     return {
       async upload(path: string, file: File, _options?: { upsert?: boolean }) {
         const formData = new FormData();
@@ -560,7 +811,7 @@ const storage = {
         return { data: {}, error: null };
       },
 
-      async list(prefix: string = "", _options?: any) {
+      async list(prefix: string = '', _options?: any) {
         const res = await apiFetch(`/storage/${bucket}/list?prefix=${encodeURIComponent(prefix)}`);
         if (!res.ok) {
           const err = await res.json();

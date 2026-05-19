@@ -1,7 +1,8 @@
 import { createContext, useContext } from "react";
 import { useEffect, useState } from "react";
-import { useNavigate, Outlet } from "react-router-dom";
+import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { auth as api } from "@/lib/api";
+import { apiClient } from "@/lib/apiClient";
 import { toast } from "sonner";
 import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -36,11 +37,31 @@ const ROLE_LABELS: Record<string, string> = {
   viewer: "Viewer",
 };
 
+const CORE_ALLOWED_PATHS = [
+  "/admin",
+  "/admin/bookings",
+  "/admin/transport-booking",
+  "/admin/umrah-orders",
+  "/admin/visa",
+  "/admin/hotels",
+  "/admin/catering",
+  "/admin/invoices",
+  "/admin/payments",
+  "/admin/reports",
+  "/admin/settings",
+];
+
+const isCoreAllowedRoute = (pathname: string) => {
+  return CORE_ALLOWED_PATHS.some((allowed) => pathname === allowed || pathname.startsWith(`${allowed}/`));
+};
+
 export default function AdminLayout() {
   useSessionTimeout();
   const navigate = useNavigate();
+  const location = useLocation();
   const [role, setRole] = useState<AppRole>(null);
   const [loading, setLoading] = useState(true);
+  const [coreOnlyMode, setCoreOnlyMode] = useState(true);
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -72,6 +93,21 @@ export default function AdminLayout() {
         else if (roles.includes("viewer")) setRole("viewer");
         else { toast.error("Access denied"); navigate("/dashboard", { replace: true }); return; }
 
+        try {
+          const { data: shellConfig } = await apiClient
+            .from("company_settings")
+            .select("setting_value")
+            .eq("setting_key", "admin_shell_config")
+            .maybeSingle();
+
+          const cfg = (shellConfig as any)?.setting_value;
+          if (cfg && typeof cfg === "object" && cfg.core_only_mode === false) {
+            setCoreOnlyMode(false);
+          }
+        } catch {
+          // keep safe default: core-only mode on
+        }
+
         setLoading(false);
       } catch {
         navigate("/auth", { replace: true });
@@ -79,6 +115,16 @@ export default function AdminLayout() {
     };
     checkAccess();
   }, [navigate]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (role === "cms") return;
+    if (!coreOnlyMode) return;
+    if (isCoreAllowedRoute(location.pathname)) return;
+
+    toast.info("This module is hidden in Core Admin mode.");
+    navigate("/admin", { replace: true });
+  }, [coreOnlyMode, loading, location.pathname, navigate, role]);
 
   if (loading) {
     return (

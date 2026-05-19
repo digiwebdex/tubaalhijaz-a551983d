@@ -3,9 +3,12 @@ import { apiClient } from "@/lib/apiClient";
 import { toast } from "sonner";
 import { Loader2, Coins } from "lucide-react";
 
+type CurrencyDefault = "BDT" | "SAR";
+
 export default function CurrencyRateSettings() {
   const [rate, setRate] = useState("30");
   const [showDual, setShowDual] = useState(true);
+  const [defaultInvoiceCurrency, setDefaultInvoiceCurrency] = useState<CurrencyDefault>("BDT");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -19,6 +22,7 @@ export default function CurrencyRateSettings() {
         const v = (data as any)?.setting_value || {};
         setRate(String(v.sar_to_bdt ?? 30));
         setShowDual(v.show_dual_currency !== false);
+        setDefaultInvoiceCurrency(v.default_invoice_currency === "SAR" ? "SAR" : "BDT");
         setLoading(false);
       });
   }, []);
@@ -30,21 +34,42 @@ export default function CurrencyRateSettings() {
       return;
     }
     setSaving(true);
-    const { error } = await apiClient
+
+    const payload = {
+      sar_to_bdt: numRate,
+      show_dual_currency: showDual,
+      default_invoice_currency: defaultInvoiceCurrency,
+    };
+
+    const existing = await apiClient
       .from("company_settings")
-      .update({ setting_value: { sar_to_bdt: numRate, show_dual_currency: showDual } })
-      .eq("setting_key", "currency_rate");
+      .select("id")
+      .eq("setting_key", "currency_rate")
+      .maybeSingle();
+
+    let result;
+    if ((existing.data as any)?.id) {
+      result = await apiClient
+        .from("company_settings")
+        .update({ setting_value: payload })
+        .eq("id", (existing.data as any).id);
+    } else {
+      result = await apiClient
+        .from("company_settings")
+        .insert({ setting_key: "currency_rate", setting_value: payload });
+    }
+
     setSaving(false);
-    if (error) return toast.error(error.message);
+    if (result.error) return toast.error(result.error.message);
     toast.success("Riyal rate updated");
   };
 
-  if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  if (loading) return <p className="text-sm text-muted-foreground">Loading...</p>;
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Riyal rate set করুন। Booking amount BDT তে save হবে, কিন্তু customer কে SAR + আনুমানিক BDT — দুটোই দেখানো হবে।
+        Configure SAR to BDT conversion and default currency display behavior for statements and invoices.
       </p>
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
@@ -58,7 +83,20 @@ export default function CurrencyRateSettings() {
             className="w-full bg-secondary border border-border rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
           />
         </div>
-        <div className="flex items-center gap-3 pt-7">
+
+        <div>
+          <label className="text-sm font-medium block mb-1.5">Default Invoice Currency</label>
+          <select
+            value={defaultInvoiceCurrency}
+            onChange={(e) => setDefaultInvoiceCurrency((e.target.value === "SAR" ? "SAR" : "BDT") as CurrencyDefault)}
+            className="w-full bg-secondary border border-border rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+          >
+            <option value="BDT">BDT</option>
+            <option value="SAR">SAR</option>
+          </select>
+        </div>
+
+        <div className="flex items-center gap-3 sm:col-span-2">
           <input
             id="dual-currency"
             type="checkbox"
@@ -67,7 +105,7 @@ export default function CurrencyRateSettings() {
             className="h-4 w-4 accent-primary"
           />
           <label htmlFor="dual-currency" className="text-sm font-medium">
-            Customer-facing pages এ SAR + BDT দুটোই দেখাও
+            Show both BDT and SAR on customer-facing screens and PDFs
           </label>
         </div>
       </div>

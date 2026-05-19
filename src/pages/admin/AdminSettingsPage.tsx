@@ -12,6 +12,8 @@ import AdminUserManager from "@/components/admin/AdminUserManager";
 import BackupRestoreManager from "@/components/admin/BackupRestoreManager";
 import AdminPasswordChange from "@/components/admin/AdminPasswordChange";
 import SectionVisibilityManager from "@/components/admin/SectionVisibilityManager";
+import AdminMenuSettingsManager from "@/components/admin/AdminMenuSettingsManager";
+import AdminContentLabelsManager from "@/components/admin/AdminContentLabelsManager";
 
 const inputClass = "w-full bg-secondary border border-border rounded-md px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40";
 
@@ -52,6 +54,8 @@ export default function AdminSettingsPage() {
           <div className="flex flex-wrap gap-2">
             <a href="#password-settings" className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-3 py-2 rounded-md text-sm font-medium">Change Password</a>
             <a href="#section-visibility" className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-3 py-2 rounded-md text-sm font-medium">Website Sections</a>
+            <a href="#admin-menu" className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-3 py-2 rounded-md text-sm font-medium">Sidebar Menu</a>
+            <a href="#content-labels" className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-3 py-2 rounded-md text-sm font-medium">Content Labels</a>
             <a href="#pdf-settings" className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-3 py-2 rounded-md text-sm font-medium">PDF Settings</a>
             <a href="#notification-settings" className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-3 py-2 rounded-md text-sm font-medium">SMS/Email Config</a>
             <a href="#backup-restore" className="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-3 py-2 rounded-md text-sm font-medium">Backup & Restore</a>
@@ -59,21 +63,18 @@ export default function AdminSettingsPage() {
         </section>
       )}
 
-      {/* Password Change (Admin only) */}
       {currentRole === "admin" && (
         <section id="password-settings">
           <AdminPasswordChange />
         </section>
       )}
 
-      {/* User Management (Admin only) */}
       {currentRole === "admin" && (
         <section id="user-management">
           <AdminUserManager />
         </section>
       )}
 
-      {/* Section Visibility (Admin only) */}
       {currentRole === "admin" && (
         <section id="section-visibility">
           <h2 className="font-heading text-xl font-bold flex items-center gap-2 mb-4">
@@ -88,7 +89,28 @@ export default function AdminSettingsPage() {
         </section>
       )}
 
-      {/* Installment Plans */}
+      {currentRole === "admin" && (
+        <section id="admin-menu">
+          <h2 className="font-heading text-xl font-bold flex items-center gap-2 mb-4">
+            <LayoutGrid className="h-5 w-5 text-primary" /> Admin Sidebar Menu
+          </h2>
+          <div className="bg-card border border-border rounded-lg p-5">
+            <AdminMenuSettingsManager />
+          </div>
+        </section>
+      )}
+
+      {currentRole === "admin" && (
+        <section id="content-labels">
+          <h2 className="font-heading text-xl font-bold flex items-center gap-2 mb-4">
+            <FileText className="h-5 w-5 text-primary" /> Report & Document Labels
+          </h2>
+          <div className="bg-card border border-border rounded-lg p-5">
+            <AdminContentLabelsManager />
+          </div>
+        </section>
+      )}
+
       <section>
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-heading text-xl font-bold">Installment Plans</h2>
@@ -119,7 +141,6 @@ export default function AdminSettingsPage() {
         </div>
       </section>
 
-      {/* Notification & Automation Settings (Admin only) */}
       {currentRole === "admin" && (
         <section id="notification-settings">
           <h2 className="font-heading text-xl font-bold flex items-center gap-2 mb-4">
@@ -131,7 +152,6 @@ export default function AdminSettingsPage() {
         </section>
       )}
 
-      {/* Riyal Rate / Currency (Admin only) */}
       {currentRole === "admin" && (
         <section id="currency-rate">
           <h2 className="font-heading text-xl font-bold flex items-center gap-2 mb-4">
@@ -143,7 +163,6 @@ export default function AdminSettingsPage() {
         </section>
       )}
 
-      {/* PDF Company Settings (Admin only) */}
       {currentRole === "admin" && (
         <section id="pdf-settings">
           <h2 className="font-heading text-xl font-bold flex items-center gap-2 mb-4">
@@ -155,7 +174,6 @@ export default function AdminSettingsPage() {
         </section>
       )}
 
-      {/* Signature & Stamp Settings (Admin only) */}
       {currentRole === "admin" && (
         <section>
           <h2 className="font-heading text-xl font-bold flex items-center gap-2 mb-4">
@@ -167,7 +185,6 @@ export default function AdminSettingsPage() {
         </section>
       )}
 
-      {/* Backup & Restore (Admin only) */}
       {currentRole === "admin" && (
         <section id="backup-restore">
           <h2 className="font-heading text-xl font-bold flex items-center gap-2 mb-4">
@@ -179,7 +196,6 @@ export default function AdminSettingsPage() {
         </section>
       )}
 
-      {/* Documents */}
       <section>
         <h2 className="font-heading text-xl font-bold mb-4">Customer Documents</h2>
         <AdminDocumentViewer bookings={bookings} />

@@ -1,26 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BilingualInvoicePdf, type BilingualInvoiceData } from "@/components/admin/BilingualInvoicePdf";
-import { buildServiceInvoiceData } from "@/lib/serviceInvoiceBuilder";
+import { buildServiceInvoiceData, type InvoiceServiceType } from "@/lib/serviceInvoiceBuilder";
 
-export default function AdminBilingualInvoicePage() {
-  const { id } = useParams();
-  const [data, setData] = useState<BilingualInvoiceData | null>(null);
+const ALLOWED: InvoiceServiceType[] = ["booking", "visa", "hotel", "catering", "transport"];
+
+export default function AdminServiceInvoicePage() {
+  const { service, id } = useParams();
   const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<BilingualInvoiceData | null>(null);
+
+  const safeService = useMemo(() => {
+    const s = String(service || "").toLowerCase();
+    return ALLOWED.includes(s as InvoiceServiceType) ? (s as InvoiceServiceType) : null;
+  }, [service]);
 
   useEffect(() => {
     (async () => {
-      if (!id) {
+      if (!safeService || !id) {
         setLoading(false);
         return;
       }
-      const invoice = await buildServiceInvoiceData("booking", id);
+      const invoice = await buildServiceInvoiceData(safeService, id);
       setData(invoice);
       setLoading(false);
     })();
-  }, [id]);
+  }, [safeService, id]);
 
   if (loading) return <div className="p-12 text-center text-muted-foreground">Loading invoice...</div>;
   if (!data) return <div className="p-12 text-center text-muted-foreground">Invoice not found.</div>;
