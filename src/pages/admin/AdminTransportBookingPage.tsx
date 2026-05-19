@@ -229,6 +229,11 @@ export default function AdminTransportBookingPage() {
           )}
         </DialogContent>
       </Dialog>
+      <TransportOrderDialog
+        open={createOpen}
+        onOpenChange={(v) => { setCreateOpen(v); if (!v) fetchAll(); }}
+        service={null}
+      />
     </div>
   );
 }
