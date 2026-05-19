@@ -24,6 +24,7 @@ interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   service: TransportService | null;
+  existing?: any | null;
 }
 
 interface HotelRow {
@@ -73,7 +74,8 @@ const nightsBetween = (a: string, b: string) => {
   return Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
 };
 
-export default function TransportOrderDialog({ open, onOpenChange, service }: Props) {
+export default function TransportOrderDialog({ open, onOpenChange, service, existing }: Props) {
+  const isEdit = !!existing?.id;
   const { language } = useLanguage();
   const isBn = language === "bn";
   const [submitting, setSubmitting] = useState(false);
@@ -114,11 +116,39 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
-    if (service && open) {
+    if (service && open && !isEdit) {
       const t = service.vehicle_type || "";
       setTransportType(t.split("(")[0].trim().toUpperCase());
     }
-  }, [service, open]);
+  }, [service, open, isEdit]);
+
+  useEffect(() => {
+    if (open && existing) {
+      setAgentName(existing.agent_name || "");
+      setAgentCountry(existing.agent_country || "");
+      setUmrahCompany(existing.umrah_company || "");
+      setGroupNumbers(Array.isArray(existing.group_numbers) && existing.group_numbers.length ? existing.group_numbers : [""]);
+      setPackageName(existing.package_name || "");
+      setTravelDate(existing.travel_date || "");
+      if (Array.isArray(existing.hotels) && existing.hotels.length) {
+        setHotels(existing.hotels.map((h: any) => ({
+          city: h.city || "MAKKAH", hotel: h.hotel || "", agreement_no: h.agreement_no || "",
+          check_in: h.check_in || "", check_out: h.check_out || "", rooms: String(h.rooms || ""),
+        })));
+      }
+      setTransportType(existing.transport_type || "");
+      setPilgrimCount(existing.pilgrim_count ? String(existing.pilgrim_count) : "");
+      if (Array.isArray(existing.flights) && existing.flights.length) setFlights(existing.flights);
+      if (Array.isArray(existing.internal_movements) && existing.internal_movements.length) setMovements(existing.internal_movements);
+      setSupMakkah(existing.supervisor_makkah_phone || "");
+      setSupMadinah(existing.supervisor_madinah_phone || "");
+      setOps24(existing.ops_24h_phone || "");
+      setContactName(existing.contact_name || "");
+      setContactPhone(existing.contact_phone || "");
+      setContactEmail(existing.contact_email || "");
+      setNotes(existing.notes || "");
+    }
+  }, [open, existing]);
 
   const reset = () => {
     setAgentName(""); setAgentCountry(""); setUmrahCompany("");
@@ -174,51 +204,64 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
         uid = userData?.user?.id || null;
       } catch {}
 
-      const { data, error } = await (apiClient as any)
-        .from("transport_voucher_orders")
-        .insert({
-          user_id: uid,
-          agent_name: agentName || null,
-          agent_country: agentCountry || null,
-          umrah_company: umrahCompany || null,
-          group_numbers: cleanGroups,
-          package_name: packageName || null,
-          travel_date: travelDate || null,
-          hotels: hotelsPayload,
-          transport_type: transportType || null,
-          pilgrim_count: pilgrimCount ? Number(pilgrimCount) : null,
-          flights,
-          internal_movements: movements,
-          supervisor_makkah_phone: supMakkah || null,
-          supervisor_madinah_phone: supMadinah || null,
-          ops_24h_phone: ops24 || null,
-          contact_name: contactName,
-          contact_phone: contactPhone,
-          contact_email: contactEmail || null,
-          notes: notes || null,
-          status: "pending",
-        })
-        .select()
-        .single();
+      const payload: any = {
+        agent_name: agentName || null,
+        agent_country: agentCountry || null,
+        umrah_company: umrahCompany || null,
+        group_numbers: cleanGroups,
+        package_name: packageName || null,
+        travel_date: travelDate || null,
+        hotels: hotelsPayload,
+        transport_type: transportType || null,
+        pilgrim_count: pilgrimCount ? Number(pilgrimCount) : null,
+        flights,
+        internal_movements: movements,
+        supervisor_makkah_phone: supMakkah || null,
+        supervisor_madinah_phone: supMadinah || null,
+        ops_24h_phone: ops24 || null,
+        contact_name: contactName,
+        contact_phone: contactPhone,
+        contact_email: contactEmail || null,
+        notes: notes || null,
+      };
 
-      if (error) throw error;
+      let data: any = null;
+      if (isEdit) {
+        const { data: upd, error } = await (apiClient as any)
+          .from("transport_voucher_orders")
+          .update(payload)
+          .eq("id", existing.id)
+          .select()
+          .single();
+        if (error) throw error;
+        data = upd;
+      } else {
+        const { data: ins, error } = await (apiClient as any)
+          .from("transport_voucher_orders")
+          .insert({ ...payload, user_id: uid, status: "pending" })
+          .select()
+          .single();
+        if (error) throw error;
+        data = ins;
 
-      // Fire-and-forget admin notification
-      try {
-        await (apiClient as any).functions.invoke("send-notification", {
-          body: {
-            event_type: "transport_voucher_order",
-            subject: `New Transport Voucher Booking — ${transportType}`,
-            message: `New booking from ${contactName} (${contactPhone}). Groups: ${cleanGroups.join(", ")}. Package: ${packageName}. Pilgrims: ${pilgrimCount}.`,
-            booking_ref: data?.id,
-          },
-        });
-      } catch { /* non-fatal */ }
-
+        // Fire-and-forget admin notification (new bookings only)
+        try {
+          await (apiClient as any).functions.invoke("send-notification", {
+            body: {
+              event_type: "transport_voucher_order",
+              subject: `New Transport Voucher Booking — ${transportType}`,
+              message: `New booking from ${contactName} (${contactPhone}). Groups: ${cleanGroups.join(", ")}. Package: ${packageName}. Pilgrims: ${pilgrimCount}.`,
+              booking_ref: data?.id,
+            },
+          });
+        } catch { /* non-fatal */ }
+      }
 
       const ref = (data?.id as string)?.slice(0, 8).toUpperCase() || "OK";
       setSuccess(ref);
-      toast.success(isBn ? "বুকিং সফল হয়েছে" : "Booking submitted successfully");
+      toast.success(isEdit
+        ? (isBn ? "বুকিং আপডেট হয়েছে" : "Booking updated successfully")
+        : (isBn ? "বুকিং সফল হয়েছে" : "Booking submitted successfully"));
     } catch (err: any) {
       toast.error(err?.message || (isBn ? "সাবমিট ব্যর্থ হয়েছে" : "Submission failed"));
     } finally {
@@ -237,7 +280,9 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
         <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 border-b shrink-0">
           <div className="flex items-center justify-between gap-4">
             <DialogTitle className="font-heading text-xl">
-              {isBn ? "ট্রান্সপোর্ট ভাউচার বুকিং" : "Transport Voucher Booking"}
+              {isEdit
+                ? (isBn ? "ট্রান্সপোর্ট বুকিং এডিট" : "Edit Transport Booking")
+                : (isBn ? "ট্রান্সপোর্ট ভাউচার বুকিং" : "Transport Voucher Booking")}
             </DialogTitle>
             <span dir="rtl" className="text-base font-semibold">قسيمة النقل</span>
           </div>
@@ -493,7 +538,9 @@ export default function TransportOrderDialog({ open, onOpenChange, service }: Pr
               </Button>
               <Button type="submit" disabled={submitting}>
                 {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                {isBn ? "বুকিং সাবমিট করুন" : "Submit Booking"}
+                {isEdit
+                  ? (isBn ? "আপডেট করুন" : "Update Booking")
+                  : (isBn ? "বুকিং সাবমিট করুন" : "Submit Booking")}
               </Button>
             </div>
           </form>

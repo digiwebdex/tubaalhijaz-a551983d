@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye, Printer, CheckCircle2, XCircle, Trash2, RefreshCw, Loader2, Plus } from "lucide-react";
+import { Eye, Printer, Download, Pencil, CheckCircle2, XCircle, Trash2, RefreshCw, Loader2, Plus } from "lucide-react";
 import { format } from "date-fns";
 import TransportVoucherDetailView from "@/components/admin/TransportVoucherDetailView";
 import TransportOrderDialog from "@/components/TransportOrderDialog";
@@ -39,6 +39,7 @@ export default function AdminTransportBookingPage() {
   const [loading, setLoading] = useState(false);
   const [detail, setDetail] = useState<any | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [editRow, setEditRow] = useState<any | null>(null);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -160,9 +161,17 @@ export default function AdminTransportBookingPage() {
                       <Button size="sm" variant="ghost" title="View" onClick={() => setDetail(r)}>
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button size="sm" variant="ghost" title="Print / PDF" asChild>
+                      <Button size="sm" variant="ghost" title="Edit" onClick={() => setEditRow(r)}>
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" variant="ghost" title="Print" asChild>
                         <Link to={`/admin/transport-booking/${r.id}/invoice`} target="_blank">
                           <Printer className="w-4 h-4" />
+                        </Link>
+                      </Button>
+                      <Button size="sm" variant="ghost" title="Download PDF" asChild>
+                        <Link to={`/admin/transport-booking/${r.id}/invoice?download=1`} target="_blank">
+                          <Download className="w-4 h-4" />
                         </Link>
                       </Button>
                       {(r.status === "pending" || !r.status) && (
@@ -207,9 +216,17 @@ export default function AdminTransportBookingPage() {
             <div className="space-y-4">
               <TransportVoucherDetailView row={detail} />
               <div className="flex flex-wrap gap-2 justify-end pt-2 border-t">
+                <Button variant="outline" onClick={() => { setEditRow(detail); setDetail(null); }}>
+                  <Pencil className="w-4 h-4 mr-1" /> Edit
+                </Button>
                 <Button variant="outline" asChild>
                   <Link to={`/admin/transport-booking/${detail.id}/invoice`} target="_blank">
-                    <Printer className="w-4 h-4 mr-1" /> Print / PDF
+                    <Printer className="w-4 h-4 mr-1" /> Print
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link to={`/admin/transport-booking/${detail.id}/invoice?download=1`} target="_blank">
+                    <Download className="w-4 h-4 mr-1" /> Download PDF
                   </Link>
                 </Button>
                 {(detail.status === "pending" || !detail.status) && (
@@ -233,6 +250,12 @@ export default function AdminTransportBookingPage() {
         open={createOpen}
         onOpenChange={(v) => { setCreateOpen(v); if (!v) fetchAll(); }}
         service={null}
+      />
+      <TransportOrderDialog
+        open={!!editRow}
+        onOpenChange={(v) => { if (!v) { setEditRow(null); fetchAll(); } }}
+        service={null}
+        existing={editRow}
       />
     </div>
   );
