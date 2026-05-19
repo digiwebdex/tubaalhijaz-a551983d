@@ -1,72 +1,84 @@
-## Goal
+# Rebuild Payment Management
 
-Replace the multiple scattered transport-related admin pages with a single **Transport Booking** page that mirrors the customer-facing Transport Voucher Booking form (Group/Package, Hotels, Transport, Flights, Internal Movements, Supervisors, Your Contact) and ships a bilingual (English + Arabic) printable invoice/PDF that includes the customer's information.
+A clean, single-purpose **Customer Payments** module that records receipts against any booking from any service menu (Umrah Orders, Customer Bookings, Hotel, Catering, Transport, Visa, Ticket), with BDT + SAR side-by-side. Moallem and Supplier payments leave this page entirely.
 
-## What gets removed
+## What the new page does
 
-Sidebar entries + routes + page files:
+A single page, no tabs. One table, one "+ New Payment" dialog.
 
-1. `Transport Vouchers` → `/admin/transport-vouchers` → `AdminTransportVouchersPage.tsx`
-2. `Internal Movements` → `/admin/internal-movements` → `AdminInternalMovementsPage.tsx`
-3. Existing `TransportVoucherPdf.tsx` (single-language voucher) — replaced by new bilingual PDF.
+- **Booking picker** searches across all 7 source menus in one combo. Each row shows: `[Service badge] Tracking ID — Customer — Total / Paid / Due`. Only bookings with **due > 0** appear.
+- **Amount section**: two inputs side-by-side — Amount (BDT) and Amount (SAR), both manual, both stored.
+- **Method + Wallet Account + Date + Transaction ID + Receipt upload** — same fields as today.
+- **Auto-fill** customer name/phone from the selected booking; cannot be edited from the dialog.
+- **Filters**: date range, service type, status, customer search.
+- **Row actions**: View details, Edit, Delete, Print receipt.
 
-Kept as-is (out of scope, different feature):
-- `Transport` (`/admin/transport`) — manages the transport **services catalogue** shown on the website (vehicles list, prices). Not a booking page; we leave it untouched unless you say otherwise.
-- `Pending Bookings` — keeps the existing transport detail view; clicking through will deep-link to the new Transport Booking page.
+## Data model changes (the important part)
 
-## What gets built
+The current `payments` table is hard-bound to `bookings.id` via FK. To accept receipts from 7 different source tables, we make it polymorphic:
 
-### 1. New page: `Transport Booking`
-- Sidebar: single new item **"Transport Booking"** → `/admin/transport-booking`.
-- File: `src/pages/admin/AdminTransportBookingPage.tsx`.
-- Two states:
-  - **List view** — table of all `transport_voucher_orders` rows: Tracking, Customer, Group, Pilgrims, Travel Date, Status, Actions (View / Print / Confirm / Cancel / Delete).
-  - **Detail view** — opens a sectioned read-only "table" that mirrors the customer form 1-to-1, with bilingual labels (EN left, AR right) for every section and field:
-    1. Group / Package — المجموعة / الباقة
-    2. Hotels — الفنادق (Makkah + Madinah rows: Hotel, Agreement no., Check-in, Check-out, Nights, Rooms)
-    3. Transport — النقل (Type, Number of pilgrims)
-    4. Flights — الرحلات (Arrival + Departure: Airport, Date, Time, Flight no., Airline)
-    5. Internal Movements — التحركات الداخلية (rows: Date, Time, From, To)
-    6. Supervisors — المشرفون (Makkah, Madinah, Ops 24h)
-    7. Your Contact — معلومات الاتصال (Full name, Phone, Email, Notes)
-  - Header on the detail view shows the linked **Customer card** (name, phone, email, address, passport if present — pulled from `profiles` when `user_id` is set, otherwise from guest fields on the booking).
+```text
+payments
+├── source_type   text   ('umrah_order' | 'booking' | 'hotel' | 'catering'
+│                          | 'transport' | 'visa' | 'ticket')
+├── source_id     uuid
+├── booking_id    uuid   (nullable, kept for backward-compat where source_type='booking')
+├── amount        numeric  -- BDT (primary)
+├── amount_sar    numeric
+├── ... existing columns
+```
 
-### 2. Bilingual PDF / printable invoice
-- New component: `src/components/admin/TransportBookingBilingualPdf.tsx`.
-- New route: `/admin/transport-booking/:id/invoice` → `AdminTransportBookingInvoicePage.tsx` with **Print / Save PDF** button (same pattern as `AdminBilingualInvoicePage`).
-- Layout: A4, branded header (logo + company info) + "Transport Booking Voucher / إيصال حجز النقل" + tracking ID + issue date.
-- Customer block: name, phone, email, address, passport — bilingual labels.
-- Body: same 7 sections as the detail view, rendered as bordered tables with EN label on the left and AR label on the right of each cell, values centred. Empty/missing rows are hidden.
-- Footer: authorised signature (reuses `pdfSignature` helper) + bilingual terms note.
-- Fonts: existing Noto Sans + Noto Sans Arabic already loaded in the project.
+- Drop the NOT NULL + FK on `booking_id`.
+- Add `source_type`, `source_id`, plus an index.
+- Add `paid_amount` / `due_amount` columns to `umrah_orders`, `hotel_bookings`, `catering_orders`, `transport_orders`, `catering_orders` (the ones missing them). Visa, Ticket, Bookings already track this.
+- Rewrite trigger `on_payment_completed` to:
+  1. Post the ledger entry tagged with `source_type`.
+  2. Update the correct source table's `paid_amount` / `due_amount` based on `source_type`.
+  3. Keep wallet balance update (unchanged).
+- Keep `auto_assign_wallet` trigger as-is.
 
-### 3. Wiring
-- `src/App.tsx` — remove the two old lazy imports + routes, add the two new ones.
-- `src/components/admin/AdminSidebar.tsx` — remove the two old entries, add one **Transport Booking** entry (icon `FileSignature`, same role list as before).
-- `src/pages/admin/AdminPendingBookingsPage.tsx` — keep the existing inline `TransportVoucherDetailView`; the "Open" / tracking link there now navigates to `/admin/transport-booking?id=…`.
-- `src/components/admin/TransportVoucherDetailView.tsx` — kept and reused inside the new detail view (single source of truth for the form-style render).
+## Destructive step (one-time)
 
-## Data
+You confirmed wiping all payment data:
 
-No schema changes. Reads from the existing `transport_voucher_orders` table (`data` JSONB holds the full form payload), plus `profiles` for the linked customer. Confirm/Cancel/Delete reuse the existing endpoints already used by `AdminPendingBookingsPage`.
+- `DELETE FROM payments` (all rows)
+- Reset `paid_amount=0`, `due_amount=total_amount` on `bookings`, `visa_applications`, `ticket_bookings`
+- Recalculate wallet balances via existing `recalculate_wallet_balances()` function
+- Moallem and Supplier payment tables are **untouched** — they keep working from their own pages
 
-## Files touched (summary)
+Counts confirmed: all relevant tables currently have 0 rows, so this is risk-free.
 
-Create
-- `src/pages/admin/AdminTransportBookingPage.tsx`
-- `src/pages/admin/AdminTransportBookingInvoicePage.tsx`
-- `src/components/admin/TransportBookingBilingualPdf.tsx`
+## Other pages that reference `payments` — light updates only
 
-Edit
-- `src/App.tsx`
-- `src/components/admin/AdminSidebar.tsx`
-- `src/pages/admin/AdminPendingBookingsPage.tsx` (link target only)
+These pages read payments for display/reporting. They keep working without changes because the new columns are additive. Where they assume "payment → booking", they'll show "—" for non-booking sources, which is acceptable:
 
-Delete
-- `src/pages/admin/AdminTransportVouchersPage.tsx`
-- `src/pages/admin/AdminInternalMovementsPage.tsx`
-- `src/components/admin/TransportVoucherPdf.tsx`
+- `AdminBookingsPage`, `AdminDueAlertsPage`, `AdminReceivablesPage` — read-only, no changes needed
+- `AdminAccountingPage`, `AdminReportsPage`, `AdminAnalyticsPage`, `AdminDashboardPage` — read-only, will pick up SAR totals if they already use `amount_sar`
+- `AdminCustomersPage`, `AdminMoallemProfilePage`, `CustomerFinancialReport` — read-only
+- `InvoicePage`, `Dashboard` (customer-facing) — read-only
 
-## One thing to confirm
+## Files
 
-The existing `Transport` sidebar item (`/admin/transport`) manages the **transport services catalogue** displayed on the public website (vehicles, capacity, price), which is a different feature from bookings. I plan to leave it untouched. Tell me if you also want this removed/merged.
+**Rewritten**
+- `src/pages/admin/AdminPaymentsPage.tsx` — completely new, ~600 lines, replaces the 1156-line version. Single tab (Customer Payments only), unified booking picker.
+
+**New helper**
+- `src/lib/paymentSources.ts` — fetches due bookings from all 7 sources, normalises into one shape `{ source_type, source_id, label, customer, total, paid, due }`.
+
+**Migration**
+- Schema changes above + DELETE + reset queries + trigger rewrite.
+
+## Out of scope (deliberately removed from this page)
+
+- Moallem payments → stays on `AdminMoallemProfilePage`
+- Supplier payments → stays on `AdminSupplierAgentProfilePage`
+- Commission payments → stays where they are
+
+## Steps
+
+1. Run the migration (schema + wipe + trigger rewrite).
+2. Add `src/lib/paymentSources.ts`.
+3. Rewrite `src/pages/admin/AdminPaymentsPage.tsx`.
+4. Sanity-test: create one payment against an Umrah Order and one against a Visa Application, verify wallet + source's paid/due update.
+
+Once you approve, I'll start with the migration.
