@@ -254,13 +254,14 @@ export default function AdminPaymentsPage() {
           moallem_id: addForm.moallem_id,
           booking_id: addForm.booking_id || null,
           amount: parseFloat(addForm.amount),
+          amount_sar: parseFloat(addForm.amount_sar || "0") || 0,
           payment_method: addForm.payment_method,
           date: addForm.paid_date,
           notes: combinedNotes,
           wallet_account_id: addForm.wallet_account_id || null,
           recorded_by: session?.user?.id || null,
           receipt_file_path: receiptPath,
-        });
+        } as any);
         if (error) throw error;
         toast.success("Moallem payment added successfully");
         setShowAddModal(false);
