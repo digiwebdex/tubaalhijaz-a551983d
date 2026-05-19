@@ -1016,7 +1016,7 @@ export default function AdminPaymentsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div><span className="text-muted-foreground text-xs block">Booking</span><span className="font-mono font-medium">{viewPayment._trackingId}</span></div>
                 <div><span className="text-muted-foreground text-xs block">Name</span><span className="font-medium">{viewPayment._displayName}</span></div>
-                <div><span className="text-muted-foreground text-xs block">Amount</span><span className="font-bold text-primary">{formatBDT(viewPayment._amount)}</span></div>
+                <div><span className="text-muted-foreground text-xs block">Amount</span><span className="font-bold text-primary">{formatBDT(viewPayment._amount)}</span>{Number(viewPayment.amount_sar) > 0 && <span className="block text-[11px] text-muted-foreground">{formatSAR(viewPayment.amount_sar)}</span>}</div>
                 <div><span className="text-muted-foreground text-xs block">Method</span><span className="font-medium capitalize">{viewPayment.payment_method || "—"}</span></div>
                 {viewPayment._type === "customer" && (
                   <>
