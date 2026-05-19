@@ -368,7 +368,6 @@ export default function AdminPaymentsPage() {
     try {
       const company = await getCompanyInfoForPdf();
       await generateReceipt(
-        company,
         {
           id: p.id,
           amount: Number(p.amount) || 0,
@@ -379,9 +378,10 @@ export default function AdminPaymentsPage() {
           notes: p.notes || "",
         } as any,
         {
-          bookingId: p.source_id || p.booking_id || "",
-          customerName: "",
-        } as any
+          tracking_id: p.source_id || p.booking_id || p.id,
+        } as any,
+        { full_name: "" } as any,
+        company
       );
     } catch (e: any) {
       toast.error(e?.message || "Failed to generate receipt");
