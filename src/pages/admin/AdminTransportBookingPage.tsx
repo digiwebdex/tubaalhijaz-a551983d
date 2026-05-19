@@ -38,6 +38,7 @@ export default function AdminTransportBookingPage() {
   const [filter, setFilter] = useState<Status | "all">("all");
   const [loading, setLoading] = useState(false);
   const [detail, setDetail] = useState<any | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const fetchAll = async () => {
     setLoading(true);
