@@ -632,7 +632,7 @@ export default function AdminPaymentsPage() {
                         return (
                         <tr key={p.id} className="border-b border-border/30 hover:bg-secondary/20">
                           <td className="py-2.5 px-4 text-xs text-muted-foreground">{i + 1}</td>
-                          <td className="py-2.5 px-4 font-medium">{formatBDT(p.amount)}</td>
+                          <td className="py-2.5 px-4 font-medium">{formatBDT(p.amount)}{Number(p.amount_sar) > 0 && <span className="block text-[11px] text-muted-foreground font-normal">{formatSAR(p.amount_sar)}</span>}</td>
                           <td className="py-2.5 px-4 capitalize text-xs">{p.payment_method || "—"}</td>
                           <td className="py-2.5 px-4 text-xs">{sLabel || "—"}</td>
                           <td className="py-2.5 px-4 text-xs">{p.date ? new Date(p.date).toLocaleDateString() : "—"}</td>
