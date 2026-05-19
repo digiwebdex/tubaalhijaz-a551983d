@@ -123,9 +123,14 @@ export default function AdminInvoicesPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="font-heading text-2xl font-bold">Invoices</h1>
-        <p className="text-sm text-muted-foreground">Unified invoice center for booking, visa, hotel, transport, and catering services.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="font-heading text-2xl font-bold">Invoices</h1>
+          <p className="text-sm text-muted-foreground">Unified invoice center for booking, visa, hotel, transport, and catering services.</p>
+        </div>
+        <Button onClick={handleCreate} size="sm" className="bg-[#0F4C3A] hover:bg-[#1a6b50]">
+          <Plus className="h-4 w-4 mr-1" /> {createLabel[tab]}
+        </Button>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -141,6 +146,7 @@ export default function AdminInvoicesPage() {
           </Button>
         ))}
       </div>
+
 
       <Card>
         <CardHeader>
