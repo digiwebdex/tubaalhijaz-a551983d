@@ -39,6 +39,7 @@ export default function AdminTransportBookingPage() {
   const [loading, setLoading] = useState(false);
   const [detail, setDetail] = useState<any | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [editRow, setEditRow] = useState<any | null>(null);
 
   const fetchAll = async () => {
     setLoading(true);
