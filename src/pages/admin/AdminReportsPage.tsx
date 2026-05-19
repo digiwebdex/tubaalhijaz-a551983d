@@ -6,8 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileDown, Printer, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 
 type StatementEntry = {
   id: string;
@@ -27,6 +25,7 @@ type StatementEntry = {
 };
 
 const DEFAULT_RATE = 30;
+const QUERY_TIMEOUT_MS = 1200;
 const SERVICE_LABELS = {
   umrah: "Umrah Booking",
   visa: "Visa Booking",
@@ -112,7 +111,7 @@ const deriveDualAmounts = ({
 };
 
 export default function AdminReportsPage() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [rate, setRate] = useState(DEFAULT_RATE);
   const [labels, setLabels] = useState(DEFAULT_LABELS);
@@ -141,12 +140,18 @@ export default function AdminReportsPage() {
     else setLoading(true);
 
     const safe = async (p: any): Promise<{ data: any }> => {
+      let timer: ReturnType<typeof setTimeout> | null = null;
       try {
-        const r = await Promise.resolve(p);
+        const timeout = new Promise<{ data: any }>((resolve) => {
+          timer = setTimeout(() => resolve({ data: [] }), QUERY_TIMEOUT_MS);
+        });
+        const r = await Promise.race([Promise.resolve(p), timeout]);
         return r ?? { data: [] };
       } catch (e) {
         console.warn("[Statement] query failed:", e);
         return { data: [] };
+      } finally {
+        if (timer) clearTimeout(timer);
       }
     };
 
@@ -663,7 +668,11 @@ export default function AdminReportsPage() {
     return customerOptions.find((c) => c.id === selectedCustomer)?.label || "Customer";
   }, [selectedCustomer, customerOptions]);
 
-  const downloadPdf = () => {
+  const downloadPdf = async () => {
+    const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]);
     const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
 
     doc.setFontSize(14);
