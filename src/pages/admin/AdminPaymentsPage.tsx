@@ -612,7 +612,7 @@ export default function AdminPaymentsPage() {
                     </td>
                     <td className="px-3 py-2 text-right">
                       <AdminActionMenu
-                        items={[
+                        actions={[
                           {
                             label: "View",
                             icon: <Eye className="h-4 w-4" />,
@@ -638,7 +638,7 @@ export default function AdminPaymentsPage() {
                                 {
                                   label: "Delete",
                                   icon: <Trash2 className="h-4 w-4" />,
-                                  destructive: true,
+                                  variant: "destructive" as const,
                                   onClick: () => setDeleteId(p.id),
                                 },
                               ]
