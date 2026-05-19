@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye, Printer, CheckCircle2, XCircle, Trash2, RefreshCw, Loader2 } from "lucide-react";
+import { Eye, Printer, CheckCircle2, XCircle, Trash2, RefreshCw, Loader2, Plus } from "lucide-react";
 import { format } from "date-fns";
 import TransportVoucherDetailView from "@/components/admin/TransportVoucherDetailView";
+import TransportOrderDialog from "@/components/TransportOrderDialog";
 
 type Status = "pending" | "confirmed" | "cancelled" | "completed";
 
@@ -37,6 +38,7 @@ export default function AdminTransportBookingPage() {
   const [filter, setFilter] = useState<Status | "all">("all");
   const [loading, setLoading] = useState(false);
   const [detail, setDetail] = useState<any | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -105,7 +107,7 @@ export default function AdminTransportBookingPage() {
             ট্রান্সপোর্ট ভাউচার বুকিং — কাস্টমার ফর্ম অনুযায়ী একই টেবিল ও বাইলিঙ্গুয়াল ইনভয়েস
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {STATUS_FILTERS.map(f => (
             <Button key={f.value} variant={filter === f.value ? "default" : "outline"} size="sm" onClick={() => setFilter(f.value)}>
               {f.label} ({(counts as any)[f.value] ?? 0})
@@ -113,6 +115,9 @@ export default function AdminTransportBookingPage() {
           ))}
           <Button variant="outline" size="sm" onClick={fetchAll} disabled={loading}>
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+          </Button>
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            <Plus className="w-4 h-4 mr-1" /> Add Transport Booking
           </Button>
         </div>
       </div>
@@ -224,6 +229,11 @@ export default function AdminTransportBookingPage() {
           )}
         </DialogContent>
       </Dialog>
+      <TransportOrderDialog
+        open={createOpen}
+        onOpenChange={(v) => { setCreateOpen(v); if (!v) fetchAll(); }}
+        service={null}
+      />
     </div>
   );
 }
