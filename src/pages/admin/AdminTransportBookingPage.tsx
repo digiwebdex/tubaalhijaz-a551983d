@@ -216,9 +216,17 @@ export default function AdminTransportBookingPage() {
             <div className="space-y-4">
               <TransportVoucherDetailView row={detail} />
               <div className="flex flex-wrap gap-2 justify-end pt-2 border-t">
+                <Button variant="outline" onClick={() => { setEditRow(detail); setDetail(null); }}>
+                  <Pencil className="w-4 h-4 mr-1" /> Edit
+                </Button>
                 <Button variant="outline" asChild>
                   <Link to={`/admin/transport-booking/${detail.id}/invoice`} target="_blank">
-                    <Printer className="w-4 h-4 mr-1" /> Print / PDF
+                    <Printer className="w-4 h-4 mr-1" /> Print
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link to={`/admin/transport-booking/${detail.id}/invoice?download=1`} target="_blank">
+                    <Download className="w-4 h-4 mr-1" /> Download PDF
                   </Link>
                 </Button>
                 {(detail.status === "pending" || !detail.status) && (
