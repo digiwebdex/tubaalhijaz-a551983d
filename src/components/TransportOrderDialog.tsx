@@ -280,7 +280,9 @@ export default function TransportOrderDialog({ open, onOpenChange, service, exis
         <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 border-b shrink-0">
           <div className="flex items-center justify-between gap-4">
             <DialogTitle className="font-heading text-xl">
-              {isBn ? "ট্রান্সপোর্ট ভাউচার বুকিং" : "Transport Voucher Booking"}
+              {isEdit
+                ? (isBn ? "ট্রান্সপোর্ট বুকিং এডিট" : "Edit Transport Booking")
+                : (isBn ? "ট্রান্সপোর্ট ভাউচার বুকিং" : "Transport Voucher Booking")}
             </DialogTitle>
             <span dir="rtl" className="text-base font-semibold">قسيمة النقل</span>
           </div>
