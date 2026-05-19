@@ -56,6 +56,7 @@ const AdminRefundsPage = lazy(() => import("./pages/admin/AdminRefundsPage"));
 const AdminAnalyticsPage = lazy(() => import("./pages/admin/AdminAnalyticsPage"));
 const AdminSeoPage = lazy(() => import("./pages/admin/AdminSeoPage"));
 const AdminPaymentMethodsPage = lazy(() => import("./pages/admin/AdminPaymentMethodsPage"));
+const AdminWalletsPage = lazy(() => import("./pages/admin/AdminWalletsPage"));
 const AdminTicketsPage = lazy(() => import("./pages/admin/AdminTicketsPage"));
 const AdminVisaPage = lazy(() => import("./pages/admin/AdminVisaPage"));
 const AdminTicketRefundsPage = lazy(() => import("./pages/admin/AdminTicketRefundsPage"));
