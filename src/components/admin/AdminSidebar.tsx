@@ -13,6 +13,7 @@ import {
   Bus,
   ClipboardList,
   CreditCard,
+  Wallet,
 } from "lucide-react";
 import logo from "@/assets/tuba-logo.png";
 import { NavLink } from "@/components/NavLink";
