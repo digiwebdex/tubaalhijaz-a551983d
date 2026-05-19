@@ -12,23 +12,56 @@ const DEFAULT_MENU_CONFIG = {
   system: true,
 };
 
+const upsertCompanySetting = async (settingKey: string, settingValue: any) => {
+  const existing = await apiClient
+    .from("company_settings")
+    .select("id")
+    .eq("setting_key", settingKey)
+    .maybeSingle();
+
+  if ((existing.data as any)?.id) {
+    return apiClient
+      .from("company_settings")
+      .update({ setting_key: settingKey, setting_value: settingValue })
+      .eq("id", (existing.data as any).id);
+  }
+
+  return apiClient
+    .from("company_settings")
+    .insert({ setting_key: settingKey, setting_value: settingValue });
+};
+
 export default function AdminMenuSettingsManager() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [config, setConfig] = useState(DEFAULT_MENU_CONFIG);
+  const [coreOnlyMode, setCoreOnlyMode] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const { data } = await apiClient
-        .from("company_settings")
-        .select("setting_value")
-        .eq("setting_key", "admin_menu_config")
-        .maybeSingle();
+      const [menuRes, shellRes] = await Promise.all([
+        apiClient
+          .from("company_settings")
+          .select("setting_value")
+          .eq("setting_key", "admin_menu_config")
+          .maybeSingle(),
+        apiClient
+          .from("company_settings")
+          .select("setting_value")
+          .eq("setting_key", "admin_shell_config")
+          .maybeSingle(),
+      ]);
 
-      const cfg = (data as any)?.setting_value;
-      if (cfg && typeof cfg === "object") {
-        setConfig({ ...DEFAULT_MENU_CONFIG, ...cfg });
+      const menuCfg = (menuRes.data as any)?.setting_value;
+      if (menuCfg && typeof menuCfg === "object") {
+        setConfig({ ...DEFAULT_MENU_CONFIG, ...menuCfg });
       }
+
+      const shellCfg = (shellRes.data as any)?.setting_value;
+      if (shellCfg && typeof shellCfg === "object") {
+        setCoreOnlyMode(shellCfg.core_only_mode !== false);
+      }
+
       setLoading(false);
     })();
   }, []);
@@ -36,27 +69,16 @@ export default function AdminMenuSettingsManager() {
   const save = async () => {
     setSaving(true);
 
-    const existing = await apiClient
-      .from("company_settings")
-      .select("id")
-      .eq("setting_key", "admin_menu_config")
-      .maybeSingle();
-
-    const payload = {
-      setting_key: "admin_menu_config",
-      setting_value: config,
-    };
-
-    let result;
-    if ((existing.data as any)?.id) {
-      result = await apiClient.from("company_settings").update(payload).eq("setting_key", "admin_menu_config");
-    } else {
-      result = await apiClient.from("company_settings").insert(payload);
-    }
+    const [menuSave, shellSave] = await Promise.all([
+      upsertCompanySetting("admin_menu_config", config),
+      upsertCompanySetting("admin_shell_config", { core_only_mode: coreOnlyMode }),
+    ]);
 
     setSaving(false);
-    if (result.error) {
-      toast.error(result.error.message);
+
+    const error = menuSave.error || shellSave.error;
+    if (error) {
+      toast.error(error.message);
       return;
     }
 
@@ -67,7 +89,19 @@ export default function AdminMenuSettingsManager() {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">Control which core sections appear in the streamlined admin sidebar.</p>
+      <p className="text-sm text-muted-foreground">
+        Control which sections appear in the streamlined admin sidebar and whether legacy routes are blocked.
+      </p>
+
+      <label className="flex items-center justify-between bg-secondary/50 border border-border rounded-md px-3 py-2">
+        <span className="text-sm">Core-only route mode (hide legacy modules)</span>
+        <input
+          type="checkbox"
+          checked={coreOnlyMode}
+          onChange={(e) => setCoreOnlyMode(e.target.checked)}
+          className="h-4 w-4 accent-primary"
+        />
+      </label>
 
       <div className="grid sm:grid-cols-2 gap-3">
         {Object.entries(config).map(([key, value]) => (
