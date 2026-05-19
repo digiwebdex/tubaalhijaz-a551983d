@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye, Printer, CheckCircle2, XCircle, Trash2, RefreshCw, Loader2, Plus } from "lucide-react";
+import { Eye, Printer, Download, Pencil, CheckCircle2, XCircle, Trash2, RefreshCw, Loader2, Plus } from "lucide-react";
 import { format } from "date-fns";
 import TransportVoucherDetailView from "@/components/admin/TransportVoucherDetailView";
 import TransportOrderDialog from "@/components/TransportOrderDialog";
