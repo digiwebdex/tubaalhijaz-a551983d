@@ -710,12 +710,14 @@ export type Database = {
           customer_id: string | null
           days: number
           delivery_address: string | null
+          due_amount: number
           guest_email: string | null
           guest_name: string | null
           guest_phone: string | null
           id: string
           notes: string | null
           package_id: string | null
+          paid_amount: number
           persons: number
           start_date: string | null
           status: string
@@ -733,12 +735,14 @@ export type Database = {
           customer_id?: string | null
           days?: number
           delivery_address?: string | null
+          due_amount?: number
           guest_email?: string | null
           guest_name?: string | null
           guest_phone?: string | null
           id?: string
           notes?: string | null
           package_id?: string | null
+          paid_amount?: number
           persons?: number
           start_date?: string | null
           status?: string
@@ -756,12 +760,14 @@ export type Database = {
           customer_id?: string | null
           days?: number
           delivery_address?: string | null
+          due_amount?: number
           guest_email?: string | null
           guest_name?: string | null
           guest_phone?: string | null
           id?: string
           notes?: string | null
           package_id?: string | null
+          paid_amount?: number
           persons?: number
           start_date?: string | null
           status?: string
@@ -1120,10 +1126,12 @@ export type Database = {
           check_in: string
           check_out: string
           created_at: string
+          due_amount: number
           guests: number
           hotel_id: string
           id: string
           notes: string | null
+          paid_amount: number
           room_id: string
           status: string
           total_price: number
@@ -1134,10 +1142,12 @@ export type Database = {
           check_in: string
           check_out: string
           created_at?: string
+          due_amount?: number
           guests?: number
           hotel_id: string
           id?: string
           notes?: string | null
+          paid_amount?: number
           room_id: string
           status?: string
           total_price: number
@@ -1148,10 +1158,12 @@ export type Database = {
           check_in?: string
           check_out?: string
           created_at?: string
+          due_amount?: number
           guests?: number
           hotel_id?: string
           id?: string
           notes?: string | null
+          paid_amount?: number
           room_id?: string
           status?: string
           total_price?: number
@@ -2095,7 +2107,7 @@ export type Database = {
         Row: {
           amount: number
           amount_sar: number
-          booking_id: string
+          booking_id: string | null
           created_at: string
           customer_id: string | null
           due_date: string | null
@@ -2105,6 +2117,8 @@ export type Database = {
           paid_at: string | null
           payment_method: string | null
           receipt_file_path: string | null
+          source_id: string | null
+          source_type: string | null
           status: string
           transaction_id: string | null
           user_id: string
@@ -2113,7 +2127,7 @@ export type Database = {
         Insert: {
           amount: number
           amount_sar?: number
-          booking_id: string
+          booking_id?: string | null
           created_at?: string
           customer_id?: string | null
           due_date?: string | null
@@ -2123,6 +2137,8 @@ export type Database = {
           paid_at?: string | null
           payment_method?: string | null
           receipt_file_path?: string | null
+          source_id?: string | null
+          source_type?: string | null
           status?: string
           transaction_id?: string | null
           user_id: string
@@ -2131,7 +2147,7 @@ export type Database = {
         Update: {
           amount?: number
           amount_sar?: number
-          booking_id?: string
+          booking_id?: string | null
           created_at?: string
           customer_id?: string | null
           due_date?: string | null
@@ -2141,26 +2157,14 @@ export type Database = {
           paid_at?: string | null
           payment_method?: string | null
           receipt_file_path?: string | null
+          source_id?: string | null
+          source_type?: string | null
           status?: string
           transaction_id?: string | null
           user_id?: string
           wallet_account_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "payments_booking_id_fkey"
-            columns: ["booking_id"]
-            isOneToOne: false
-            referencedRelation: "bookings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payments_booking_id_fkey"
-            columns: ["booking_id"]
-            isOneToOne: false
-            referencedRelation: "v_booking_profit"
-            referencedColumns: ["booking_id"]
-          },
           {
             foreignKeyName: "payments_wallet_account_id_fkey"
             columns: ["wallet_account_id"]
@@ -3269,6 +3273,7 @@ export type Database = {
           created_at: string
           currency: string
           dropoff_address: string | null
+          due_amount: number
           flight_number: string | null
           guest_email: string | null
           guest_name: string
@@ -3278,6 +3283,7 @@ export type Database = {
           madinah_hotel_name: string | null
           makkah_hotel_name: string | null
           notes: string | null
+          paid_amount: number
           passengers: number
           pickup_address: string | null
           pickup_date: string | null
@@ -3298,6 +3304,7 @@ export type Database = {
           created_at?: string
           currency?: string
           dropoff_address?: string | null
+          due_amount?: number
           flight_number?: string | null
           guest_email?: string | null
           guest_name: string
@@ -3307,6 +3314,7 @@ export type Database = {
           madinah_hotel_name?: string | null
           makkah_hotel_name?: string | null
           notes?: string | null
+          paid_amount?: number
           passengers?: number
           pickup_address?: string | null
           pickup_date?: string | null
@@ -3327,6 +3335,7 @@ export type Database = {
           created_at?: string
           currency?: string
           dropoff_address?: string | null
+          due_amount?: number
           flight_number?: string | null
           guest_email?: string | null
           guest_name?: string
@@ -3336,6 +3345,7 @@ export type Database = {
           madinah_hotel_name?: string | null
           makkah_hotel_name?: string | null
           notes?: string | null
+          paid_amount?: number
           passengers?: number
           pickup_address?: string | null
           pickup_date?: string | null
@@ -3508,6 +3518,7 @@ export type Database = {
           catering_package_id: string | null
           created_at: string
           customer_id: string | null
+          due_amount: number
           estimated_price_bdt: number
           estimated_price_sar: number
           guest_email: string | null
@@ -3522,6 +3533,7 @@ export type Database = {
           madinah_nights: number
           makkah_nights: number
           num_travelers: number
+          paid_amount: number
           passport_ready: boolean
           program_tier: string
           room_type: string | null
@@ -3538,6 +3550,7 @@ export type Database = {
           catering_package_id?: string | null
           created_at?: string
           customer_id?: string | null
+          due_amount?: number
           estimated_price_bdt?: number
           estimated_price_sar?: number
           guest_email?: string | null
@@ -3552,6 +3565,7 @@ export type Database = {
           madinah_nights?: number
           makkah_nights?: number
           num_travelers?: number
+          paid_amount?: number
           passport_ready?: boolean
           program_tier?: string
           room_type?: string | null
@@ -3568,6 +3582,7 @@ export type Database = {
           catering_package_id?: string | null
           created_at?: string
           customer_id?: string | null
+          due_amount?: number
           estimated_price_bdt?: number
           estimated_price_sar?: number
           guest_email?: string | null
@@ -3582,6 +3597,7 @@ export type Database = {
           madinah_nights?: number
           makkah_nights?: number
           num_travelers?: number
+          paid_amount?: number
           passport_ready?: boolean
           program_tier?: string
           room_type?: string | null
