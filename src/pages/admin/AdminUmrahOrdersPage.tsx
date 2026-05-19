@@ -97,10 +97,22 @@ export default function AdminUmrahOrdersPage() {
           <h1 className="font-heading text-2xl font-bold">Umrah Orders</h1>
           <p className="text-sm text-muted-foreground">Online quote requests submitted from the website.</p>
         </div>
-        <button onClick={exportCsv} className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-border text-sm hover:bg-muted">
-          <Download className="h-4 w-4" /> Export CSV
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {!isViewer && (
+            <button onClick={() => setCreateOpen(true)} className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90">
+              <Plus className="h-4 w-4" /> Add Umrah Order
+            </button>
+          )}
+          <button onClick={exportCsv} className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-border text-sm hover:bg-muted">
+            <Download className="h-4 w-4" /> Export CSV
+          </button>
+        </div>
       </div>
+
+      <UmrahOrderDialog
+        open={createOpen}
+        onOpenChange={(v) => { setCreateOpen(v); if (!v) fetchAll(); }}
+      />
 
       <div className="flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-[220px]">
