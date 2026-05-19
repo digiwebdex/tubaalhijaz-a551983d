@@ -42,9 +42,11 @@ function deriveDual({
 }
 
 export default function AdminInvoicesPage() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<ServiceKey>("booking");
   const [loading, setLoading] = useState(true);
   const [sarRate, setSarRate] = useState(30);
+  const [createOpen, setCreateOpen] = useState(false);
   const [rows, setRows] = useState<Record<ServiceKey, any[]>>({
     booking: [],
     visa: [],
@@ -52,6 +54,24 @@ export default function AdminInvoicesPage() {
     hotel: [],
     transport: [],
   });
+
+  const createLabel: Record<ServiceKey, string> = {
+    booking: "Add Umrah Booking",
+    visa: "Add Visa Booking",
+    hotel: "Add Hotel Booking",
+    transport: "Add Transport Booking",
+    catering: "Add Catering Order",
+  };
+
+  const handleCreate = () => {
+    if (tab === "hotel") {
+      navigate("/admin/hotels");
+      return;
+    }
+    setCreateOpen(true);
+  };
+
+
 
   useEffect(() => {
     (async () => {
