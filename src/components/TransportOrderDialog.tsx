@@ -24,6 +24,7 @@ interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   service: TransportService | null;
+  existing?: any | null;
 }
 
 interface HotelRow {
