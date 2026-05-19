@@ -684,7 +684,12 @@ export default function AdminPaymentsPage() {
                     <td className="py-3 pr-4"><span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${badge.cls}`}>{badge.label}</span></td>
                     <td className="py-3 pr-4 font-mono text-xs">{p._trackingId}</td>
                     <td className="py-3 pr-4 text-xs">{p._displayName}</td>
-                    <td className="py-3 pr-4"><input className={inputClass + " w-24"} type="number" value={editForm.amount} onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })} /></td>
+                    <td className="py-3 pr-4">
+                      <div className="flex flex-col gap-1">
+                        <input className={inputClass + " w-24"} type="number" placeholder="BDT" value={editForm.amount} onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })} />
+                        <input className={inputClass + " w-24"} type="number" placeholder="SAR" value={editForm.amount_sar ?? ""} onChange={(e) => setEditForm({ ...editForm, amount_sar: e.target.value })} />
+                      </div>
+                    </td>
                     <td className="py-3 pr-4">
                       <select className={inputClass + " w-24"} value={editForm.payment_method} onChange={(e) => setEditForm({ ...editForm, payment_method: e.target.value })}>
                         {PAYMENT_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
