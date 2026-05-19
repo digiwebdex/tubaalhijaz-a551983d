@@ -58,6 +58,7 @@ const servicesMenu = [
 const financeMenu = [
   { title: "Invoices", url: "/admin/invoices", icon: Receipt, roles: ["admin", "accountant", "booking", "viewer"] },
   { title: "Payments", url: "/admin/payments", icon: CreditCard, roles: ["admin", "accountant", "viewer"] },
+  { title: "Wallet Accounts", url: "/admin/wallets", icon: Wallet, roles: ["admin", "accountant"] },
 ];
 
 const reportMenu = [
