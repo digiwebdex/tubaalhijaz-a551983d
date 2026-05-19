@@ -74,7 +74,8 @@ const nightsBetween = (a: string, b: string) => {
   return Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
 };
 
-export default function TransportOrderDialog({ open, onOpenChange, service }: Props) {
+export default function TransportOrderDialog({ open, onOpenChange, service, existing }: Props) {
+  const isEdit = !!existing?.id;
   const { language } = useLanguage();
   const isBn = language === "bn";
   const [submitting, setSubmitting] = useState(false);
