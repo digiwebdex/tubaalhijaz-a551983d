@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { apiClient } from "@/lib/apiClient";
 import { Button } from "@/components/ui/button";
 import { Printer, ArrowLeft } from "lucide-react";
@@ -10,6 +10,8 @@ import {
 
 export default function AdminTransportBookingInvoicePage() {
   const { id } = useParams();
+  const [search] = useSearchParams();
+  const autoDownload = search.get("download") === "1";
   const [data, setData] = useState<TransportBookingPdfData | null>(null);
   const [loading, setLoading] = useState(true);
 
