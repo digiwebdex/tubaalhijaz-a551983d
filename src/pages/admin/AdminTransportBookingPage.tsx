@@ -251,6 +251,12 @@ export default function AdminTransportBookingPage() {
         onOpenChange={(v) => { setCreateOpen(v); if (!v) fetchAll(); }}
         service={null}
       />
+      <TransportOrderDialog
+        open={!!editRow}
+        onOpenChange={(v) => { if (!v) { setEditRow(null); fetchAll(); } }}
+        service={null}
+        existing={editRow}
+      />
     </div>
   );
 }
