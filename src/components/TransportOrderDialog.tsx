@@ -204,51 +204,64 @@ export default function TransportOrderDialog({ open, onOpenChange, service, exis
         uid = userData?.user?.id || null;
       } catch {}
 
-      const { data, error } = await (apiClient as any)
-        .from("transport_voucher_orders")
-        .insert({
-          user_id: uid,
-          agent_name: agentName || null,
-          agent_country: agentCountry || null,
-          umrah_company: umrahCompany || null,
-          group_numbers: cleanGroups,
-          package_name: packageName || null,
-          travel_date: travelDate || null,
-          hotels: hotelsPayload,
-          transport_type: transportType || null,
-          pilgrim_count: pilgrimCount ? Number(pilgrimCount) : null,
-          flights,
-          internal_movements: movements,
-          supervisor_makkah_phone: supMakkah || null,
-          supervisor_madinah_phone: supMadinah || null,
-          ops_24h_phone: ops24 || null,
-          contact_name: contactName,
-          contact_phone: contactPhone,
-          contact_email: contactEmail || null,
-          notes: notes || null,
-          status: "pending",
-        })
-        .select()
-        .single();
+      const payload: any = {
+        agent_name: agentName || null,
+        agent_country: agentCountry || null,
+        umrah_company: umrahCompany || null,
+        group_numbers: cleanGroups,
+        package_name: packageName || null,
+        travel_date: travelDate || null,
+        hotels: hotelsPayload,
+        transport_type: transportType || null,
+        pilgrim_count: pilgrimCount ? Number(pilgrimCount) : null,
+        flights,
+        internal_movements: movements,
+        supervisor_makkah_phone: supMakkah || null,
+        supervisor_madinah_phone: supMadinah || null,
+        ops_24h_phone: ops24 || null,
+        contact_name: contactName,
+        contact_phone: contactPhone,
+        contact_email: contactEmail || null,
+        notes: notes || null,
+      };
 
-      if (error) throw error;
+      let data: any = null;
+      if (isEdit) {
+        const { data: upd, error } = await (apiClient as any)
+          .from("transport_voucher_orders")
+          .update(payload)
+          .eq("id", existing.id)
+          .select()
+          .single();
+        if (error) throw error;
+        data = upd;
+      } else {
+        const { data: ins, error } = await (apiClient as any)
+          .from("transport_voucher_orders")
+          .insert({ ...payload, user_id: uid, status: "pending" })
+          .select()
+          .single();
+        if (error) throw error;
+        data = ins;
 
-      // Fire-and-forget admin notification
-      try {
-        await (apiClient as any).functions.invoke("send-notification", {
-          body: {
-            event_type: "transport_voucher_order",
-            subject: `New Transport Voucher Booking — ${transportType}`,
-            message: `New booking from ${contactName} (${contactPhone}). Groups: ${cleanGroups.join(", ")}. Package: ${packageName}. Pilgrims: ${pilgrimCount}.`,
-            booking_ref: data?.id,
-          },
-        });
-      } catch { /* non-fatal */ }
-
+        // Fire-and-forget admin notification (new bookings only)
+        try {
+          await (apiClient as any).functions.invoke("send-notification", {
+            body: {
+              event_type: "transport_voucher_order",
+              subject: `New Transport Voucher Booking — ${transportType}`,
+              message: `New booking from ${contactName} (${contactPhone}). Groups: ${cleanGroups.join(", ")}. Package: ${packageName}. Pilgrims: ${pilgrimCount}.`,
+              booking_ref: data?.id,
+            },
+          });
+        } catch { /* non-fatal */ }
+      }
 
       const ref = (data?.id as string)?.slice(0, 8).toUpperCase() || "OK";
       setSuccess(ref);
-      toast.success(isBn ? "বুকিং সফল হয়েছে" : "Booking submitted successfully");
+      toast.success(isEdit
+        ? (isBn ? "বুকিং আপডেট হয়েছে" : "Booking updated successfully")
+        : (isBn ? "বুকিং সফল হয়েছে" : "Booking submitted successfully"));
     } catch (err: any) {
       toast.error(err?.message || (isBn ? "সাবমিট ব্যর্থ হয়েছে" : "Submission failed"));
     } finally {
