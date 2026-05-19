@@ -30,8 +30,7 @@ const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
 const UmrahGuide = lazy(() => import("./pages/UmrahGuide"));
 const PaymentStatus = lazy(() => import("./pages/PaymentStatus"));
 
-
-// Lazy load admin pages (heavy: recharts, xlsx, jspdf)
+// Lazy load admin pages
 const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
 const AdminDashboardPage = lazy(() => import("./pages/admin/AdminDashboardPage"));
 const AdminBookingsPage = lazy(() => import("./pages/admin/AdminBookingsPage"));
@@ -76,6 +75,8 @@ const AdminTransportBookingPage = lazy(() => import("./pages/admin/AdminTranspor
 const AdminTransportBookingInvoicePage = lazy(() => import("./pages/admin/AdminTransportBookingInvoicePage"));
 const AdminPendingBookingsPage = lazy(() => import("./pages/admin/AdminPendingBookingsPage"));
 const AdminBilingualInvoicePage = lazy(() => import("./pages/admin/AdminBilingualInvoicePage"));
+const AdminInvoicesPage = lazy(() => import("./pages/admin/AdminInvoicesPage"));
+const AdminServiceInvoicePage = lazy(() => import("./pages/admin/AdminServiceInvoicePage"));
 const AdminMessageTemplatesPage = lazy(() => import("./pages/admin/AdminMessageTemplatesPage"));
 const AdminOperationsCenterPage = lazy(() => import("./pages/admin/AdminOperationsCenterPage"));
 const AdminGroupManifestPage = lazy(() => import("./pages/admin/AdminGroupManifestPage"));
@@ -99,7 +100,7 @@ const AgentCommissionsPage = lazy(() => import("./pages/agent/AgentCommissionsPa
 const AgentDocumentsPage = lazy(() => import("./pages/agent/AgentDocumentsPage"));
 const AgentOperationsPage = lazy(() => import("./pages/agent/AgentOperationsPage"));
 
-// Driver Portal (mobile field mode)
+// Driver Portal
 const DriverLayout = lazy(() => import("./components/driver/DriverLayout"));
 const DriverTripsPage = lazy(() => import("./pages/driver/DriverTripsPage"));
 const DriverScanPage = lazy(() => import("./pages/driver/DriverScanPage"));
@@ -203,8 +204,9 @@ const App = () => (
                     <Route path="flights" element={<AdminComingSoonPage title="Flights" description="Arrival/departure flight schedule, airline coordination, airport transfer linking." />} />
                     <Route path="drivers-vehicles" element={<AdminComingSoonPage title="Drivers & Vehicles" description="Bus & vehicle fleet, driver roster, capacity, availability tracking." />} />
                     <Route path="agents" element={<AdminComingSoonPage title="Agents" description="Travel agents, commission tracking, due management, total bookings." />} />
+                    <Route path="invoices" element={<AdminInvoicesPage />} />
                     <Route path="invoices/:id" element={<AdminBilingualInvoicePage />} />
-                    <Route path="invoices" element={<AdminComingSoonPage title="Invoices" description="Open any booking and click the new Bilingual Invoice action to generate a SAR/BDT invoice with QR verification." />} />
+                    <Route path="invoices/service/:service/:id" element={<AdminServiceInvoicePage />} />
                     <Route path="message-templates" element={<AdminMessageTemplatesPage />} />
                     <Route path="operations" element={<AdminOperationsCenterPage />} />
                     <Route path="group-manifest" element={<AdminGroupManifestPage />} />
