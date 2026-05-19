@@ -1109,9 +1109,15 @@ export default function AdminPaymentsPage() {
             <DialogTitle className="font-heading">{editType === "moallem" ? "Edit Moallem Payment" : "Edit Supplier Payment"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            <div>
-              <label className="text-xs text-muted-foreground block mb-1">Amount (BDT) *</label>
-              <input className={inputClass} type="number" min={1} value={editForm.amount || ""} onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })} />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1">Amount (BDT) *</label>
+                <input className={inputClass} type="number" min={0} step="0.01" value={editForm.amount || ""} onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1">Amount (SAR)</label>
+                <input className={inputClass} type="number" min={0} step="0.01" value={editForm.amount_sar || ""} onChange={(e) => setEditForm({ ...editForm, amount_sar: e.target.value })} />
+              </div>
             </div>
             <div>
               <label className="text-xs text-muted-foreground block mb-1">Method</label>
