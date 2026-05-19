@@ -230,6 +230,7 @@ export default function AdminPaymentsPage() {
         const { error } = await apiClient.from("payments").insert({
           booking_id: addForm.booking_id, user_id: userId,
           customer_id: addForm.customer_id || null, amount: parseFloat(addForm.amount),
+          amount_sar: parseFloat(addForm.amount_sar || "0") || 0,
           payment_method: addForm.payment_method, transaction_id: addForm.transaction_id.trim() || null,
           status: "completed", paid_at: new Date(addForm.paid_date).toISOString(),
           due_date: addForm.paid_date, installment_number: maxInstallment + 1,
