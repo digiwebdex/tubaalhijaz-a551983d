@@ -141,7 +141,7 @@ export default function AdminPaymentsPage() {
   };
 
   const resetAddForm = () => {
-    setAddForm({ customer_id: "", booking_id: "", amount: "", payment_method: "cash", transaction_id: "", paid_date: new Date().toISOString().split("T")[0], notes: "", wallet_account_id: "", moallem_id: "", supplier_id: "", service_type: "" });
+    setAddForm({ customer_id: "", booking_id: "", amount: "", amount_sar: "", payment_method: "cash", transaction_id: "", paid_date: new Date().toISOString().split("T")[0], notes: "", wallet_account_id: "", moallem_id: "", supplier_id: "", service_type: "" });
     setSelectedBookingInfo(null);
     setBookingSearch("");
     setReceiptFile(null);
