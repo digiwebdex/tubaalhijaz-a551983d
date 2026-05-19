@@ -56,6 +56,7 @@ const AdminRefundsPage = lazy(() => import("./pages/admin/AdminRefundsPage"));
 const AdminAnalyticsPage = lazy(() => import("./pages/admin/AdminAnalyticsPage"));
 const AdminSeoPage = lazy(() => import("./pages/admin/AdminSeoPage"));
 const AdminPaymentMethodsPage = lazy(() => import("./pages/admin/AdminPaymentMethodsPage"));
+const AdminWalletsPage = lazy(() => import("./pages/admin/AdminWalletsPage"));
 const AdminTicketsPage = lazy(() => import("./pages/admin/AdminTicketsPage"));
 const AdminVisaPage = lazy(() => import("./pages/admin/AdminVisaPage"));
 const AdminTicketRefundsPage = lazy(() => import("./pages/admin/AdminTicketRefundsPage"));
@@ -182,6 +183,7 @@ const App = () => (
                     <Route path="cms" element={<AdminCmsPage />} />
                     <Route path="seo" element={<AdminSeoPage />} />
                     <Route path="payment-methods" element={<AdminPaymentMethodsPage />} />
+                    <Route path="wallets" element={<AdminWalletsPage />} />
                     <Route path="tickets" element={<AdminTicketsPage />} />
                     <Route path="visa" element={<AdminVisaPage />} />
                     <Route path="ticket-refunds" element={<AdminTicketRefundsPage />} />

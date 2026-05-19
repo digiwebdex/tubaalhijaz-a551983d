@@ -546,6 +546,8 @@ app.use('/api/expenses', createCrudRoutes('expenses', { adminOnly: true }));
 app.use('/api/transactions', createCrudRoutes('transactions', { adminOnly: true }));
 app.use('/api/profiles', createCrudRoutes('profiles', { adminOnly: true }));
 app.use('/api/accounts', createCrudRoutes('accounts', { adminOnly: true }));
+app.use('/api/wallet_transfers', createCrudRoutes('wallet_transfers', { adminOnly: true }));
+app.use('/api/wallet-transfers', createCrudRoutes('wallet_transfers', { adminOnly: true }));
 app.use('/api/moallems', createCrudRoutes('moallems', { adminOnly: true }));
 // Custom moallem_payments GET with JOINs
 app.get('/api/moallem-payments', authenticate, async (req, res) => {

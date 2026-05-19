@@ -16,26 +16,47 @@ export type Database = {
     Tables: {
       accounts: {
         Row: {
+          account_number: string | null
           balance: number
+          bank_name: string | null
+          category: string | null
           created_at: string
+          holder_name: string | null
           id: string
+          is_active: boolean
           name: string
+          notes: string | null
+          sort_order: number
           type: string
           updated_at: string
         }
         Insert: {
+          account_number?: string | null
           balance?: number
+          bank_name?: string | null
+          category?: string | null
           created_at?: string
+          holder_name?: string | null
           id?: string
+          is_active?: boolean
           name: string
+          notes?: string | null
+          sort_order?: number
           type: string
           updated_at?: string
         }
         Update: {
+          account_number?: string | null
           balance?: number
+          bank_name?: string | null
+          category?: string | null
           created_at?: string
+          holder_name?: string | null
           id?: string
+          is_active?: boolean
           name?: string
+          notes?: string | null
+          sort_order?: number
           type?: string
           updated_at?: string
         }
@@ -3803,6 +3824,57 @@ export type Database = {
           visa_type?: string
         }
         Relationships: []
+      }
+      wallet_transfers: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          from_account_id: string
+          id: string
+          notes: string | null
+          reference: string | null
+          to_account_id: string
+          transfer_date: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          from_account_id: string
+          id?: string
+          notes?: string | null
+          reference?: string | null
+          to_account_id: string
+          transfer_date?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          from_account_id?: string
+          id?: string
+          notes?: string | null
+          reference?: string | null
+          to_account_id?: string
+          transfer_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transfers_from_account_id_fkey"
+            columns: ["from_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transfers_to_account_id_fkey"
+            columns: ["to_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
