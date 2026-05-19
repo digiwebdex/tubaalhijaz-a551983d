@@ -391,36 +391,23 @@ export default function AdminPaymentsPage() {
   };
 
   // ============ Export ============
-  const exportRows = () =>
-    filteredPayments.map((p) => ({
-      date: (p.paid_at || p.created_at || "").slice(0, 10),
-      source: SOURCE_LABELS[(p.source_type as PaymentSourceType) || "booking"],
-      reference: p.source_id || p.booking_id || "",
-      method: p.payment_method,
-      bdt: Number(p.amount) || 0,
-      sar: Number(p.amount_sar) || 0,
-      status: p.status,
-      txn: p.transaction_id || "",
-      notes: p.notes || "",
-    }));
+  const exportColumns = ["Date", "Source", "Reference", "Method", "BDT", "SAR", "Status"];
+  const exportRows = (): (string | number)[][] =>
+    filteredPayments.map((p) => [
+      (p.paid_at || p.created_at || "").slice(0, 10),
+      SOURCE_LABELS[(p.source_type as PaymentSourceType) || "booking"],
+      String(p.source_id || p.booking_id || ""),
+      p.payment_method || "",
+      Number(p.amount) || 0,
+      Number(p.amount_sar) || 0,
+      p.status || "",
+    ]);
 
   const handlePDF = () =>
-    exportPDF({
-      title: "Payment Management",
-      columns: [
-        { header: "Date", dataKey: "date" },
-        { header: "Source", dataKey: "source" },
-        { header: "Reference", dataKey: "reference" },
-        { header: "Method", dataKey: "method" },
-        { header: "BDT", dataKey: "bdt" },
-        { header: "SAR", dataKey: "sar" },
-        { header: "Status", dataKey: "status" },
-      ],
-      rows: exportRows(),
-    });
+    exportPDF({ title: "Payment Management", columns: exportColumns, rows: exportRows() });
 
   const handleExcel = () =>
-    exportExcel({ filename: "payments", rows: exportRows() });
+    exportExcel({ title: "Payment Management", columns: exportColumns, rows: exportRows() });
 
   // ============ Render ============
   return (
