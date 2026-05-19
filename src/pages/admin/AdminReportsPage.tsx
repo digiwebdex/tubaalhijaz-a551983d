@@ -150,6 +150,15 @@ export default function AdminReportsPage() {
       }
     };
 
+    const fromIso = dateFrom ? `${dateFrom}T00:00:00` : null;
+    const toIso = dateTo ? `${dateTo}T23:59:59` : null;
+    const withRange = (q: any, col = "created_at") => {
+      let out = q;
+      if (fromIso) out = out.gte(col, fromIso);
+      if (toIso) out = out.lte(col, toIso);
+      return out;
+    };
+
     try {
       const [
         bRes,
@@ -159,44 +168,62 @@ export default function AdminReportsPage() {
         cRes,
         tvRes,
         toRes,
-        profRes,
         rateRes,
         labelRes,
       ] = await Promise.all([
-        safe(apiClient
+        safe(withRange(apiClient
           .from("bookings")
-          .select("id,tracking_id,guest_name,guest_phone,guest_email,user_id,total_amount,status,created_at,amount_bdt,amount_sar,fx_rate_sar_to_bdt,packages(name,type)")),
-        safe(apiClient
+          .select("id,tracking_id,guest_name,guest_phone,guest_email,user_id,total_amount,status,created_at,amount_bdt,amount_sar,fx_rate_sar_to_bdt,packages(name,type)"))),
+        safe(withRange(apiClient
           .from("payments")
-          .select("id,booking_id,user_id,customer_id,amount,status,paid_at,created_at,payment_method,notes,amount_bdt,amount_sar,fx_rate_sar_to_bdt")),
-        safe(apiClient
+          .select("id,booking_id,user_id,customer_id,amount,status,paid_at,created_at,payment_method,notes,amount_bdt,amount_sar,fx_rate_sar_to_bdt"))),
+        safe(withRange(apiClient
           .from("visa_applications")
-          .select("id,invoice_no,applicant_name,passport_number,client_reference,billing_amount,received_amount,customer_due,visa_status,status,application_date,created_at,amount_bdt,amount_sar,fx_rate_sar_to_bdt")),
-        safe(apiClient
+          .select("id,invoice_no,applicant_name,passport_number,client_reference,billing_amount,received_amount,customer_due,visa_status,status,application_date,created_at,amount_bdt,amount_sar,fx_rate_sar_to_bdt"))),
+        safe(withRange(apiClient
           .from("hotel_bookings")
-          .select("id,user_id,total_price,currency,status,created_at,amount_bdt,amount_sar,fx_rate_sar_to_bdt")),
-        safe(apiClient
+          .select("id,user_id,total_price,currency,status,created_at,amount_bdt,amount_sar,fx_rate_sar_to_bdt"))),
+        safe(withRange(apiClient
           .from("catering_orders")
-          .select("id,tracking_id,user_id,guest_name,guest_phone,guest_email,total_price,currency,status,created_at,amount_bdt,amount_sar,fx_rate_sar_to_bdt")),
-        safe(apiClient
+          .select("id,tracking_id,user_id,guest_name,guest_phone,guest_email,total_price,currency,status,created_at,amount_bdt,amount_sar,fx_rate_sar_to_bdt"))),
+        safe(withRange(apiClient
           .from("transport_voucher_orders")
-          .select("id,tracking_id,user_id,contact_name,contact_phone,contact_email,status,created_at,amount_bdt,amount_sar,fx_rate_sar_to_bdt")),
-        safe(apiClient
+          .select("id,tracking_id,user_id,contact_name,contact_phone,contact_email,status,created_at,amount_bdt,amount_sar,fx_rate_sar_to_bdt"))),
+        safe(withRange(apiClient
           .from("transport_orders")
-          .select("id,tracking_id,user_id,guest_name,guest_phone,guest_email,total_price,currency,status,created_at,amount_bdt,amount_sar,fx_rate_sar_to_bdt")),
-        safe(apiClient.from("profiles").select("user_id,full_name,phone,email")),
+          .select("id,tracking_id,user_id,guest_name,guest_phone,guest_email,total_price,currency,status,created_at,amount_bdt,amount_sar,fx_rate_sar_to_bdt"))),
         safe(apiClient.from("company_settings").select("setting_value").eq("setting_key", "currency_rate").maybeSingle()),
         safe(apiClient.from("company_settings").select("setting_value").eq("setting_key", "content_labels").maybeSingle()),
       ]);
 
-      setBookings(Array.isArray(bRes.data) ? bRes.data : []);
-      setPayments(Array.isArray(pRes.data) ? pRes.data : []);
-      setVisas(Array.isArray(vRes.data) ? vRes.data : []);
-      setHotels(Array.isArray(hRes.data) ? hRes.data : []);
-      setCatering(Array.isArray(cRes.data) ? cRes.data : []);
-      setTransportVouchers(Array.isArray(tvRes.data) ? tvRes.data : []);
-      setTransportOrders(Array.isArray(toRes.data) ? toRes.data : []);
-      setProfiles(Array.isArray(profRes.data) ? profRes.data : []);
+      const bData = Array.isArray(bRes.data) ? bRes.data : [];
+      const pData = Array.isArray(pRes.data) ? pRes.data : [];
+      const vData = Array.isArray(vRes.data) ? vRes.data : [];
+      const hData = Array.isArray(hRes.data) ? hRes.data : [];
+      const cData = Array.isArray(cRes.data) ? cRes.data : [];
+      const tvData = Array.isArray(tvRes.data) ? tvRes.data : [];
+      const toData = Array.isArray(toRes.data) ? toRes.data : [];
+
+      setBookings(bData);
+      setPayments(pData);
+      setVisas(vData);
+      setHotels(hData);
+      setCatering(cData);
+      setTransportVouchers(tvData);
+      setTransportOrders(toData);
+
+      // Only fetch profiles for users referenced in this date window
+      const userIds = Array.from(new Set(
+        [...bData, ...pData, ...hData, ...cData, ...tvData, ...toData]
+          .map((r: any) => r.user_id || r.customer_id)
+          .filter(Boolean)
+      ));
+      if (userIds.length > 0) {
+        const profRes = await safe(apiClient.from("profiles").select("user_id,full_name,phone,email").in("user_id", userIds));
+        setProfiles(Array.isArray(profRes.data) ? profRes.data : []);
+      } else {
+        setProfiles([]);
+      }
 
       const cfg = (rateRes.data as any)?.setting_value || {};
       const sarToBdt = asNum(cfg?.sar_to_bdt);
@@ -221,7 +248,8 @@ export default function AdminReportsPage() {
 
   useEffect(() => {
     fetchAll(false);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateFrom, dateTo]);
 
   const profileMap = useMemo(() => {
     const m = new Map<string, any>();
