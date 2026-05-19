@@ -161,9 +161,17 @@ export default function AdminTransportBookingPage() {
                       <Button size="sm" variant="ghost" title="View" onClick={() => setDetail(r)}>
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button size="sm" variant="ghost" title="Print / PDF" asChild>
+                      <Button size="sm" variant="ghost" title="Edit" onClick={() => setEditRow(r)}>
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" variant="ghost" title="Print" asChild>
                         <Link to={`/admin/transport-booking/${r.id}/invoice`} target="_blank">
                           <Printer className="w-4 h-4" />
+                        </Link>
+                      </Button>
+                      <Button size="sm" variant="ghost" title="Download PDF" asChild>
+                        <Link to={`/admin/transport-booking/${r.id}/invoice?download=1`} target="_blank">
+                          <Download className="w-4 h-4" />
                         </Link>
                       </Button>
                       {(r.status === "pending" || !r.status) && (
