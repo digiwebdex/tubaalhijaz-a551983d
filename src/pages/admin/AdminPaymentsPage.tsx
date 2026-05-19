@@ -9,7 +9,7 @@ import { useIsViewer, useCanModifyFinancials } from "@/components/admin/AdminLay
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import AdminActionMenu from "@/components/admin/AdminActionMenu";
 import CustomerSearchSelect from "@/components/admin/CustomerSearchSelect";
-import { formatBDT, formatTrackingId } from "@/lib/utils";
+import { formatBDT, formatSAR, formatTrackingId } from "@/lib/utils";
 
 const inputClass = "w-full bg-secondary border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40";
 
