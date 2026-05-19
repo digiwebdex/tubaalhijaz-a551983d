@@ -210,6 +210,19 @@ export default function AdminInvoicesPage() {
           )}
         </CardContent>
       </Card>
+
+      {tab === "booking" && (
+        <BookingDialog open={createOpen} onOpenChange={setCreateOpen} packageId={null as any} />
+      )}
+      {tab === "visa" && (
+        <VisaOrderDialog open={createOpen} onOpenChange={setCreateOpen} />
+      )}
+      {tab === "catering" && (
+        <CateringOrderDialog open={createOpen} onOpenChange={setCreateOpen} plan={null as any} />
+      )}
+      {tab === "transport" && (
+        <TransportOrderDialog open={createOpen} onOpenChange={setCreateOpen} service={null as any} />
+      )}
     </div>
   );
 }
