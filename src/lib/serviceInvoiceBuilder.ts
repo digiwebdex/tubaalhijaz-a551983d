@@ -4,6 +4,7 @@ import type { BilingualInvoiceData } from "@/components/admin/BilingualInvoicePd
 export type InvoiceServiceType = "booking" | "visa" | "hotel" | "catering" | "transport";
 
 const asNum = (v: any) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+const round2 = (n: number) => Math.round(n * 100) / 100;
 
 async function getSarRate() {
   const { data } = await apiClient
@@ -17,8 +18,44 @@ async function getSarRate() {
   return rate > 0 ? rate : 30;
 }
 
-function toBdt(total: number, currency: string | null | undefined, sarRate: number) {
-  return String(currency || "BDT").toUpperCase() === "SAR" ? total * sarRate : total;
+function deriveDualTotal({
+  total,
+  amountBdt,
+  amountSar,
+  currency,
+  sarRate,
+}: {
+  total?: any;
+  amountBdt?: any;
+  amountSar?: any;
+  currency?: string | null | undefined;
+  sarRate: number;
+}) {
+  let bdt = asNum(amountBdt);
+  let sar = asNum(amountSar);
+  const base = asNum(total);
+  const curr = String(currency || "BDT").toUpperCase();
+
+  if (bdt <= 0 && base > 0 && curr !== "SAR") bdt = base;
+  if (sar <= 0 && base > 0 && curr === "SAR") sar = base;
+
+  if (bdt <= 0 && sar > 0) bdt = sar * sarRate;
+  if (sar <= 0 && bdt > 0) sar = bdt / Math.max(sarRate, 0.0001);
+
+  return { bdt: round2(bdt), sar: round2(sar) };
+}
+
+async function fetchTransportRecord(id: string) {
+  const voucher = await apiClient.from("transport_voucher_orders").select("*").eq("id", id).maybeSingle();
+  if (voucher.data) return { source: "voucher", row: voucher.data as any };
+
+  const modernOrder = await apiClient.from("transport_orders").select("*").eq("id", id).maybeSingle();
+  if (modernOrder.data) return { source: "order", row: modernOrder.data as any };
+
+  const legacyBooking = await apiClient.from("transport_bookings").select("*").eq("id", id).maybeSingle();
+  if (legacyBooking.data) return { source: "legacy", row: legacyBooking.data as any };
+
+  return null;
 }
 
 export async function buildServiceInvoiceData(service: InvoiceServiceType, id: string): Promise<BilingualInvoiceData | null> {
@@ -35,6 +72,14 @@ export async function buildServiceInvoiceData(service: InvoiceServiceType, id: s
         : Promise.resolve({ data: null }),
     ]);
 
+    const total = deriveDualTotal({
+      total: booking.total_amount,
+      amountBdt: booking.amount_bdt,
+      amountSar: booking.amount_sar,
+      sarRate,
+      currency: "BDT",
+    });
+
     return {
       invoice_no: booking.tracking_id || `INV-${String(booking.id).slice(0, 8).toUpperCase()}`,
       issued_at: booking.created_at,
@@ -46,11 +91,11 @@ export async function buildServiceInvoiceData(service: InvoiceServiceType, id: s
       package_name: pkg?.name || "Umrah Service",
       package_name_ar: "الخدمة",
       num_travelers: booking.num_travelers || 1,
-      subtotal: asNum(booking.total_amount) + asNum(booking.discount),
+      subtotal: asNum(booking.subtotal_amount || total.bdt + asNum(booking.discount)),
       discount: asNum(booking.discount),
-      total: asNum(booking.total_amount),
+      total: total.bdt,
       paid: asNum(booking.paid_amount),
-      due: asNum(booking.due_amount),
+      due: asNum(booking.due_amount || Math.max(total.bdt - asNum(booking.paid_amount), 0)),
       sar_rate: sarRate,
       notes: booking.notes,
     };
@@ -60,6 +105,14 @@ export async function buildServiceInvoiceData(service: InvoiceServiceType, id: s
     const { data: row } = await apiClient.from("visa_applications").select("*").eq("id", id).single();
     if (!row) return null;
 
+    const total = deriveDualTotal({
+      total: row.billing_amount,
+      amountBdt: row.amount_bdt,
+      amountSar: row.amount_sar,
+      sarRate,
+      currency: "BDT",
+    });
+
     return {
       invoice_no: row.invoice_no || `VISA-${String(row.id).slice(0, 8).toUpperCase()}`,
       issued_at: row.application_date,
@@ -67,11 +120,11 @@ export async function buildServiceInvoiceData(service: InvoiceServiceType, id: s
       customer_phone: row.client_reference || "",
       package_name: `Visa - ${row.country_name}`,
       package_name_ar: "خدمة التأشيرة",
-      subtotal: asNum(row.billing_amount),
+      subtotal: total.bdt,
       discount: 0,
-      total: asNum(row.billing_amount),
+      total: total.bdt,
       paid: asNum(row.received_amount),
-      due: asNum(row.customer_due),
+      due: asNum(row.customer_due || Math.max(total.bdt - asNum(row.received_amount), 0)),
       sar_rate: sarRate,
       notes: row.remarks,
       items: [
@@ -79,7 +132,7 @@ export async function buildServiceInvoiceData(service: InvoiceServiceType, id: s
           description_en: `Visa Processing (${row.country_name})`,
           description_ar: "معالجة التأشيرة",
           qty: 1,
-          unit_price: asNum(row.billing_amount),
+          unit_price: total.bdt,
         },
       ],
     };
@@ -93,8 +146,15 @@ export async function buildServiceInvoiceData(service: InvoiceServiceType, id: s
       ? await apiClient.from("catering_packages").select("name").eq("id", row.package_id).maybeSingle()
       : { data: null };
 
-    const totalBdt = toBdt(asNum(row.total_price), row.currency, sarRate);
-    const perMeal = row.persons && row.days ? totalBdt / (row.persons * row.days) : totalBdt;
+    const total = deriveDualTotal({
+      total: row.total_price,
+      amountBdt: row.amount_bdt,
+      amountSar: row.amount_sar,
+      currency: row.currency,
+      sarRate,
+    });
+
+    const perMeal = row.persons && row.days ? total.bdt / (row.persons * row.days) : total.bdt;
 
     return {
       invoice_no: row.tracking_id || `CAT-${String(row.id).slice(0, 8).toUpperCase()}`,
@@ -105,11 +165,11 @@ export async function buildServiceInvoiceData(service: InvoiceServiceType, id: s
       customer_address: row.delivery_address,
       package_name: pkg?.name || "Catering Service",
       package_name_ar: "خدمة التموين",
-      subtotal: totalBdt,
+      subtotal: total.bdt,
       discount: 0,
-      total: totalBdt,
+      total: total.bdt,
       paid: 0,
-      due: totalBdt,
+      due: total.bdt,
       sar_rate: sarRate,
       notes: row.notes,
       items: [
@@ -133,7 +193,13 @@ export async function buildServiceInvoiceData(service: InvoiceServiceType, id: s
       row.user_id ? apiClient.from("profiles").select("full_name,phone,email,address").eq("user_id", row.user_id).maybeSingle() : Promise.resolve({ data: null }),
     ]);
 
-    const totalBdt = asNum(row.total_price);
+    const total = deriveDualTotal({
+      total: row.total_price,
+      amountBdt: row.amount_bdt,
+      amountSar: row.amount_sar,
+      currency: row.currency,
+      sarRate,
+    });
 
     return {
       invoice_no: `HOT-${String(row.id).slice(0, 8).toUpperCase()}`,
@@ -144,11 +210,11 @@ export async function buildServiceInvoiceData(service: InvoiceServiceType, id: s
       customer_address: profile?.address,
       package_name: `${hotel?.name || "Hotel"} - ${room?.name || "Room"}`,
       package_name_ar: "حجز الفندق",
-      subtotal: totalBdt,
+      subtotal: total.bdt,
       discount: 0,
-      total: totalBdt,
+      total: total.bdt,
       paid: 0,
-      due: totalBdt,
+      due: total.bdt,
       sar_rate: sarRate,
       notes: row.notes,
       items: [
@@ -156,39 +222,52 @@ export async function buildServiceInvoiceData(service: InvoiceServiceType, id: s
           description_en: `Hotel Stay (${hotel?.location || ""})`,
           description_ar: "الإقامة",
           qty: Math.max(1, asNum(row.guests)),
-          unit_price: totalBdt / Math.max(1, asNum(row.guests)),
+          unit_price: total.bdt / Math.max(1, asNum(row.guests)),
         },
       ],
     };
   }
 
   if (service === "transport") {
-    const { data: row } = await apiClient.from("transport_orders").select("*").eq("id", id).single();
-    if (!row) return null;
+    const record = await fetchTransportRecord(id);
+    if (!record) return null;
 
-    const totalBdt = toBdt(asNum(row.total_price), row.currency, sarRate);
+    const row = record.row;
+    const total = deriveDualTotal({
+      total: row.total_price,
+      amountBdt: row.amount_bdt,
+      amountSar: row.amount_sar,
+      currency: row.currency,
+      sarRate,
+    });
+
+    const customerName = row.guest_name || row.contact_name || "Transport Customer";
+    const customerPhone = row.guest_phone || row.contact_phone || "";
+    const customerEmail = row.guest_email || row.contact_email || "";
+    const routeLabel = `${row.route_from || row.pickup_location || ""} to ${row.route_to || row.dropoff_location || ""}`.trim();
+    const pax = Math.max(1, asNum(row.passengers || row.pilgrim_count || 1));
 
     return {
       invoice_no: row.tracking_id || `TRN-${String(row.id).slice(0, 8).toUpperCase()}`,
       issued_at: row.created_at,
-      customer_name: row.guest_name,
-      customer_phone: row.guest_phone,
-      customer_email: row.guest_email,
-      package_name: `${row.route_from || ""} to ${row.route_to || ""}`.trim() || "Transport Service",
+      customer_name: customerName,
+      customer_phone: customerPhone,
+      customer_email: customerEmail,
+      package_name: routeLabel || "Transport Service",
       package_name_ar: "خدمة النقل",
-      subtotal: totalBdt,
+      subtotal: total.bdt,
       discount: 0,
-      total: totalBdt,
+      total: total.bdt,
       paid: 0,
-      due: totalBdt,
+      due: total.bdt,
       sar_rate: sarRate,
       notes: row.notes,
       items: [
         {
-          description_en: `Transport (${row.vehicle_type || "Vehicle"})`,
+          description_en: `Transport (${row.vehicle_type || row.transport_type || "Vehicle"})`,
           description_ar: "النقل",
-          qty: Math.max(1, asNum(row.passengers)),
-          unit_price: totalBdt / Math.max(1, asNum(row.passengers)),
+          qty: pax,
+          unit_price: total.bdt / pax,
         },
       ],
     };
