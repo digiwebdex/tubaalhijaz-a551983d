@@ -183,6 +183,7 @@ const App = () => (
                     <Route path="cms" element={<AdminCmsPage />} />
                     <Route path="seo" element={<AdminSeoPage />} />
                     <Route path="payment-methods" element={<AdminPaymentMethodsPage />} />
+                    <Route path="wallets" element={<AdminWalletsPage />} />
                     <Route path="tickets" element={<AdminTicketsPage />} />
                     <Route path="visa" element={<AdminVisaPage />} />
                     <Route path="ticket-refunds" element={<AdminTicketRefundsPage />} />
