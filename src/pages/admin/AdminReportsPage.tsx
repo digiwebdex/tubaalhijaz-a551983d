@@ -668,7 +668,11 @@ export default function AdminReportsPage() {
     return customerOptions.find((c) => c.id === selectedCustomer)?.label || "Customer";
   }, [selectedCustomer, customerOptions]);
 
-  const downloadPdf = () => {
+  const downloadPdf = async () => {
+    const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]);
     const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
 
     doc.setFontSize(14);
